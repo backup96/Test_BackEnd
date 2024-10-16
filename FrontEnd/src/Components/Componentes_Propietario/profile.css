@@ -1,0 +1,131 @@
+.profile-container {
+    background-color: #f8f9fa; 
+    padding: 20px;
+    border-radius: 20px; 
+    border: 1px solid #007bff;
+    max-width: 800px;
+    margin: 100px auto; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    text-align: center; 
+}
+
+.profile-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px; 
+    color: #007bff; 
+    font-weight: bold; 
+}
+
+.profile-info {
+    padding: 10px; 
+}
+
+
+
+.profile-info p strong {
+    font-weight: bold;
+    color: #212529; 
+}
+
+.profile-info .profile-parkings {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los elementos dentro de la columna */
+}
+
+.profile-info .profile-parkings div {
+    margin: 5px 0; /* Espaciado entre las líneas */
+}
+
+.edit-icon {
+    color: #007bff; /* Color azul del ícono */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
+    font-size: 20px; /* Tamaño del ícono */
+    margin-left: 10px; /* Espaciado entre el texto y el ícono */
+    transition: color 0.3s; /* Transición suave para el cambio de color */
+}
+
+.edit-icon:hover {
+    color: #0056b3; /* Azul más oscuro para hover */
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-secondary {
+    background-color: #007bff; /* Azul de fondo */
+    color: #ffffff; /* Texto blanco */
+    border: 1px solid #007bff; 
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center; 
+    font-size: 16px;
+}
+
+.btn-secondary:hover {
+    background-color: #0056b3; /* Azul más oscuro para hover */
+    color: #ffffff; 
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 20px; 
+        padding: 15px; 
+    }
+
+    .profile-title {
+        font-size: 20px; 
+    }
+
+    .profile-info p {
+        font-size: 14px; /* Tamaño de fuente ajustado para dispositivos móviles */
+    }
+
+    .btn-secondary {
+        font-size: 14px; /* Tamaño de fuente ajustado para dispositivos móviles */
+        padding: 8px 16px; /* Ajuste del padding para dispositivos móviles */
+    }
+}
+
+.cards-container {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente los cards */
+    flex-wrap: wrap; /* Permite que los cards se ajusten en varias filas si no caben en una sola */
+    gap: 20px; /* Añade espacio entre los cards */
+    margin: 0 auto; /* Centra el contenedor en la página */
+    background-color: #333;
+  }
+  .card-perfil {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 250px;
+    padding: 16px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin: 20px auto;
+    justify-content: center;
+  }
+  
+  .card img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+  }
+  
+  .card h1 {
+    color: #000;
+    font-size: 18px;
+    margin: 8px 0;
+  }
+  
+  .card p {
+    color: #666; /* Estilo para el color del texto en el p dentro del card */
+    font-size: 14px;
+  }

@@ -1,0 +1,290 @@
+.home {
+    font-family: Arial, sans-serif;
+  }
+  
+  .header {
+    background-color: #333;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 5px solid #28a745;
+  }
+  
+  .header-logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo-img {
+    height: 50px;
+    margin-right: 15px;
+    background: #fff;
+    border-radius: 5px;
+  }
+  
+  .header h1 {
+    font-size: 24px;
+    margin: 0;
+    color: #fff;
+  }
+  
+ 
+  
+  
+  .welcome-content {
+    text-align: center;
+    color: #fff;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+    border-radius: 10px;
+  }
+  
+  .welcome-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+  }
+  
+  .btn-owner {
+    background-color: #28a745;
+  }
+  
+  .btn-admin {
+    background-color: #dc3545;
+  }
+  
+  .btn-porter {
+    background-color: #007bff;
+  }
+  
+/* Estilos para la sección de bienvenida */
+.welcome-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px;
+    padding-left: 100px;
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .welcome-text {
+    flex: 1;
+    margin-right: 20px;
+    max-width: 50%;
+  }
+  
+  .welcome-text h2 {
+    margin-top: 0;
+  }
+  
+  .welcome-text p {
+    margin: 10px 0;
+  }
+  
+  .contact-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+  }
+  
+  .contact-btn:hover {
+    background-color: #fff;
+    color: #dc3545;
+  }
+  
+  .welcome-collage {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .collage-img {
+    max-width: 1000px;
+    height: 200px;
+    border-radius: 10px;
+    background: #fff;
+  }
+  
+  
+  .footer {
+    background-color: #333;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #ddd;
+    padding-left: 15%;
+    padding-right: 15%;
+    border-top: solid 5px #007bff;
+  }
+  
+  .footer-contact {
+    max-width: 50%;
+  }
+  
+  .footer-contact h3 {
+    margin-bottom: 10px;
+    color: #fff;
+  }
+  
+  .footer-contact ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .footer-contact li {
+    margin-bottom: 5px;
+    color: #fff;
+  }
+  
+  .footer-map {
+    max-width: 150%;
+  }
+  
+  .footer-map iframe {
+    width: 100%;
+    height: auto;
+  }
+.footer-map h3 {
+    color: #fff;
+}
+
+.cards-container {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente los cards */
+  flex-wrap: wrap; /* Permite que los cards se ajusten en varias filas si no caben en una sola */
+  gap: 20px; /* Añade espacio entre los cards */
+  margin: 0 auto; /* Centra el contenedor en la página */
+  background-color:#333;
+}
+
+.card-perfil {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 250px;
+  padding: 16px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  margin: 20px auto;
+  justify-content: center;
+}
+
+.card-perfil img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+}
+
+.card-perfil h1 {
+  color: #000;
+  font-size: 18px;
+  margin: 8px 0;
+}
+
+.card-perfil h2 {
+  color: #000;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.card-perfil p {
+  color: #666; /* Estilo para el color del texto en el p dentro del card */
+  font-size: 14px;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: none;
+}
+
+.modal.show {
+  display: block;
+}
+
+.modal-content {
+  background-color: white;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.carousel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.carousel-image {
+  width: 100%;
+  border-radius: 10px;
+  height: 500px;
+}
+
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.carousel-control.prev {
+  left: 0px;
+}
+
+.carousel-control.next {
+  right: 0px;
+}

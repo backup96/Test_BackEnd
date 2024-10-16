@@ -1,0 +1,148 @@
+.login-page {
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      
+      /* AJUSTES CONTENEDOR DONDE ESTA EL LOGO */
+      .login-box {
+        width: 1100px; /* PARA AJUSTAR ANCHO DE LA CAJA */
+        margin-left: 200px;
+        margin-right: 200px;
+        padding: 20px;
+       
+      }
+      /* AJUSTES  LOGO */
+      .login-logo {
+        margin-bottom: 2px; /* AUMENTA LA MARGEN DONDE ESTA EL LOGO */
+        margin-top: 2px; 
+      }
+      
+      /* TAMAÑO DEL LOGO */
+      .logo {
+        width: 70px; 
+      }
+      
+      .card {
+        padding: 25px; 
+      }
+      
+    
+      /* AJUSTES DE LETRA DENTRO DE CONTENEDOR */
+      .login-box-msg {
+        font-size: 24px;
+      }
+      
+      a {
+        color: #28a745;
+      }
+      
+      /* AJUSTA MARGEN INFERIOR DE CAMPOS */
+      .input-group {
+        margin-bottom: 15px;
+        border: 1px solid #000000; 
+      }
+      
+      .card-body {
+        text-align: center; 
+      }
+      
+      /* ALINEA A LA IZQUIERDA "RECUERDAME" */
+      .icheck-primary {
+        text-align: left; 
+      }
+      
+      /* AJUSTES DE BOTON
+      .btn-success {
+        width: 100%;
+        margin-top: 15px; 
+        height: 40px; 
+        font-size: 16px; 
+      } */
+      
+      /*AJUSTE DE TIPOS DE INGRESO DE CUENTA */
+      .hr-line {
+        border: none;
+        border-top: 1px solid #000;
+        margin: 10px 0;
+      }
+    
+      /* Estilos para el checkbox circular */
+    .icheck-primary input[type="checkbox"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 15px;
+        height: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 50%; /* Hace que el checkbox sea circular */
+        outline: none;
+        cursor: pointer;
+        position: relative;
+        background-color: #fff;
+      }
+      
+      .icheck-primary input[type="checkbox"]:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+      
+    /* AJUSTES DE ICONO CIRCULAR */
+      .icheck-primary input[type="checkbox"]:checked::before {
+        width: 8px;
+        height: 8px;
+        background-color: #fff;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+      }
+
+
+
+
+
+/* ESTILOS LOGIN PORTERO */
+case portero .login-box-msg {
+  color: #100746c2;
+}
+
+.login-portero .login-box-msg {
+  color: #0e9af7;
+}
+.login-portero span{
+  color: #0e9af7;
+}
+
+case portero .icheck-primary input[type="checkbox"]:checked {
+  background-color: #100746c2;
+  border-color: #151516;
+}
+
+.login-portero .btn-success {
+  background-color: #100746c2;
+}
+
+.login-portero a {
+  color: #310ef7;
+}
+    
+/*ESTILOS LOGIN ADMINISTRADOR */
+.login-administrador .login-box-msg {
+  color: #fa0000dc;
+}
+
+.login-administrador .icheck-primary input[type="checkbox"]:checked {
+  background-color: #ec2424d2;
+  border-color: #151516;
+}
+
+.login-administrador .btn-success {
+  background-color: #f80202;
+}
+
+.login-administrador a {
+  color: #f36060de;
+}
+.login-administrador span{
+  color: #fa0000dc;
+}

@@ -1,0 +1,99 @@
+.container {
+    padding: 0 2rem;
+  }
+  
+  .details-container {
+    margin-top: 2rem;
+  }
+  
+  .card {
+    margin-bottom: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .countdown-section {
+    margin-top: 2rem;
+  }
+  
+  .input-group-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .input-group {
+    flex: 1;
+  }
+  
+  .time-input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+  }
+  
+  .countdown-controls {
+    display: flex;
+    gap: 5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .control-icon {
+    font-size: 50px; /* Tamaño aumentado */
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .pause-icon.paused {
+    color: #28a745; /* Color para el ícono de pausa cuando está pausado */
+  }
+
+  .control-icon:hover {
+    color: #007bff;
+  }
+  
+  .start-icon {
+    color: #28a745;
+  }
+  
+  .pause-icon {
+    color: #ffc107;
+  }
+  
+  .stop-icon {
+    color: #dc3545;
+  }
+  
+  .reset-icon {
+    color: #6c757d; /* Color para el ícono de reinicio */
+  }
+
+  .countdown-display {
+    text-align: center;
+  }
+  
+  .countdown-display p {
+    font-size: 100px;
+  }
+  
+  .countdown-time {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .loading {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  .headerr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }

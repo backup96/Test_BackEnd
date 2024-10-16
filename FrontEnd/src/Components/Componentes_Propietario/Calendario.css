@@ -1,0 +1,200 @@
+
+.react-calendar {
+  width: 100%;
+  max-width: 1000px;
+  margin: 60px auto;
+  overflow: auto;
+  border: 1px solid #007bff; /* Añade borde para definir el calendario */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave para un efecto flotante */
+}
+
+/* Encabezado del Calendario */
+.calendario-header {
+  text-align: center;
+  font-size: 2.3rem;
+  margin-bottom: 5rem;
+  margin: 20px auto;
+  color: #000000; /* Color del texto */
+}
+
+/* Indicadores de Reservas */
+.indicator {
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  margin: 2px auto;
+}
+
+.indicator.green {
+  background-color: rgb(55, 221, 91);
+}
+
+.indicator.red {
+  background-color: red;
+}
+
+/* Modal de Reservas */
+/* Calendario.css */
+
+/* Estilos para el contenedor principal del calendario */
+.calendario-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Estilos para el encabezado del calendario */
+.calendario-header {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #000000; /* Azul oscuro */
+}
+
+/* Estilos para la alerta */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  z-index: 1000;
+}
+
+/* Estilos para el modal */
+/* Calendario.css */
+
+/* Estilos para el contenedor principal del calendario */
+.calendario-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9; /* Fondo claro */
+  border-radius: 15px;
+  border: 1px solid #2d83da; /* Azul oscuro */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para el encabezado del calendario */
+.calendario-header {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #000000; /* Azul oscuro */
+}
+
+/* Estilos para la alerta */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  z-index: 1000;
+  border-radius: 8px;
+  border: 1px solid #003366; /* Azul oscuro */
+}
+
+/* Estilos para el modal */
+.custom-modal .modal-content {
+  border-radius: 8px;
+  border: 1px solid #003366; /* Azul oscuro */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-modal-title {
+  color: #000000; /* Azul oscuro */
+  font-weight: bold;
+}
+
+/* Estilos para el botón del modal */
+.custom-modal .btn-primary {
+  background-color: #007bff; /* Azul oscuro */
+  border: 1px solid #296eb3; /* Azul oscuro */
+  color: white;
+}
+
+.custom-modal .btn-primary:hover {
+  background-color: #002244; /* Azul más oscuro */
+  border-color: #002244; /* Azul más oscuro */
+}
+
+/* Estilos para los indicadores en el calendario */
+.indicator {
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  margin: 2px auto;
+}
+
+.indicator.green {
+  background-color: #00cc99; /* Verde menta */
+}
+
+.indicator.red {
+  background-color: #ff6666; /* Rojo claro */
+}
+
+/* Estilos para el overlay del modal */
+.calendario-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Estilos para el contenido del modal */
+.calendario-modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #003366; /* Azul oscuro */
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para los campos del formulario */
+.form-group label {
+  color: #003366; /* Azul oscuro */
+}
+
+.form-group input,
+.form-group textarea {
+  border: 1px solid #003366; /* Azul oscuro */
+  border-radius: 4px;
+  padding: 0.5rem;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #00509e; /* Azul medio */
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 80, 158, 0.2); /* Azul claro */
+}
+
+/* Estilos para el botón de confirmación */
+.modal-buttons button {
+  border-radius: 4px;
+  border: 1px solid #003366; /* Azul oscuro */
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.modal-buttons button[type="submit"] {
+  background-color: #003366; /* Azul oscuro */
+  color: white;
+}
+
+.modal-buttons button[type="submit"]:hover {
+  background-color: #002244; /* Azul más oscuro */
+}
+
+.modal-buttons button[type="button"] {
+  background-color: #f1f1f1; /* Fondo claro */
+  color: #003366; /* Azul oscuro */
+}
+
+.modal-buttons button[type="button"]:hover {
+  background-color: #e0e0e0; /* Fondo más oscuro */
+}
