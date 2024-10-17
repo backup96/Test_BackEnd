@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Logins.css";
@@ -21,7 +21,7 @@ const RegisterPropietario = () => {
     Nombre: "",
     Apellido: "",
     NumeroDocumento: 0,
-    Teléfono: 0,
+    Tel: 0,
     Correo: "",
     CodigoVivienda: 0,
     Archivo: "",
@@ -29,20 +29,51 @@ const RegisterPropietario = () => {
 
   const [errors, setError] = useState({});
 
+  const [data, setDatos] = useState([]);
+
+  useEffect(() => {
+    async function fetchApartamentos() {
+      try {
+        const response = await axios.get(`http://localhost:8081/Apartamentos`);
+        setDatos(response.data);
+        if (response.data.length === 0) {
+          setDatos([]);
+        }
+      } catch (error) {
+        console.error("Error al obtener los apartamentos:", error);
+      }
+    }
+
+    fetchApartamentos();
+  }, []);
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const validationErrors = ValidationReg(values);
+    const validationErrors = ValidationReg(values, data);
     setError(validationErrors);
-    console.log(values.Archivo);
     if (
       Object.keys(validationErrors).length === 1 &&
       validationErrors.Valid === "valid"
     ) {
+      // Crear un objeto FormData para enviar los datos incluyendo el archivo
       const formData = new FormData();
-      formData.append("image", values.Archivo); // 'image' es el nombre del campo esperado por ImgBB
 
+      // Agregar los datos del formulario al FormData
+      formData.append("Nombre", values.Nombre);
+      formData.append("Apellido", values.Apellido);
+      formData.append("NumeroDocumento", values.NumeroDocumento);
+      formData.append("Tel", values.Tel);
+      formData.append("Correo", values.Correo);
+      formData.append("CodigoVivienda", values.CodigoVivienda);
+
+      // Agregar el archivo al FormData
+      formData.append("Archivo", values.Archivo);
       axios
-        .post("http://localhost:8081/register", values)
+        .post("http://localhost:8081/register", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data", // Header que indica el envio de datos planos y Archivos
+          },
+        })
         .then((res) => {
           if (res.status === 200) {
             toast.success("Solicitud enviada correctamente");
@@ -65,10 +96,14 @@ const RegisterPropietario = () => {
   const defFile = (e) => {
     const file = e.target.files[0];
     setValues({ ...values, Archivo: file });
-    setFileName(file.name);
+    if (file) {
+      setFileName(file.name);
+    } else {
+      setFileName(
+        "Adjuntar Foto del Contrato de Propiedad o Certificado de Tradición y Libertad"
+      );
+    }
   };
-
-
 
   return (
     <div
@@ -152,11 +187,11 @@ const RegisterPropietario = () => {
                     placeholder="Número Telefónico"
                     name="Tel"
                     onChange={(e) =>
-                      setValues({ ...values, Teléfono: e.target.value })
+                      setValues({ ...values, Tel: e.target.value })
                     }
                   />
-                  {errors.Teléfono && (
-                    <span className="text-danger">{errors.Teléfono}</span>
+                  {errors.Tel && (
+                    <span className="text-danger">{errors.Tel}</span>
                   )}
                 </div>
               </div>
@@ -215,6 +250,7 @@ const RegisterPropietario = () => {
                       aria-describedby="inputGroupFileAddon04"
                       aria-label="Upload"
                       onChange={(e) => defFile(e)}
+                      accept="application/pdf"
                       hidden
                     />
                   </button>

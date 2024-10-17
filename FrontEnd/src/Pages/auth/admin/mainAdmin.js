@@ -7,13 +7,13 @@ import { useUser } from "../../../userContext";
 
 /* Componente de clase MainAdmin */
 export function MainAdmin() {
-  const { user } = useUser();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!user) {
-      navigate("/LoginAdministrador");
-    }
-  });
+  // const { user } = useUser();
+  // const navigate = useNavigate();
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate("/LoginAdministrador");
+  //   }
+  // });
     return (
     <>
       <NavBar /> 

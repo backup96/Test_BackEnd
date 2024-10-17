@@ -7,54 +7,37 @@ import myImg from "../../../img/logo2.png";
 import { useUser } from "../../../userContext";
 import Fondo1 from "../../../img/fondo1.png"; /* Importación de la imagen de fondo */
 import Validation from "./Validation";
+import { ToastContainer, toast } from "react-toastify";
 
 const LoginAdministrador = () => {
-  const [Username, setUsername] = useState("");
-  const [Password, setPassword] = useState("");
-  const { setUser: setContextUser } = useUser();
-  const [showAlert, setShowAlert] = useState(false);
-  const navigate = useNavigate();
-
   const [values, setValues] = useState({
-    name: "",
-    password: "",
+    Usuario: "",
+    Pass: "",
   });
 
-  const [errors, setError] = useState({})
+  const [errors, setError] = useState({});
 
-  const handleInput = (event) => {
-    setValues(prev => ({...prev, [event.target.name]: [event.target.value]}))
-  }
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setError(Validation(values));
-  }
-
-  const enviar = async (e) => {
-    e.preventDefault();
-
-    try {
-      // Solicitud GET para obtener los datos del usuario
-      const response = await axios.get(
-        `http://localhost:4000/Administrador?User=${Username}`
-      );
-
-      if (response.data.length > 0) {
-        const usuario = response.data[0];
-
-        if (usuario.Pass === Password) {
-          setContextUser(usuario); // Actualizar el contexto con el usuario
-          navigate("/MainAdmin");
-        } else {
-          setShowAlert("pass");
-        }
-      } else {
-        setShowAlert("user");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al intentar iniciar sesión");
+    const validationErrors = Validation(values);
+    setError(validationErrors);
+    console.log(errors)
+    if (
+      Object.keys(validationErrors).length === 1 &&
+      validationErrors.Valid === "valid"
+    ) {
+      axios
+        .post("http://localhost:8081/login", values)
+        .then((res) => {
+          if (res.status === 200) {
+            navigate("/MainAdmin");
+          } else {
+            toast.error("Ocurrio un error al intentar iniciar sesión");
+          }
+        })
+        .catch((err) => console.log(err));
     }
   };
 
@@ -73,23 +56,7 @@ const LoginAdministrador = () => {
           filter: "brightness(90%)", // Oscurecer la imagen de fondo
         }}
       >
-        {showAlert === "pass" ? (
-          <div
-            className="alert alert-warning alert-dismissible fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Contraseña incorrecta
-          </div>
-        ) : showAlert === "user" ? (
-          <div
-            className="alert alert-warning alert-dismissible fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Usuario no encontrado
-          </div>
-        ) : null}
+        <ToastContainer />
 
         <div className="login-box rounded-4 p-5 bg-white w-50">
           <div className="login-logo d-flex flex-column align-items-center">
@@ -121,10 +88,12 @@ const LoginAdministrador = () => {
                     type="text"
                     className="form-control"
                     name="name"
-                    onChange={handleInput}
+                    onChange={(e) =>
+                      setValues({ ...values, Usuario: e.target.value })
+                    }
                   />
-                  {errors.name && (
-                    <span className="text-danger">{errors.name}</span>
+                  {errors.Usuario && (
+                    <span className="text-danger">{errors.Usuario}</span>
                   )}
                 </div>
                 <div className="w-50">
@@ -136,10 +105,12 @@ const LoginAdministrador = () => {
                     type="password"
                     className="form-control"
                     name="password"
-                    onChange={handleInput}
+                    onChange={(e) =>
+                      setValues({ ...values, Pass: e.target.value })
+                    }
                   />
-                  {errors.password && (
-                    <span className="text-danger">{errors.password}</span>
+                  {errors.Pass && (
+                    <span className="text-danger">{errors.Pass}</span>
                   )}
                 </div>
               </div>

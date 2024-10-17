@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const Solicitudes = ({ currentRecords, length }) => {
   const [data, setDatos] = useState({
@@ -11,88 +12,46 @@ const Solicitudes = ({ currentRecords, length }) => {
     NumeroDocumento: "",
     MesesAtrasados: 0,
     EspacioParqueadero: 0,
-    User: "",
     Pass: "",
-    id: "",
   });
-  const [status, setStatus] = useState("");
 
-  const enviar = async (e) => {
-    e.preventDefault();
-
-    try {
-      // Solicitud GET para obtener los datos del usuario
-      const response1 = await axios.post(`http://localhost:4000/Propietarios`, {
-        CodigoVivienda: data.CodigoVivienda,
-        Nombre: `${data.Nombre} ${data.Apellido}`,
-        Teléfono: data.Teléfono,
-        Correo: data.Correo,
-        NumeroDocumento: data.NumeroDocumento,
-        MesesAtrasados: data.MesesAtrasados,
-        EspacioParqueadero: data.EspacioParqueadero,
-        User: data.User,
-        Pass: data.Pass,
-      });
-
-      const response2 = await axios.delete(
-        `http://localhost:4000/Solicitudes/${data.NumeroDocumento}`
-      );
-      console.log(response1.status, response2.status);
-      if (response1.status === 201 && response2.status === 200) {
-        setStatus(response1.status);
-        setTimeout(() => {
-          setStatus("");
-        }, 5000);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al aprobar la solicitud");
-    }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    axios
+      .post("http://localhost:8081/confirmAcc", data)
+      .then((res) => {
+        if (res.status === 200) {
+          toast.success("Cuenta creada correctamente");
+        } else {
+          toast.error("Ocurrio un error al intentar crear la cuenta");
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
-  const cancelarEnviar = async (e) => {
-    e.preventDefault();
+  // const cancelarEnviar = async (e) => {
+  //   e.preventDefault();
 
-    try {
-      const response = await axios.delete(
-        `http://localhost:4000/Solicitudes/${data.NumeroDocumento}`
-      );
-      console.log(response.status);
-      if (response.status === 200) {
-        setStatus(response.status);
-        setTimeout(() => {
-          setStatus("");
-        }, 5000);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al aprobar la solicitud");
-    }
-  };
+  //   try {
+  //     const response = await axios.delete(
+  //       `http://localhost:4000/Solicitudes/${data.NumeroDocumento}`
+  //     );
+  //     console.log(response.status);
+  //     if (response.status === 200) {
+  //       setStatus(response.status);
+  //       setTimeout(() => {
+  //         setStatus("");
+  //       }, 5000);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("Ocurrió un error al aprobar la solicitud");
+  //   }
+  // };
 
   return (
     <div className="accordion" id="accordionExample">
-      {status === 201 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Solicitud aprobada
-          </div>
-        </div>
-      ) : status === 200 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Solicitud cancelada
-          </div>
-        </div>
-      ) : null}
+      <ToastContainer />
       {length === 0 ? (
         <div className="accordion-item mb-3">
           <h2 className="accordion-header">
@@ -138,53 +97,51 @@ const Solicitudes = ({ currentRecords, length }) => {
                   <div className="accordion-body">
                     <ul className="list-group">
                       <li className="list-group-item">{`Nombre: ${record.Nombre} ${record.Apellido}`}</li>
-                      <li className="list-group-item">{`Número de documento: ${record.NumeroDocumento}`}</li>
-                      <li className="list-group-item">{`Teléfono: ${record.Teléfono}`}</li>
+                      <li className="list-group-item">{`Número de documento: ${record.NumDocumento}`}</li>
+                      <li className="list-group-item">{`Teléfono: ${record.Tel}`}</li>
                       <li className="list-group-item">{`Correo: ${record.Correo}`}</li>
-                      <li className="list-group-item">{`Código de vivienda: ${record.CodigoVivienda}`}</li>
+                      <li className="list-group-item">{`Código de vivienda: ${record.CodVivienda}`}</li>
                     </ul>
                   </div>
                 </div>
                 <div className="d-flex flex-row justify-content-end">
-                  <form className="mx-2 my-2" onSubmit={cancelarEnviar}>
-                    <button
-                      onClick={() =>
-                        setDatos((prevUsuario) => ({
-                          ...prevUsuario,
-                          NumeroDocumento: record.NumeroDocumento,
-                          id: record.NumeroDocumento,
-                        }))
-                      }
-                      type="submit"
-                      className="btn bg-danger-subtle border border-danger text-danger"
-                    >
-                      Cancelar
-                    </button>
-                  </form>
+                  {/* <form className="mx-2 my-2" onSubmit={cancelarEnviar}> */}
+                  <button
+                    onClick={() =>
+                      setDatos((prevUsuario) => ({
+                        ...prevUsuario,
+                        NumeroDocumento: record.NumeroDocumento,
+                        id: record.NumeroDocumento,
+                      }))
+                    }
+                    type="submit"
+                    className="btn bg-danger-subtle border border-danger text-danger"
+                  >
+                    Cancelar
+                  </button>
+                  {/* </form> */}
                   <a
-                    href="/certificado.pdf"
+                    href={`http://localhost:8081/descargar/${record.idSolicitud}`}
                     download={`certificado ${record.Nombre} ${record.Apellido}`}
                     className="btn mx-2 my-2 bg-primary-subtle border border-primary text-primary"
                   >
                     Ver documento de verificación
                   </a>
 
-                  <form className="mx-2 my-2" onSubmit={enviar}>
+                  <form className="mx-2 my-2" onSubmit={handleSubmit}>
                     <button
                       onClick={() =>
                         setDatos((prevUsuario) => ({
                           ...prevUsuario,
-                          CodigoVivienda: record.CodigoVivienda,
+                          CodigoVivienda: record.CodVivienda,
                           Nombre: record.Nombre,
                           Apellido: record.Apellido,
-                          Teléfono: record.Teléfono,
+                          Teléfono: record.Tel,
                           Correo: record.Correo,
-                          NumeroDocumento: record.NumeroDocumento,
+                          NumeroDocumento: record.NumDocumento,
                           MesesAtrasados: 0,
                           EspacioParqueadero: 0,
-                          User: record.Nombre + record.NumeroDocumento,
-                          Pass: record.NumeroDocumento,
-                          id: record.NumeroDocumento,
+                          Pass: record.NumDocumento,
                         }))
                       }
                       type="submit"
