@@ -8,11 +8,11 @@ const MainPropietario = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   console.log(user)
-  useEffect(() => {
-    if (!user) {
-      navigate("/LoginPropietario");
-    }
-  });
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate("/LoginPropietario");
+  //   }
+  // });
   return (
     <>
       <NavBar />

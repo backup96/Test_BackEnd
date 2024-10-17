@@ -23,7 +23,6 @@ const LoginAdministrador = () => {
     event.preventDefault();
     const validationErrors = Validation(values);
     setError(validationErrors);
-    console.log(errors)
     if (
       Object.keys(validationErrors).length === 1 &&
       validationErrors.Valid === "valid"

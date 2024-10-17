@@ -18,7 +18,11 @@ const upload = multer({ storage: storage });
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    // origin: ["http://localhost:3001/LoginPropietario"],
+  })
+);
 app.use(cookieParser());
 
 const db = mysql.createConnection({
@@ -62,6 +66,7 @@ app.post("/register", upload.single("Archivo"), (req, res) => {
 
 // Ruta para confirmación de creación de cuenta
 app.post("/confirmAcc", (req, res) => {
+  console.log(req)
   const sql = "Call Inserción_Persona(?)";
   bcrypt.hash(req.body.NumeroDocumento.toString(), salt, (err, hash) => {
     if (err)
@@ -98,9 +103,37 @@ app.post("/login", (req, res) => {
         .status(500)
         .json({ Error: "Error al enviar solicitud de registro" });
     }
-    console.log(data);
     if (data.length > 0 && data[0].Pass) {
       return res.json({ Status: "Success" });
+    } else {
+      return res.json({
+        Error: "Nombre de usuario o contraseña incorrectos",
+      });
+    }
+  });
+});
+
+// Ruta para inicio de sesión en propietario
+app.post("/loginPropietario", (req, res) => {
+  const sql = "SELECT * FROM login_propietario WHERE nombreUsuario = ?";
+  db.query(sql, [req.body.Usuario], (err, data) => {
+    if (err) {
+      console.error("Error al iniciar sesión", err); // Muestra el error en el servidor
+      return res
+        .status(500)
+        .json({ Error: "Error al enviar solicitud de registro" });
+    }
+    if (data.length > 0) {
+      bcrypt.compare(req.body.Pass.toString(), data[0].clave, (err, response) => {
+        if(err) return res.json({Error: "Error al comparar constraseñas"});
+        if (response) {
+          // const Usuario = data[0].Usuario;
+          // const token = jwt.sign({ Usuario }, "jwt-secret-key", {expiresIn: '1d'});
+          return res.json({Status: "Success"});
+        } else {
+          return res.json({Error: "Las constraseñas no coinciden"})
+        }
+      });
     } else {
       return res.json({
         Error: "Nombre de usuario o contraseña incorrectos",
