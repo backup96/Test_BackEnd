@@ -7,7 +7,7 @@ const routerAdmin = (app, db) => {
   const salt = 10;
 
   // Ruta para confirmación de creación de cuenta
-  app.post("/confirmAcc", (req, res) => {
+  router.post("/confirmAcc", (req, res) => {
     console.log(req);
     const sql = "Call Inserción_Persona(?)";
     bcrypt.hash(req.body.NumeroDocumento.toString(), salt, (err, hash) => {
@@ -35,7 +35,7 @@ const routerAdmin = (app, db) => {
   });
 
   // Ruta para inicio de sesión en administrador
-  app.post("/login", (req, res) => {
+  router.post("/login", (req, res) => {
     const sql = "SELECT * FROM login_admin WHERE nombreUsuario = ?";
     const values = [req.body.Usuario];
     db.query(sql, [values], (err, data) => {
@@ -56,7 +56,7 @@ const routerAdmin = (app, db) => {
   });
 
   // Ruta para consulta de solicitudes para creación de cuenta
-  app.get("/Solicitudes", (req, res) => {
+  router.get("/Solicitudes", (req, res) => {
     const sql = "SELECT * FROM solicitud";
     db.query(sql, (err, data) => {
       if (err) {
@@ -70,7 +70,7 @@ const routerAdmin = (app, db) => {
   });
 
   // Ruta para obtener el archivo PDF desde la base de datos
-  app.get("/descargar/:id", (req, res) => {
+  router.get("/descargar/:id", (req, res) => {
     const id = req.params.id;
 
     // Consulta para obtener el archivo PDF por su id

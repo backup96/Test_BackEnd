@@ -34,9 +34,7 @@ const Tabla = ({ item, apiS }) => {
             setDatos([]);
           }
         } else {
-          const response = await axios.get(
-            `http://localhost:8081/${apiS}`
-          );
+          const response = await axios.get(`/admin/${apiS}`);
           setDatos(response.data);
           console.log(response.data)
           if (response.data.length === 0) {

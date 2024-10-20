@@ -25,21 +25,16 @@ library.add(faXmark);
 
 export function NavBar() {
   const { setUser: setContextUser } = useUser();
-  const [auth, setAuth] = useState(false);
-  const [message, setMessage] = useState("");
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081")
+      .get("http://localhost:8081/public")
       .then((res) => {
         if (res.data.Status === "Success") {
-          setAuth(true);
           setName(res.data.Usuario);
         } else {
-          setAuth(false);
-          setMessage(res.data.Error);
           navigate("/");
         }
       })
@@ -51,7 +46,7 @@ export function NavBar() {
 
   const handleDelete = () => {
     axios
-      .get("http://localhost:8081/logout")
+      .get("/public/logout")
       .then((res) => {
         navigate("/");
       })

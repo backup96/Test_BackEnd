@@ -1,6 +1,8 @@
 import express from "express";
 import DateTime from "../DateTime.js";
 import multer from "multer";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const routerPropietario = (app, db) => {
   const router = express.Router();
