@@ -34,7 +34,9 @@ const RegisterPropietario = () => {
   useEffect(() => {
     async function fetchApartamentos() {
       try {
-        const response = await axios.get(`http://localhost:8081/Apartamentos`);
+        const response = await axios.get(
+          `/public/Apartamentos`
+        );
         setDatos(response.data);
         if (response.data.length === 0) {
           setDatos([]);
@@ -69,7 +71,7 @@ const RegisterPropietario = () => {
       // Agregar el archivo al FormData
       formData.append("Archivo", values.Archivo);
       axios
-        .post("http://localhost:8081/register", formData, {
+        .post("/propietario/register", formData, {
           headers: {
             "Content-Type": "multipart/form-data", // Header que indica el envio de datos planos y Archivos
           },

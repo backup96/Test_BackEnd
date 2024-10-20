@@ -17,8 +17,9 @@ const LoginPropietario = () => {
   const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
+
+  axios.defaults.withCredentials = true;
   //envío del formulario
-  
 
   const handleSubmit = (event) => {
     event.preventDefault();
