@@ -36,11 +36,13 @@ const ValidationReg = (values, data, apiS) => {
     errors.Correo = "Valores < 50";
   } else errors.Valid = "valid";
 
-  if (!values.TipoTurno) {
-    errors.TipoTurno = "Ingrese un tipo de turno";
-  } else errors.Valid = "valid";
+  if (apiS === "Porteros") {
+    if (!values.TipoTurno) {
+      errors.TipoTurno = "Ingrese un tipo de turno";
+    } else errors.Valid = "valid";
+  }
 
-  if (!apiS) {
+  if (apiS === "") {
     if (!values.CodigoVivienda) {
       errors.CodigoVivienda = "Ingrese su codigo de vivienda";
     } else if (values.CodigoVivienda.length > 10) {

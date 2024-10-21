@@ -51,7 +51,8 @@ const RegisterPropietario = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const validationErrors = ValidationReg(values, data);
+    const apiS = ""
+    const validationErrors = ValidationReg(values, data, apiS);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&
@@ -84,7 +85,7 @@ const RegisterPropietario = () => {
           }
         })
         .catch((err) => console.log(err));
-    }
+    } console.log(errors)
   };
 
   const [fileName, setFileName] = useState(
