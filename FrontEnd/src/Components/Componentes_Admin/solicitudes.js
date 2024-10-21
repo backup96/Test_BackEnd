@@ -97,51 +97,53 @@ const Solicitudes = ({ currentRecords, length }) => {
                   <div className="accordion-body">
                     <ul className="list-group">
                       <li className="list-group-item">{`Nombre: ${record.Nombre} ${record.Apellido}`}</li>
-                      <li className="list-group-item">{`Número de documento: ${record.NumDocumento}`}</li>
-                      <li className="list-group-item">{`Teléfono: ${record.Tel}`}</li>
+                      <li className="list-group-item">{`Número de documento: ${record.NumeroDocumento}`}</li>
+                      <li className="list-group-item">{`Teléfono: ${record.Teléfono}`}</li>
                       <li className="list-group-item">{`Correo: ${record.Correo}`}</li>
-                      <li className="list-group-item">{`Código de vivienda: ${record.CodVivienda}`}</li>
+                      <li className="list-group-item">{`Código de vivienda: ${record.CodigoVivienda}`}</li>
                     </ul>
                   </div>
                 </div>
                 <div className="d-flex flex-row justify-content-end">
-                  {/* <form className="mx-2 my-2" onSubmit={cancelarEnviar}> */}
-                  <button
-                    onClick={() =>
-                      setDatos((prevUsuario) => ({
-                        ...prevUsuario,
-                        NumeroDocumento: record.NumeroDocumento,
-                        id: record.NumeroDocumento,
-                      }))
-                    }
-                    type="submit"
-                    className="btn bg-danger-subtle border border-danger text-danger"
-                  >
-                    Cancelar
-                  </button>
-                  {/* </form> */}
+                  <form className="mx-2 my-2" >
+                    <button
+                      onClick={() =>
+                        setDatos((prevUsuario) => ({
+                          ...prevUsuario,
+                          NumeroDocumento: record.NumeroDocumento,
+                          id: record.NumeroDocumento,
+                        }))
+                      }
+                      type="submit"
+                      className="btn bg-danger-subtle border border-danger text-danger"
+                    >
+                      Cancelar
+                    </button>
+                  </form>
                   <a
-                    href={`http://localhost:8081/descargar/${record.idSolicitud}`}
+                    href="/certificado.pdf"
                     download={`certificado ${record.Nombre} ${record.Apellido}`}
                     className="btn mx-2 my-2 bg-primary-subtle border border-primary text-primary"
                   >
                     Ver documento de verificación
                   </a>
 
-                  <form className="mx-2 my-2" onSubmit={handleSubmit}>
+                  <form className="mx-2 my-2">
                     <button
                       onClick={() =>
                         setDatos((prevUsuario) => ({
                           ...prevUsuario,
-                          CodigoVivienda: record.CodVivienda,
+                          CodigoVivienda: record.CodigoVivienda,
                           Nombre: record.Nombre,
                           Apellido: record.Apellido,
-                          Teléfono: record.Tel,
+                          Teléfono: record.Teléfono,
                           Correo: record.Correo,
-                          NumeroDocumento: record.NumDocumento,
+                          NumeroDocumento: record.NumeroDocumento,
                           MesesAtrasados: 0,
                           EspacioParqueadero: 0,
-                          Pass: record.NumDocumento,
+                          User: record.Nombre + record.NumeroDocumento,
+                          Pass: record.NumeroDocumento,
+                          id: record.NumeroDocumento,
                         }))
                       }
                       type="submit"

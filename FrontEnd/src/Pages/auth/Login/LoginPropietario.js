@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import "./Logins.css";
 import myImg from "../../../img/logo2.png";
 import Fondo1 from "../../../img/fondo1.png";
-import Validation from "./Validation";
+import Validation from "../../auth/../../Components/Componentes_Validaciones/Validation";
 
 const LoginPropietario = () => {
   const [values, setValues] = useState({
@@ -88,13 +88,12 @@ const LoginPropietario = () => {
                     type="text"
                     className="form-control"
                     name="nombreUsuario"
-                    required
                     onChange={(e) =>
                       setValues({ ...values, Usuario: e.target.value })
                     }
                   />
-                  {errors.nombreUsuario && (
-                    <span className="text-danger">{errors.nombreUsuario}</span>
+                  {errors.Usuario && (
+                    <span className="text-danger">{errors.Usuario}</span>
                   )}
                 </div>
                 <div className="w-50">
@@ -106,13 +105,12 @@ const LoginPropietario = () => {
                     type="password"
                     className="form-control"
                     name="clave"
-                    required
                     onChange={(e) =>
                       setValues({ ...values, Pass: e.target.value })
                     }
                   />
-                  {errors.clave && (
-                    <span className="text-danger">{errors.clave}</span>
+                  {errors.Pass && (
+                    <span className="text-danger">{errors.Pass}</span>
                   )}
                 </div>
               </div>
@@ -133,6 +131,14 @@ const LoginPropietario = () => {
                 className="text-center text-decoration-none fw-bold"
               >
                 Enviar solicitud para creación de cuenta
+              </Link>
+            </p>
+            <p className="mb-0">
+              <Link
+                to="/AskChangePass"
+                className="text-center text-decoration-none fw-bold"
+              >
+                ¿ Olvido su contraseña ?
               </Link>
             </p>
             <p className="mb-0">

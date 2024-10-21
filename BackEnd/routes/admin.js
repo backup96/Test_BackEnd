@@ -55,20 +55,6 @@ const routerAdmin = (app, db) => {
     });
   });
 
-  // Ruta para consulta de solicitudes para creación de cuenta
-  router.get("/Solicitudes", (req, res) => {
-    const sql = "SELECT * FROM solicitud";
-    db.query(sql, (err, data) => {
-      if (err) {
-        console.error("Error en la consulta:", err); // Muestra el error en el servidor
-        return res
-          .status(500)
-          .json({ Error: "Error al enviar solicitud de registro" });
-      }
-      res.json(data);
-    });
-  });
-
   // Ruta para obtener el archivo PDF desde la base de datos
   router.get("/descargar/:id", (req, res) => {
     const id = req.params.id;
@@ -92,6 +78,63 @@ const routerAdmin = (app, db) => {
       } else {
         res.status(404).send("Archivo no encontrado");
       }
+    });
+  });
+
+  // Ruta para consulta de solicitudes para creación de cuenta
+  router.get("/getSolicitudes", (req, res) => {
+    const sql = "SELECT * FROM solicitud";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Crud porteros
+  // Consultar porteros
+  router.get("/getPorteros", (req, res) => {
+    const sql = "SELECT * FROM get_porteros";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Insertar porteros
+  router.post("/postPorteros", (req, res) => {
+    console.log(req);
+    const sql = "Call Inserción_Portero(?)";
+    bcrypt.hash(req.body.NumeroDocumento.toString(), salt, (err, hash) => {
+      if (err)
+        return res.json({ Error: "Fallo en la encriptación de la contraseña" });
+      const values = [
+        req.body.Nombre,
+        req.body.Apellido,
+        req.body.Tel,
+        req.body.NumeroDocumento,
+        req.body.Correo,
+        req.body.TipoTurno,
+        hash,
+      ];
+      db.query(sql, [values], (err, data) => {
+        if (err) {
+          console.error("Error en la consulta:", err); // Muestra el error en el servidor
+          return res
+            .status(500)
+            .json({ Error: "Error al enviar solicitud de registro" });
+        }
+        return res.json({ Status: "Success" });
+      });
     });
   });
 

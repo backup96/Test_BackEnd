@@ -271,12 +271,12 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                     <div
                       class="modal fade"
                       id="exampleModal"
-                      tabindex="-1"
+                      tabIndex="-1"
                       aria-labelledby="exampleModalLabel"
                       aria-hidden="true"
                     >
-                      <div class="modal-dialog">
-                        <div class="modal-content">
+                      <div class="modal-dialog w-75">
+                        <div class="modal-content w-100">
                           <div class="modal-header">
                             <h1 class="modal-title fs-5" id="exampleModalLabel">
                               {accion} Solicitud de salon comunal
@@ -444,25 +444,12 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                             </div>
                             <div class="modal-footer">
                               <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                              >
-                                Cerrar
-                              </button>
-                              <button
                                 data-bs-dismiss={accion === "" ? "modal" : ""}
                                 type="submit"
-                                className={
-                                  accion === "Actualizar"
-                                    ? "btn btn-warning"
-                                    : accion === "Insertar"
-                                    ? "btn btn-success w-25 m-0 ms-1 h-100"
-                                    : "btn btn-primary w-25 m-0 ms-1 h-100"
-                                }
+                                className="btn btn-warning"
                                 onClick={() => setCurrentAccion("Actualizar")}
                               >
-                                Guardar cambios
+                                <FontAwesomeIcon icon={faPenToSquare} />
                               </button>
                             </div>
                           </form>

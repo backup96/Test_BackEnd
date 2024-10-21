@@ -11,11 +11,11 @@ import { useNavigate } from "react-router-dom";
 export function MainPortero() {
   const { user } = useUser();
   const navigate = useNavigate();
-  useEffect(() => {
-    if (!user) {
-      navigate("/LoginPortero");
-    }
-  });
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate("/LoginPortero");
+  //   }
+  // });
   return (
     <>
       <NavBar />

@@ -17,28 +17,30 @@ const LoginPortero = () => {
   const enviar = async (e) => {
     e.preventDefault();
 
-    try {
-      // Solicitud GET para obtener los datos del usuario
-      const response = await axios.get(
-        `http://localhost:4000/Porteros?User=${Username}`
-      );
+    // try {
+    //   // Solicitud GET para obtener los datos del usuario
+    //   const response = await axios.get(
+    //     `http://localhost:4000/Porteros?User=${Username}`
+    //   );
 
-      if (response.data.length > 0) {
-        const usuario = response.data[0];
+    //   if (response.data.length > 0) {
+    //     const usuario = response.data[0];
 
-        if (usuario.Pass === Password) {
-          setContextUser(usuario); // Actualizar el contexto con el usuario
-          navigate("/MainPortero");
-        } else {
-          setShowAlert("pass");
-        }
-      } else {
-        setShowAlert("user");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al intentar iniciar sesión");
-    }
+    //     if (usuario.Pass === Password) {
+    //       setContextUser(usuario); // Actualizar el contexto con el usuario
+    //       navigate("/MainPortero");
+    //     } else {
+    //       setShowAlert("pass");
+    //     }
+    //   } else {
+    //     setShowAlert("user");
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   alert("Ocurrió un error al intentar iniciar sesión");
+    // }
+
+    navigate("/MainPortero");
   };
 
   return (

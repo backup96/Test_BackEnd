@@ -301,8 +301,8 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                       aria-labelledby="exampleModalLabel"
                       aria-hidden="true"
                     >
-                      <div class="modal-dialog">
-                        <div class="modal-content">
+                      <div class="modal-dialog w-75">
+                        <div class="modal-content w-100">
                           <div class="modal-header">
                             <h1 class="modal-title fs-5" id="exampleModalLabel">
                               {accion} Apartamentos
@@ -361,13 +361,6 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                             </div>
                             <div class="modal-footer">
                               <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                              >
-                                Cerrar
-                              </button>
-                              <button
                                 type="submit"
                                 className={
                                   accion === "Actualizar"
@@ -377,7 +370,13 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                                     : ""
                                 }
                               >
-                                {accion}
+                                {accion === "Actualizar" ? (
+                                  <FontAwesomeIcon icon={faPenToSquare} />
+                                ) : accion === "Insertar" ? (
+                                  <FontAwesomeIcon icon={faSquarePlus} />
+                                ) : (
+                                  ""
+                                )}
                               </button>
                             </div>
                           </form>
@@ -434,8 +433,8 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
             aria-labelledby="exampleModalLabel"
             aria-hidden="true"
           >
-            <div class="modal-dialog">
-              <div class="modal-content">
+            <div class="modal-dialog p-0 bg-transparent w-75">
+              <div class="modal-content w-100">
                 <div class="modal-header">
                   <h1 class="modal-title fs-5" id="exampleModalLabel">
                     {accion} Apartamentos
@@ -494,13 +493,6 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                   </div>
                   <div class="modal-footer">
                     <button
-                      type="button"
-                      class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                    >
-                      Cerrar
-                    </button>
-                    <button
                       type="submit"
                       className={
                         accion === "Actualizar"
@@ -510,7 +502,13 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                           : ""
                       }
                     >
-                      {accion}
+                      {accion === "Actualizar" ? (
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      ) : accion === "Insertar" ? (
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                      ) : (
+                        ""
+                      )}
                     </button>
                   </div>
                 </form>

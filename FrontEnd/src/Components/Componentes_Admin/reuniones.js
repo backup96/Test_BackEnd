@@ -444,13 +444,6 @@ const Reunion = ({ item, currentRecords, apiS }) => {
                             </div>
                             <div class="modal-footer">
                               <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                              >
-                                Cerrar
-                              </button>
-                              <button
                                 data-bs-dismiss={accion === "" ? "modal" : ""}
                                 type="submit"
                                 className={
@@ -461,7 +454,13 @@ const Reunion = ({ item, currentRecords, apiS }) => {
                                     : ""
                                 }
                               >
-                                {accion}
+                                {accion === "Actualizar" ? (
+                                  <FontAwesomeIcon icon={faPenToSquare} />
+                                ) : accion === "Insertar" ? (
+                                  <FontAwesomeIcon icon={faSquarePlus} />
+                                ) : (
+                                  ""
+                                )}
                               </button>
                             </div>
                           </form>
@@ -653,13 +652,6 @@ const Reunion = ({ item, currentRecords, apiS }) => {
                   </div>
                   <div class="modal-footer">
                     <button
-                      type="button"
-                      class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                    >
-                      Cerrar
-                    </button>
-                    <button
                       data-bs-dismiss={accion === "" ? "modal" : ""}
                       type="submit"
                       className={
@@ -670,7 +662,13 @@ const Reunion = ({ item, currentRecords, apiS }) => {
                           : ""
                       }
                     >
-                      {accion}
+                      {accion === "Actualizar" ? (
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      ) : accion === "Insertar" ? (
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                      ) : (
+                        ""
+                      )}
                     </button>
                   </div>
                 </form>

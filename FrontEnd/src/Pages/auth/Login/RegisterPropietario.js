@@ -6,7 +6,7 @@ import myImg from "../../../img/logo2.png";
 import Fondo1 from "../../../img/fondo1.png"; /* Importación de la imagen de fondo */
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
-import ValidationReg from "./ValidationReg";
+import ValidationReg from "../../../Components/Componentes_Validaciones/ValidationReg";
 import { ToastContainer, toast } from "react-toastify";
 
 library.add(faCheck);

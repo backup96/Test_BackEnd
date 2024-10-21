@@ -9,10 +9,9 @@ import Fondo1 from "../../../img/fondo1.png"; /* Importación de la imagen de fo
 import Validation from "../../../Components/Componentes_Validaciones/Validation";
 import { ToastContainer, toast } from "react-toastify";
 
-const LoginAdministrador = () => {
+const AskChangePass = () => {
   const [values, setValues] = useState({
     Usuario: "",
-    Pass: "",
   });
 
   const [errors, setError] = useState({});
@@ -28,10 +27,10 @@ const LoginAdministrador = () => {
       validationErrors.Valid === "valid"
     ) {
       axios
-        .post("/admin/login", values)
+        .post("/public/RecPass", values)
         .then((res) => {
           if (res.status === 200) {
-            navigate("/MainAdmin");
+            toast.success("Revisa tu correo, hemos enviado un link para el cambio de contraseña")
           } else {
             toast.error("Ocurrio un error al intentar iniciar sesión");
           }
@@ -70,17 +69,17 @@ const LoginAdministrador = () => {
             </Link>
           </div>
           <p className="login-box-msg p-0 text-center mb-2 fs-2">
-            Ingrese como administrador
+            Ingrese el correo vinculado a su cuenta
           </p>
           <div className="card-body login-card-body">
             <form action="" onSubmit={handleSubmit}>
               <div className="d-flex flex-row">
-                <div className="me-4 w-50">
+                <div className="me-4 w-100">
                   <label
                     className="text-start w-100 fw-normal"
                     htmlFor="Username"
                   >
-                    Nombre de usuario
+                    Correo electrónico
                   </label>
                   <input
                     id="username"
@@ -95,53 +94,18 @@ const LoginAdministrador = () => {
                     <span className="text-danger">{errors.Usuario}</span>
                   )}
                 </div>
-                <div className="w-50">
-                  <label className="text-start w-100 fw-normal" htmlFor="pass">
-                    Contraseña
-                  </label>
-                  <input
-                    id="pass"
-                    type="password"
-                    className="form-control"
-                    name="password"
-                    onChange={(e) =>
-                      setValues({ ...values, Pass: e.target.value })
-                    }
-                  />
-                  {errors.Pass && (
-                    <span className="text-danger">{errors.Pass}</span>
-                  )}
-                </div>
               </div>
               <div>
                 <div>
                   <button
                     type="submit"
-                    className="btn btn-danger btn-block p-2 mt-2"
+                    className="btn btn-success btn-block p-2 mt-2"
                   >
-                    Ingresar
+                    Buscar
                   </button>
                 </div>
               </div>
             </form>
-            <hr className="hr-line" />
-            <p className="mb-0">
-              ¿Desea ingresar como{" "}
-              <Link
-                to="/LoginPropietario"
-                className="text-decoration-none text-danger fw-bold"
-              >
-                Propietario
-              </Link>{" "}
-              o{" "}
-              <Link
-                to="/LoginPortero"
-                className="text-decoration-none text-danger fw-bold"
-              >
-                Portero
-              </Link>
-              ?
-            </p>
           </div>
         </div>
       </div>
@@ -149,4 +113,4 @@ const LoginAdministrador = () => {
   );
 };
 
-export default LoginAdministrador;
+export default AskChangePass;

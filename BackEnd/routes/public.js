@@ -1,8 +1,12 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import crypto from "crypto";
 
-const routerPublic = (app, db) => {
+const routerPublic = (app, db, transporter) => {
   const router = express.Router();
+
+  dotenv.config({ path: "../.env" });
 
   // Ruta para consulta de apartamentos
   router.get("/Apartamentos", (req, res) => {
@@ -35,7 +39,6 @@ const routerPublic = (app, db) => {
     }
   };
 
-
   router.get("/", verifyUser, (req, res) => {
     return res.json({ Status: "Success", Usuario: req.Usuario });
   });
@@ -44,6 +47,52 @@ const routerPublic = (app, db) => {
   router.get("/logout", (req, res) => {
     res.clearCookie("token");
     return res.json({ Status: "Success" });
+  });
+
+  // Ruta para solicitar recuperación de contraseña
+  router.post("/RecPass", (req, res) => {
+    const email = req.body.Usuario;
+    const sql1 = "SELECT * FROM reset_pass_view WHERE correo = ?";
+    const sql2 =
+      "INSERT INTO Reset_Pass (token, expiración, idUsuario_FK) VALUES (?, ?, ?)";
+    db.query(sql1, [email], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      if (data.length > 0) {
+        const Usuario = data[0].idPersonaFk;
+        // Generación de token
+        const token = crypto.randomBytes(20).toString("hex");
+
+        // Guardar el token y la expiración en la base de datos
+        const expiration = Date.now() + 3600000; // 1 hora
+
+        db.query(sql2, [token, expiration, Usuario], (err) => {
+          if (err)
+            return res.status(500).json({
+              error: "Error guardando el token en la base de datos",
+            });
+          // Configurar el correo electrónico
+          const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Recuperación de contraseña",
+            text: `Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para crear una nueva contraseña: 
+        http://localhost:3000/reset-password/${token}`,
+          };
+
+          // Enviar el correo
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error)
+              console.log(error)
+            return res.json({ message: "Correo enviado con éxito" });
+          });
+        });
+      }
+    });
   });
 
   // Agregar el router al prefijo /users

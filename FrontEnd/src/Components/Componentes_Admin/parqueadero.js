@@ -401,13 +401,6 @@ const Parqueadero = ({ item, currentRecords, apiS }) => {
                             </div>
                             <div class="modal-footer">
                               <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                              >
-                                Cerrar
-                              </button>
-                              <button
                                 data-bs-dismiss={accion === "" ? "modal" : ""}
                                 type="submit"
                                 className={
@@ -418,7 +411,13 @@ const Parqueadero = ({ item, currentRecords, apiS }) => {
                                     : ""
                                 }
                               >
-                                {accion}
+                                {accion === "Actualizar" ? (
+                                  <FontAwesomeIcon icon={faPenToSquare} />
+                                ) : accion === "Insertar" ? (
+                                  <FontAwesomeIcon icon={faSquarePlus} />
+                                ) : (
+                                  ""
+                                )}
                               </button>
                             </div>
                           </form>
@@ -558,13 +557,6 @@ const Parqueadero = ({ item, currentRecords, apiS }) => {
                   </div>
                   <div class="modal-footer">
                     <button
-                      type="button"
-                      class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                    >
-                      Cerrar
-                    </button>
-                    <button
                       data-bs-dismiss={accion === "" ? "modal" : ""}
                       type="submit"
                       className={
@@ -575,7 +567,13 @@ const Parqueadero = ({ item, currentRecords, apiS }) => {
                           : "btn btn-primary w-25 m-0 ms-1 h-100"
                       }
                     >
-                      {accion === "" ? "Volver" : accion}
+                      {accion === "Actualizar" ? (
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      ) : accion === "Insertar" ? (
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                      ) : (
+                        ""
+                      )}
                     </button>
                   </div>
                 </form>

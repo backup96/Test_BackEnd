@@ -495,13 +495,6 @@ const Invitados = ({ item, currentRecords, apiS }) => {
                             </div>
                             <div class="modal-footer">
                               <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                              >
-                                Cerrar
-                              </button>
-                              <button
                                 data-bs-dismiss={accion === "" ? "modal" : ""}
                                 type="submit"
                                 className={
@@ -512,7 +505,13 @@ const Invitados = ({ item, currentRecords, apiS }) => {
                                     : ""
                                 }
                               >
-                                {accion}
+                                {accion === "Actualizar" ? (
+                                  <FontAwesomeIcon icon={faPenToSquare} />
+                                ) : accion === "Insertar" ? (
+                                  <FontAwesomeIcon icon={faSquarePlus} />
+                                ) : (
+                                  ""
+                                )}
                               </button>
                             </div>
                           </form>
@@ -532,7 +531,7 @@ const Invitados = ({ item, currentRecords, apiS }) => {
                   <td>{record.Costo}</td>
                   <td>{record.CodigoVivienda}</td>
                   <td>
-                    <div className="d-flex flex-row">
+                    <div className="d-flex flex-row justify-content-center">
                       <div className="mx-2">
                         <form className="p-0" onSubmit={enviar}>
                           <button
@@ -547,7 +546,7 @@ const Invitados = ({ item, currentRecords, apiS }) => {
                       <div className="mx-2">
                         <button
                           type="button"
-                          className="btn btn-warning px-2 py-1"
+                          className="btn btn-warning px-2"
                           data-bs-toggle="modal"
                           data-bs-target="#exampleModal"
                           onClick={() => {
@@ -750,13 +749,6 @@ const Invitados = ({ item, currentRecords, apiS }) => {
                   </div>
                   <div class="modal-footer">
                     <button
-                      type="button"
-                      class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                    >
-                      Cerrar
-                    </button>
-                    <button
                       data-bs-dismiss={accion === "" ? "modal" : ""}
                       type="submit"
                       className={
@@ -767,7 +759,13 @@ const Invitados = ({ item, currentRecords, apiS }) => {
                           : "btn btn-primary w-25 m-0 ms-1 h-100"
                       }
                     >
-                      {accion === "" ? "Volver" : accion}
+                      {accion === "Actualizar" ? (
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      ) : accion === "Insertar" ? (
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                      ) : (
+                        ""
+                      )}
                     </button>
                   </div>
                 </form>

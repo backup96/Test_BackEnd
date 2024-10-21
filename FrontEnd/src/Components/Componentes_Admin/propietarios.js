@@ -336,7 +336,7 @@ const Propietario = ({ item, currentRecords, apiS }) => {
                       aria-labelledby="exampleModalLabel"
                       aria-hidden="true"
                     >
-                      <div class="modal-dialog w-50">
+                      <div class="modal-dialog w-75">
                         <div className="modal-content mx-0 my-5 w-100">
                           <div class="modal-header">
                             <h1 class="modal-title fs-5" id="exampleModalLabel">
@@ -549,13 +549,6 @@ const Propietario = ({ item, currentRecords, apiS }) => {
                             </div>
                             <div class="modal-footer">
                               <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                              >
-                                Cerrar
-                              </button>
-                              <button
                                 type="submit"
                                 className={
                                   accion === "Actualizar"
@@ -565,7 +558,13 @@ const Propietario = ({ item, currentRecords, apiS }) => {
                                     : ""
                                 }
                               >
-                                {accion}
+                                {accion === "Actualizar" ? (
+                                  <FontAwesomeIcon icon={faPenToSquare} />
+                                ) : accion === "Insertar" ? (
+                                  <FontAwesomeIcon icon={faSquarePlus} />
+                                ) : (
+                                  ""
+                                )}
                               </button>
                             </div>
                           </form>
@@ -846,13 +845,6 @@ const Propietario = ({ item, currentRecords, apiS }) => {
                   </div>
                   <div class="modal-footer">
                     <button
-                      type="button"
-                      class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                    >
-                      Cerrar
-                    </button>
-                    <button
                       data-bs-dismiss={accion === "" ? "modal" : ""}
                       type="submit"
                       className={
@@ -863,7 +855,13 @@ const Propietario = ({ item, currentRecords, apiS }) => {
                           : ""
                       }
                     >
-                      {accion}
+                      {accion === "Actualizar" ? (
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      ) : accion === "Insertar" ? (
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                      ) : (
+                        ""
+                      )}
                     </button>
                   </div>
                 </form>

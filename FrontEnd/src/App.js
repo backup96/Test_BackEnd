@@ -11,6 +11,7 @@ import RegisterPropietario from "./Pages/auth/Login/RegisterPropietario";
 import Tabla from "./Components/Componentes_Propietario/tabla"; // Asegúrate de la ruta correcta
 import Profile from "./Components/Componentes_Propietario/profile";
 import InvitadoDetalle from './Pages/auth/portero/InvitadoDetalles.js';
+import AskChangePass from "./Pages/auth/Login/AskChangePass.js";
 
 function App() {
   return (
@@ -19,8 +20,8 @@ function App() {
         <Routes>
           <Route path="/" exact element={<Main />}></Route>
           <Route path="MainAdmin" exact element={<MainAdmin />}>
-            <Route path="Tabla" element={<Tabla apiS="Parqueadero" />} />
-          </Route>
+          <Route path="Tabla" element={<Tabla apiS="Parqueadero" />} /></Route>
+          <Route path="AskChangePass" exact element={<AskChangePass />}></Route>
           <Route path="MainPortero" exact element={<MainPortero />}></Route>
           <Route path="LoginAdministrador" exact element={<LoginAdministrador />}></Route>
           <Route path="LoginPortero" exact element={<LoginPortero />}></Route>

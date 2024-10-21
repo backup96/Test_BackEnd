@@ -37,7 +37,7 @@ export function NavBar() {
           <div className="container px-lg-5 d-flex flex-row justify-content-between">
             <div>
               <button
-                class="btn"
+                class="btn btn-outline-light"
                 type="button"
                 onClick={() => {
                   showSideBar === true
@@ -122,7 +122,7 @@ export function NavBar() {
         <div className="d-flex flex-row h-100">
           {/* SideBar */}
           <div
-            class="offcanvas offcanvas-start show"
+            className="offcanvas offcanvas-start show z-1"
             data-bs-scroll="true"
             data-bs-backdrop="false"
             tabindex="-1"
@@ -174,7 +174,7 @@ export function NavBar() {
                     className={
                       currentTable === "Apartamentos"
                         ? "nav-link active d-flex flex-row justify-content-between"
-                        : "nav-link text-white d-flex flex-row justify-content-between"
+                        : "nav-link d-flex flex-row justify-content-between"
                     }
                     aria-current="page"
                   >
@@ -194,7 +194,7 @@ export function NavBar() {
                     className={
                       currentTable === "Propietarios"
                         ? "nav-link active d-flex flex-row justify-content-between"
-                        : "nav-link text-white d-flex flex-row justify-content-between"
+                        : "nav-link d-flex flex-row justify-content-between"
                     }
                     aria-current="page"
                   >
@@ -214,7 +214,7 @@ export function NavBar() {
                     className={
                       currentTable === "Parqueadero"
                         ? "nav-link active d-flex flex-row justify-content-between"
-                        : "nav-link text-white d-flex flex-row justify-content-between"
+                        : "nav-link d-flex flex-row justify-content-between"
                     }
                     aria-current="page"
                   >
@@ -234,7 +234,7 @@ export function NavBar() {
                     className={
                       currentTable === "Invitados"
                         ? "nav-link active d-flex flex-row justify-content-between"
-                        : "nav-link text-white d-flex flex-row justify-content-between"
+                        : "nav-link d-flex flex-row justify-content-between"
                     }
                     aria-current="page"
                   >
@@ -254,7 +254,7 @@ export function NavBar() {
                     className={
                       currentTable === "ReservaSalon"
                         ? "nav-link active d-flex flex-row justify-content-between"
-                        : "nav-link text-white d-flex flex-row justify-content-between"
+                        : "nav-link d-flex flex-row justify-content-between"
                     }
                     aria-current="page"
                   >
@@ -274,7 +274,7 @@ export function NavBar() {
                     className={
                       currentTable === "Reuniones"
                         ? "nav-link active d-flex flex-row justify-content-between"
-                        : "nav-link text-white d-flex flex-row justify-content-between"
+                        : "nav-link d-flex flex-row justify-content-between"
                     }
                     aria-current="page"
                   >
@@ -294,7 +294,7 @@ export function NavBar() {
                     className={
                       currentTable === "Porteros"
                         ? "nav-link active d-flex flex-row justify-content-between"
-                        : "nav-link text-white d-flex flex-row justify-content-between"
+                        : "nav-link d-flex flex-row justify-content-between"
                     }
                     aria-current="page"
                   >
@@ -310,6 +310,7 @@ export function NavBar() {
           </div>
           {/* Tabla de contenido */}
           <Tabla
+            className="z-0"
             item={
               currentTable === "Apartamentos"
                 ? ["Código de vivienda", "Número de parqueadero"]
