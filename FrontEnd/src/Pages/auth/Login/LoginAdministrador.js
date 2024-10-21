@@ -28,7 +28,7 @@ const LoginAdministrador = () => {
       validationErrors.Valid === "valid"
     ) {
       axios
-        .post("http://localhost:8081/login", values)
+        .post("/admin/login", values)
         .then((res) => {
           if (res.status === 200) {
             navigate("/MainAdmin");

@@ -18,7 +18,7 @@ const Solicitudes = ({ currentRecords, length }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     axios
-      .post("http://localhost:8081/confirmAcc", data)
+      .post("/admin/confirmAcc", data)
       .then((res) => {
         if (res.status === 200) {
           toast.success("Cuenta creada correctamente");

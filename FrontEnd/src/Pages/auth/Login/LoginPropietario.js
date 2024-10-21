@@ -17,8 +17,9 @@ const LoginPropietario = () => {
   const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
+
+  axios.defaults.withCredentials = true;
   //envío del formulario
-  
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -29,7 +30,7 @@ const LoginPropietario = () => {
       validationErrors.Valid === "valid"
     ) {
       axios
-        .post("http://localhost:8081/loginPropietario", values)
+        .post("/propietario/loginPropietario", values)
         .then((res) => {
           if (res.data.Status === "Success") {
             navigate("/MainPropietario");

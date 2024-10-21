@@ -5,11 +5,15 @@ import Fondo1 from "../../img/fondo1.png"; /* Importación de la imagen de fondo
 import Perfil from "../../img/Usuario.png"
 import "../../styles/main.css";
 import Footer from '../../Components/Footer/Footer';
+import axios from 'axios';
+
 /* Creación del componente Main */
 const Main = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [Fondo1]; // Imagenes para el carrusel
+
+  axios.defaults.withCredentials = true;
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);

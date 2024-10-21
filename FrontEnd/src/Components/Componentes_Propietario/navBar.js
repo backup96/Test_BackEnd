@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import myImg from "../../img/logo2.png";
 import Tabla from "./tabla";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "../../userContext";
 import Profile from "./profile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,6 +13,7 @@ import { faChampagneGlasses } from "@fortawesome/free-solid-svg-icons";
 import { faHandshake } from "@fortawesome/free-solid-svg-icons";
 import { faPersonMilitaryPointing } from "@fortawesome/free-solid-svg-icons";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 
 library.add(faHouse);
 library.add(faUser);
@@ -24,13 +25,37 @@ library.add(faXmark);
 
 export function NavBar() {
   const { setUser: setContextUser } = useUser();
+  const [name, setName] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8081/public")
+      .then((res) => {
+        if (res.data.Status === "Success") {
+          setName(res.data.Usuario);
+        } else {
+          navigate("/");
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
   const [currentTable, setCurrentTable] = useState("Parqueadero");
   const [showSideBar, setShowSideBar] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  const handleDelete = () => {
+    axios
+      .get("/public/logout")
+      .then((res) => {
+        navigate("/");
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <div className="d-flex flex-column justify-content-start h-100 ">
-      {/* Barra de navegación */}
+      {/* Barra de navegación */ console.log("Hola", name)}
       <nav className="navbar navbar-expand-lg navbar-dark w-100 bg-dark">
         <div className="container px-lg-5 d-flex flex-row justify-content-between">
           <div>
@@ -74,7 +99,7 @@ export function NavBar() {
                 </Link>
               </li>
               <Link
-                onClick={() => setContextUser(null)}
+                onClick={handleDelete}
                 className="dropdown-item text-danger"
                 to="/"
               >
