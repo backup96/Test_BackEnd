@@ -198,3 +198,18 @@
 .modal-buttons button[type="button"]:hover {
   background-color: #e0e0e0; /* Fondo más oscuro */
 }
+
+.indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.indicator-own {
+  background-color: green;
+}
+
+.indicator-reserved {
+  background-color: red;
+}

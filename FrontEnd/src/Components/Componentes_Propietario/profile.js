@@ -1,277 +1,232 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../../userContext";
-import { FaEdit, FaEye, FaEyeSlash, FaCheck } from "react-icons/fa";
-import "./profile.css";
+import { FaEdit, FaCheck } from "react-icons/fa";
 
 const Profile = () => {
-  const { user } = useUser();
+  const { user, loading: userLoading, error: userError, fetchUserData, updateUserProfile } = useUser();
   const [loading, setLoading] = useState(true);
-  const [telefono, setTelefono] = useState("");
-  const [correo, setCorreo] = useState("");
-  const [pass, setPass] = useState("");
-  const [isEditingTelefono, setIsEditingTelefono] = useState(false);
-  const [isEditingCorreo, setIsEditingCorreo] = useState(false);
-  const [isEditingPass, setIsEditingPass] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [personData, setPersonData] = useState(null);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState({
+    telefono: false,
+    correo: false
+  });
+  const [formData, setFormData] = useState({
+    telefono: "",
+    correo: ""
+  });
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [updatedFields, setUpdatedFields] = useState({
-    telefono: false,
-    correo: false,
-    pass: false
-  });
 
   useEffect(() => {
-    if (user) {
-      setTelefono(user.Teléfono);
-      setCorreo(user.Correo);
-      setPass(user.Pass);
-      setLoading(false);
-    }
-  }, [user]);
+    const loadUserData = async () => {
+      if (userLoading) return;
 
-  useEffect(() => {
-    if (showAlert) {
-      const timer = setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [showAlert]);
-
-  const handleEditClick = (field) => {
-    switch (field) {
-      case "telefono":
-        setIsEditingTelefono(true);
-        setUpdatedFields(prev => ({ ...prev, telefono: true }));
-        break;
-      case "correo":
-        setIsEditingCorreo(true);
-        setUpdatedFields(prev => ({ ...prev, correo: true }));
-        break;
-      case "pass":
-        setIsEditingPass(true);
-        setUpdatedFields(prev => ({ ...prev, pass: true }));
-        break;
-    }
-  };
-
-  const validateTelefono = (telefono) => {
-    const telefonoRegex = /^[0-9]{10}$/;
-    return telefonoRegex.test(telefono);
-  };
-
-  const validateCorreo = (correo) => {
-    const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return correoRegex.test(correo);
-  };
-
-  const validatePass = (pass) => {
-    const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passRegex.test(pass);
-  };
-
-  const handleSaveClick = async (field) => {
-    let isValid = true;
-
-    if (field === "telefono" && !validateTelefono(telefono)) {
-      setAlertMessage("El teléfono debe contener solo números y tener 10 caracteres.");
-      setShowAlert(true);
-      isValid = false;
-    }
-
-    if (field === "correo" && !validateCorreo(correo)) {
-      setAlertMessage("El correo debe ser una dirección válida.");
-      setShowAlert(true);
-      isValid = false;
-    }
-
-    if (field === "pass" && !validatePass(pass)) {
-      setAlertMessage("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.");
-      setShowAlert(true);
-      isValid = false;
-    }
-
-    if (!isValid) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:4000/Propietarios/${user.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            Teléfono: telefono,
-            Correo: correo,
-            Pass: pass,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        setAlertMessage("Datos actualizados correctamente.");
-        setShowAlert(true);
-        setIsEditingTelefono(false);
-        setIsEditingCorreo(false);
-        setIsEditingPass(false);
-        setUpdatedFields(prev => ({ ...prev, [field]: true }));
-      } else {
-        setAlertMessage("Error al actualizar los datos.");
-        setShowAlert(true);
+      if (!user) {
+        setError("No hay un usuario autenticado");
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error al actualizar:", error);
-      setAlertMessage("Error al actualizar los datos.");
-      setShowAlert(true);
-    }
+
+      setLoading(true);
+      setError(null);
+      try {
+        console.log("Fetching user data...");
+        const data = await fetchUserData();
+        console.log("User data received:", data);
+        if (data) {
+          setPersonData(data);
+          setFormData({
+            telefono: data.telefono || "",
+            correo: data.correo || ""
+          });
+        } else {
+          setError("No se pudo obtener los datos del usuario");
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError("Error al cargar los datos del perfil");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [user, userLoading, fetchUserData]);
+
+  const handleEdit = (field) => {
+    setIsEditing(prev => ({
+      ...prev,
+      [field]: true
+    }));
   };
 
-  if (loading) {
+  const handleChange = (e, field) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
+
+  const handleSave = (field) => {
+    updateUserProfile(personData.numDocumento, { [field]: formData[field] })
+      .then((result) => {
+        if (result.success) {
+          setAlertMessage(result.message);
+          setShowAlert(true);
+          setIsEditing(prev => ({
+            ...prev,
+            [field]: false
+          }));
+          setPersonData(prev => ({
+            ...prev,
+            [field]: formData[field]
+          }));
+        } else {
+          throw new Error(result.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setAlertMessage("Error al actualizar los datos");
+        setShowAlert(true);
+      });
+  };
+  
+
+  if (userLoading || loading) {
+    return <div className="flex justify-center items-center h-full">Cargando...</div>;
+  }
+
+  if (userError || error) {
     return (
-      <div className="profile-container">
-        <p>Cargando...</p>
+      <div className="text-center p-4 text-red-600">
+        {userError || error}
+        <button 
+          onClick={() => navigate('/LoginPropietario')} 
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Ir al Login
+        </button>
       </div>
     );
   }
 
-  const espacioMoto = user.espacioMoto || 0;
-  const espacioCarro = user.espacioCarro || 0;
+  if (!user || !personData) {
+    return (
+      <div className="text-center p-4">
+        No se encontraron datos del perfil
+        <button 
+          onClick={() => navigate('/login')} 
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Ir al Login
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="profile-container">
-        <h1 className="profile-title">Mi Perfil</h1>
-        
-        <div className="p-5 d-flex flex-row justify-content-around">
+    <div className="space-y-6 p-6">
+      <h1 className="text-2xl font-bold">Mi Perfil</h1>
+      
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="space-y-4">
           <div>
-            <p className="text-start">
-              <strong>Nombre:</strong> {user.Nombre}
-            </p>
-            <p className="text-start">
-              <strong>Teléfono:</strong>
-              {isEditingTelefono ? (
-                <div className="d-flex align-items-center">
-                  <input
-                    type="text"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                    className="profile-input"
-                    onBlur={() => handleSaveClick("telefono")}
-                  />
-                  {updatedFields.telefono && <FaCheck className="ms-2 text-success" />}
-                </div>
-              ) : (
-                <>
-                  <span>{telefono}</span>
-                  <FaEdit
-                    className="edit-icon"
-                    onClick={() => handleEditClick("telefono")}
-                  />
-                </>
-              )}
-            </p>
-            <p className="text-start">
-              <strong>Correo:</strong>
-              {isEditingCorreo ? (
-                <div className="d-flex align-items-center">
-                  <input
-                    type="email"
-                    value={correo}
-                    onChange={(e) => setCorreo(e.target.value)}
-                    className="profile-input"
-                    onBlur={() => handleSaveClick("correo")}
-                  />
-                  {updatedFields.correo && <FaCheck className="ms-2 text-success" />}
-                </div>
-              ) : (
-                <>
-                  <span>{correo}</span>
-                  <FaEdit
-                    className="edit-icon"
-                    onClick={() => handleEditClick("correo")}
-                  />
-                </>
-              )}
-            </p>
-            <p className="text-start">
-              <strong>Número Documento:</strong> {user.NumeroDocumento}
-            </p>
-            <p className="text-start">
-              <strong>Contraseña:</strong>
-              {isEditingPass ? (
-                <div className="d-flex align-items-center">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={pass}
-                    onChange={(e) => setPass(e.target.value)}
-                    className="profile-input"
-                    onBlur={() => handleSaveClick("pass")}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-link p-0 ms-2"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                  </button>
-                  {updatedFields.pass && <FaCheck className="ms-2 text-success" />}
-                </div>
-              ) : (
-                <>
-                  <span>{pass}</span>
-                  <FaEdit
-                    className="edit-icon"
-                    onClick={() => handleEditClick("pass")}
-                  />
-                </>
-              )}
-            </p>
+            <p className="font-medium">Nombre Completo:</p>
+            <p>{`${personData.nombre || ''} ${personData.apellido || ''}`}</p>
           </div>
 
           <div>
-            <p className="text-start">
-              <strong>Meses Atrasados:</strong> {user.MesesAtrasados}
-            </p>
-            <p className="text-start">
-              <strong>Espacios Parqueadero</strong>
-            </p>
-            <p className="text-start">
-              <strong>Moto:</strong> {espacioMoto}
-            </p>
-            <p className="text-start">
-              <strong>Carro:</strong> {espacioCarro}
-            </p>
-            <p className="text-start">
-              <strong>Código Vivienda:</strong> {user.CodigoVivienda}
-            </p>
+            <p className="font-medium">Número de Documento:</p>
+            <p>{personData.numDocumento || 'No disponible'}</p>
           </div>
+
+          <div>
+            <p className="font-medium">Teléfono:</p>
+            {isEditing.telefono ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={formData.telefono}
+                  onChange={(e) => handleChange(e, 'telefono')}
+                  className="border rounded p-1"
+                />
+                <FaCheck 
+                  className="text-green-500 cursor-pointer" 
+                  onClick={() => handleSave('telefono')}
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span>{personData.telefono || 'No disponible'}</span>
+                <FaEdit 
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                  onClick={() => handleEdit('telefono')}
+                />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <p className="font-medium">Correo:</p>
+            {isEditing.correo ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="email"
+                  value={formData.correo}
+                  onChange={(e) => handleChange(e, 'correo')}
+                  className="border rounded p-1"
+                />
+                <FaCheck 
+                  className="text-green-500 cursor-pointer" 
+                  onClick={() => handleSave('correo')}
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span>{personData.correo || 'No disponible'}</span>
+                <FaEdit 
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                  onClick={() => handleEdit('correo')}
+                />
+              </div>
+            )}
+          </div>
+
+          {personData.placaVehiculo && (
+            <div>
+              <p className="font-medium">Placa Vehículo:</p>
+              <p>{personData.placaVehiculo}</p>
+            </div>
+          )}
+
+          {personData.idParqueaderoFK && (
+            <div>
+              <p className="font-medium">Parqueadero:</p>
+              <p>{personData.idParqueaderoFK}</p>
+            </div>
+          )}
         </div>
       </div>
 
+      <button 
+        onClick={() => fetchUserData()} 
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Recargar Datos
+      </button>
+
       {showAlert && (
-        <div
-          className={`alert ${
-            alertMessage.includes("correctamente")
-              ? "alert-success"
-              : "alert-danger"
-          } alert-dismissible fade show`}
-          role="alert"
-          style={{
-            position: "fixed",
-            top: "10%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "30%",
-            zIndex: 1000,
-            textAlign: "center",
-          }}
-        >
+        <div className={`fixed top-4 right-4 p-4 rounded ${
+          alertMessage.includes("correctamente") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+        }`}>
           {alertMessage}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
