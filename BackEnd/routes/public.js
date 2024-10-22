@@ -91,7 +91,7 @@ const routerPublic = (app, db, transporter) => {
             return res.json({ message: "Correo enviado con éxito" });
           });
         });
-      }
+      } console.log(data);
     });
   });
 
