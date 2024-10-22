@@ -5,7 +5,8 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import routerPropietario from "./routes/propietario.js";
 import routerAdmin from "./routes/admin.js";
-import routerPublic from "./routes/public.js";
+import routerPublic  from "./routes/public.js";
+
 
 dotenv.config({ path: "./.env" });
 
@@ -112,46 +113,21 @@ app.get("/citas_salon_comunal", (req, res) => {
 
 
 // Ruta para datos del propietario (Perfil)
-// Obtener datos del propietario y la persona asociada
-app.get('/propietario/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = `
-      SELECT pr.idPropietario, pr.idPersonaCuentaFK,
-             p.nombre, p.apellido, p.telefono, p.numDocumento, 
-             p.correo, p.idTipoDocumentoFK, p.idParqueaderoFK, 
-             p.placaVehiculo
-      FROM propietario pr
-      INNER JOIN personas p ON pr.idPersonaCuentaFK = p.numDocumento
-      WHERE pr.idPropietario = ?
-  `;
-  
-  db.query(sql, [id], (err, data) => {
-      if (err) {
-          console.error('Error en la consulta:', err);
-          return res.status(500).json({ 
-              message: "Error al obtener los datos del propietario y persona" 
-          });
-      }
-      return res.status(200).json(data[0]); // Devolvemos solo el primer registro
+app.get('/vista_perfil', (req, res) => {
+  const userId = req.query.userId; // Obtener el ID del usuario desde el parámetro de consulta
+  console.log("ID del usuario:", userId); // Log para verificar el ID del usuario
+
+  const sql = 'SELECT * FROM vista_perfil WHERE numDocumento = ?';
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error("Error en la consulta:", err.message); // Log para errores
+      return res.status(500).json({ error: err.message });
+    }
+    console.log("Datos obtenidos:", results); // Log para verificar los datos obtenidos
+    res.json(results);
   });
 });
 
-app.patch('/persona/:numDocumento', (req, res) => {
-  const { numDocumento } = req.params;
-  const { telefono, correo } = req.body;
-
-  const sql = "UPDATE personas SET telefono = ?, correo = ? WHERE numDocumento = ?";
-  
-  db.query(sql, [telefono, correo, numDocumento], (err) => {
-      if (err) {
-          console.error('Error en la actualización:', err);
-          return res.status(500).json({ 
-              message: "Error al actualizar los datos de la persona" 
-          });
-      }
-      return res.status(200).json({ message: "Datos actualizados correctamente" });
-  });
-});
 
 
 

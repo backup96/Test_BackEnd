@@ -10,8 +10,8 @@ import Validation from "./Validation";
 
 const LoginPropietario = () => {
   const [values, setValues] = useState({
-    Usuario: "",
-    Pass: "",
+    nombreUsuario: "",
+    clave: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -30,7 +30,7 @@ const LoginPropietario = () => {
       validationErrors.Valid === "valid"
     ) {
       axios
-        .post("/propietario/loginPropietario", values)
+        .post("/propietario/vista_perfil", values)
         .then((res) => {
           if (res.data.Status === "Success") {
             navigate("/MainPropietario");
@@ -90,7 +90,7 @@ const LoginPropietario = () => {
                     name="nombreUsuario"
                     required
                     onChange={(e) =>
-                      setValues({ ...values, Usuario: e.target.value })
+                      setValues({ ...values, nombreUsuario: e.target.value })
                     }
                   />
                   {errors.nombreUsuario && (
@@ -108,7 +108,7 @@ const LoginPropietario = () => {
                     name="clave"
                     required
                     onChange={(e) =>
-                      setValues({ ...values, Pass: e.target.value })
+                      setValues({ ...values, clave: e.target.value })
                     }
                   />
                   {errors.clave && (

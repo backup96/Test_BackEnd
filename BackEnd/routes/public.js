@@ -1,8 +1,11 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 
+
 const routerPublic = (app, db) => {
   const router = express.Router();
+
+  
 
   // Ruta para consulta de apartamentos
   router.get("/Apartamentos", (req, res) => {
@@ -28,16 +31,15 @@ const routerPublic = (app, db) => {
         if (err) {
           return res.json({ Error: "Error con el token" });
         } else {
-          req.Usuario = decoded.Usuario;
+          req.nombreUsuario = decoded.nombreUsuario;
           next();
         }
       });
     }
   };
 
-
   router.get("/", verifyUser, (req, res) => {
-    return res.json({ Status: "Success", Usuario: req.Usuario });
+    return res.json({ Status: "Success", nombreUsuario: req.nombreUsuario });
   });
 
   // Ruta para limpiar cookies creadas y cerrar sesión
@@ -45,6 +47,9 @@ const routerPublic = (app, db) => {
     res.clearCookie("token");
     return res.json({ Status: "Success" });
   });
+
+
+ 
 
   // Agregar el router al prefijo /users
   app.use("/public", router);

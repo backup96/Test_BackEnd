@@ -33,13 +33,14 @@ export function NavBar() {
       .get("http://localhost:8081/public")
       .then((res) => {
         if (res.data.Status === "Success") {
-          setName(res.data.Usuario);
+          setName(res.data.nombreUsuario);
         } else {
           navigate("/");
         }
       })
       .catch((err) => console.log(err));
   }, []);
+  
   const [currentTable, setCurrentTable] = useState("Parqueadero");
   const [showSideBar, setShowSideBar] = useState(false);
   const [isHovered, setIsHovered] = useState(false);

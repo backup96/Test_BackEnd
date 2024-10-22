@@ -44,9 +44,9 @@ const routerPropietario = (app, db) => {
   });
 
   // Ruta para inicio de sesión en propietario
-  router.post("/loginPropietario", (req, res) => {
-    const sql = "SELECT * FROM login_propietario WHERE nombreUsuario = ?";
-    db.query(sql, [req.body.Usuario], (err, data) => {
+  router.post("/vista_perfil", (req, res) => {
+    const sql = "SELECT * FROM vista_perfil WHERE nombreUsuario = ?";
+    db.query(sql, [req.body.nombreUsuario], (err, data) => {
       if (err) {
         console.error("Error al iniciar sesión", err); // Muestra el error en el servidor
         return res
@@ -55,14 +55,14 @@ const routerPropietario = (app, db) => {
       }
       if (data.length > 0) {
         bcrypt.compare(
-          req.body.Pass.toString(),
+          req.body.clave.toString(),
           data[0].clave,
           (err, response) => {
             if (err)
               return res.json({ Error: "Error al comparar constraseñas" });
             if (response) {
-              const Usuario = data[0].nombreUsuario;
-              const token = jwt.sign({ Usuario }, "jwt-secret-key", {
+              const nombreUsuario = data[0].nombreUsuario;
+              const token = jwt.sign({ nombreUsuario }, "jwt-secret-key", {
                 expiresIn: "1d",
               });
               res.cookie("token", token);
@@ -74,11 +74,15 @@ const routerPropietario = (app, db) => {
         );
       } else {
         return res.json({
-          Error: "Nombre de usuario o contraseña incorrectos",
+          Error: "Nombre de Usuario o contraseña incorrectos",
         });
       }
     });
   });
+
+  // Ruta para visualizar los datos del perfil del usuario logueado
+
+
 
   // Agregar el router al prefijo /users
   app.use("/propietario", router);
