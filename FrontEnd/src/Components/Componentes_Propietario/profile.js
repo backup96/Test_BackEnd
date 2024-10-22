@@ -1,231 +1,162 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../../userContext";
-import { FaEdit, FaCheck } from "react-icons/fa";
+import "./profile.css";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
-const Profile = () => {
-  const { user, loading: userLoading, error: userError, fetchUserData, updateUserProfile } = useUser();
+const Profile = (name) => {
   const [loading, setLoading] = useState(true);
-  const [personData, setPersonData] = useState(null);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState({
-    telefono: false,
-    correo: false
+  const [perfilData, setPerfilData] = useState([]);
+  const [values, setValues] = useState({
+    name: name.name,
   });
-  const [formData, setFormData] = useState({
-    telefono: "",
-    correo: ""
-  });
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
-    const loadUserData = async () => {
-      if (userLoading) return;
-
-      if (!user) {
-        setError("No hay un usuario autenticado");
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
+    async function fetchProfile() {
       try {
-        console.log("Fetching user data...");
-        const data = await fetchUserData();
-        console.log("User data received:", data);
-        if (data) {
-          setPersonData(data);
-          setFormData({
-            telefono: data.telefono || "",
-            correo: data.correo || ""
-          });
-        } else {
-          setError("No se pudo obtener los datos del usuario");
-        }
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        setError("Error al cargar los datos del perfil");
-      } finally {
+        const response = await axios.post(
+          "http://localhost:8081/vista_perfil",
+          values
+        );
+        setPerfilData(response.data);
         setLoading(false);
+      } catch (error) {
+        toast.error("Error al obtener los datos");
       }
-    };
+    }
 
-    loadUserData();
-  }, [user, userLoading, fetchUserData]);
+    fetchProfile();
+  }, []);
 
-  const handleEdit = (field) => {
-    setIsEditing(prev => ({
-      ...prev,
-      [field]: true
-    }));
-  };
+  // const fetchPerfilData = async (userId) => {
+  //   try {
+  //     const response = await fetch(`http://localhost:8081/vista_perfil?userId=${userId}`);
+  //     if (!response.ok) throw new Error('Error al obtener los datos del perfil');
+  //     const data = await response.json();
+  //     if (data && data.length > 0) {
+  //       setPerfilData(data[0]);
+  //     } else {
+  //       setError("No se encontraron datos del perfil");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     setError("Error al cargar los datos del perfil");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  const handleChange = (e, field) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  };
-
-  const handleSave = (field) => {
-    updateUserProfile(personData.numDocumento, { [field]: formData[field] })
-      .then((result) => {
-        if (result.success) {
-          setAlertMessage(result.message);
-          setShowAlert(true);
-          setIsEditing(prev => ({
-            ...prev,
-            [field]: false
-          }));
-          setPersonData(prev => ({
-            ...prev,
-            [field]: formData[field]
-          }));
-        } else {
-          throw new Error(result.message);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setAlertMessage("Error al actualizar los datos");
-        setShowAlert(true);
-      });
-  };
-  
-
-  if (userLoading || loading) {
-    return <div className="flex justify-center items-center h-full">Cargando...</div>;
-  }
-
-  if (userError || error) {
+  if (loading === "true") {
     return (
-      <div className="text-center p-4 text-red-600">
-        {userError || error}
-        <button 
-          onClick={() => navigate('/LoginPropietario')} 
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Ir al Login
-        </button>
+      <div className="profile-container">
+        <div className="loading-spinner">Cargando...</div>
       </div>
     );
   }
 
-  if (!user || !personData) {
+  if (error) {
     return (
-      <div className="text-center p-4">
-        No se encontraron datos del perfil
-        <button 
-          onClick={() => navigate('/login')} 
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Ir al Login
-        </button>
+      <div className="profile-container">
+        <div className="error-message">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Mi Perfil</h1>
-      
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <div className="space-y-4">
-          <div>
-            <p className="font-medium">Nombre Completo:</p>
-            <p>{`${personData.nombre || ''} ${personData.apellido || ''}`}</p>
-          </div>
-
-          <div>
-            <p className="font-medium">Número de Documento:</p>
-            <p>{personData.numDocumento || 'No disponible'}</p>
-          </div>
-
-          <div>
-            <p className="font-medium">Teléfono:</p>
-            {isEditing.telefono ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={formData.telefono}
-                  onChange={(e) => handleChange(e, 'telefono')}
-                  className="border rounded p-1"
-                />
-                <FaCheck 
-                  className="text-green-500 cursor-pointer" 
-                  onClick={() => handleSave('telefono')}
-                />
+    <div className="profile-container">
+      <ToastContainer />
+      <h1 className="profile-title">Mi Perfil</h1>
+      <div className="profile-grid">
+        {perfilData.map((record, index) => (
+          <>
+            <div className="profile-section">
+              <h2>Información Personal</h2>
+              <div className="profile-field">
+                <span className="field-label">Nombre: </span>
+                <span key={index} className="field-value">
+                  {record.nombre || "No disponible"}
+                </span>
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span>{personData.telefono || 'No disponible'}</span>
-                <FaEdit 
-                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
-                  onClick={() => handleEdit('telefono')}
-                />
+              <div className="profile-field">
+                <span className="field-label">Apellido: </span>
+                <span key={index} className="field-value">
+                  {record.apellido || "No disponible"}
+                </span>
               </div>
-            )}
-          </div>
-
-          <div>
-            <p className="font-medium">Correo:</p>
-            {isEditing.correo ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="email"
-                  value={formData.correo}
-                  onChange={(e) => handleChange(e, 'correo')}
-                  className="border rounded p-1"
-                />
-                <FaCheck 
-                  className="text-green-500 cursor-pointer" 
-                  onClick={() => handleSave('correo')}
-                />
+              <div className="profile-field">
+                <span className="field-label">Teléfono: </span>
+                <span key={index} className="field-value">
+                  {record.telefono || "No disponible"}
+                </span>
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span>{personData.correo || 'No disponible'}</span>
-                <FaEdit 
-                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
-                  onClick={() => handleEdit('correo')}
-                />
+              <div className="profile-field">
+                <span className="field-label">Número de Documento: </span>
+                <span key={index} className="field-value">
+                  {record.numDocumento || "No disponible"}
+                </span>
               </div>
-            )}
-          </div>
-
-          {personData.placaVehiculo && (
-            <div>
-              <p className="font-medium">Placa Vehículo:</p>
-              <p>{personData.placaVehiculo}</p>
+              <div className="profile-field">
+                <span className="field-label">Correo: </span>
+                <span key={index} className="field-value">
+                  {record.correo || "No disponible"}
+                </span>
+              </div>
             </div>
-          )}
 
-          {personData.idParqueaderoFK && (
-            <div>
-              <p className="font-medium">Parqueadero:</p>
-              <p>{personData.idParqueaderoFK}</p>
+            <div className="profile-section">
+              <h2>Información de Acceso</h2>
+              <div className="profile-field">
+                <span className="field-label">Nombre de Usuario:</span>
+                <span key={index} className="field-value">
+                  {record.nombreUsuario || "No disponible"}
+                </span>
+              </div>
+              {/* <div className="profile-field">
+            <span className="field-label">Contraseña:</span>
+            <span className="field-value">********</span>
+          </div> */}
             </div>
-          )}
-        </div>
+
+            <div className="profile-section">
+              <h2>Información de Vivienda</h2>
+              <div className="profile-field">
+                <span className="field-label">Apartamento:</span>
+                <span key={index} className="field-value">
+                  {record.Apartamento_FK || "No disponible"}
+                </span>
+              </div>
+              <div className="profile-field">
+                <span className="field-label">Meses Atrasados:</span>
+                <span key={index} className="field-value">
+                  {record.mesesAtrasados || "0"}
+                </span>
+              </div>
+              <div className="profile-field">
+                <span className="field-label">ID Propietario:</span>
+                <span key={index} className="field-value">
+                  {record.idPropietario || "No disponible"}
+                </span>
+              </div>
+            </div>
+
+            <div className="profile-section">
+              <h2>Información de Vehículo</h2>
+              <div className="profile-field">
+                <span className="field-label">Parqueadero:</span>
+                <span key={index} className="field-value">
+                  {record.idParqueaderoFk || "No asignado"}
+                </span>
+              </div>
+              <div className="profile-field">
+                <span className="field-label">Placa Vehículo:</span>
+                <span key={index} className="field-value">
+                  {record.placaVehiculo || "No registrado"}
+                </span>
+              </div>
+            </div>
+          </>
+        ))}
       </div>
-
-      <button 
-        onClick={() => fetchUserData()} 
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Recargar Datos
-      </button>
-
-      {showAlert && (
-        <div className={`fixed top-4 right-4 p-4 rounded ${
-          alertMessage.includes("correctamente") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-        }`}>
-          {alertMessage}
-        </div>
-      )}
     </div>
   );
 };

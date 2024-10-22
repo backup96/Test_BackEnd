@@ -4,15 +4,12 @@ import { ToastContainer, toast } from "react-toastify";
 
 const Solicitudes = ({ currentRecords, length }) => {
   const [data, setDatos] = useState({
-    CodigoVivienda: "",
     Nombre: "",
     Apellido: "",
     Teléfono: "",
-    Correo: "",
     NumeroDocumento: "",
-    MesesAtrasados: 0,
-    EspacioParqueadero: 0,
-    Pass: "",
+    Correo: "",
+    CodigoVivienda: ""
   });
 
   const handleSubmit = (event) => {
@@ -28,26 +25,6 @@ const Solicitudes = ({ currentRecords, length }) => {
       })
       .catch((err) => console.log(err));
   };
-
-  // const cancelarEnviar = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const response = await axios.delete(
-  //       `http://localhost:4000/Solicitudes/${data.NumeroDocumento}`
-  //     );
-  //     console.log(response.status);
-  //     if (response.status === 200) {
-  //       setStatus(response.status);
-  //       setTimeout(() => {
-  //         setStatus("");
-  //       }, 5000);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     alert("Ocurrió un error al aprobar la solicitud");
-  //   }
-  // };
 
   return (
     <div className="accordion" id="accordionExample">
@@ -97,15 +74,15 @@ const Solicitudes = ({ currentRecords, length }) => {
                   <div className="accordion-body">
                     <ul className="list-group">
                       <li className="list-group-item">{`Nombre: ${record.Nombre} ${record.Apellido}`}</li>
-                      <li className="list-group-item">{`Número de documento: ${record.NumeroDocumento}`}</li>
-                      <li className="list-group-item">{`Teléfono: ${record.Teléfono}`}</li>
+                      <li className="list-group-item">{`Número de documento: ${record.NumDocumento}`}</li>
+                      <li className="list-group-item">{`Teléfono: ${record.Tel}`}</li>
                       <li className="list-group-item">{`Correo: ${record.Correo}`}</li>
-                      <li className="list-group-item">{`Código de vivienda: ${record.CodigoVivienda}`}</li>
+                      <li className="list-group-item">{`Código de vivienda: ${record.CodVivienda}`}</li>
                     </ul>
                   </div>
                 </div>
                 <div className="d-flex flex-row justify-content-end">
-                  <form className="mx-2 my-2" >
+                  <form className="mx-2 my-2">
                     <button
                       onClick={() =>
                         setDatos((prevUsuario) => ({
@@ -121,29 +98,24 @@ const Solicitudes = ({ currentRecords, length }) => {
                     </button>
                   </form>
                   <a
-                    href="/certificado.pdf"
+                    href={`http://localhost:8081/admin/descargar/${record.idSolicitud}`}
                     download={`certificado ${record.Nombre} ${record.Apellido}`}
                     className="btn mx-2 my-2 bg-primary-subtle border border-primary text-primary"
                   >
                     Ver documento de verificación
                   </a>
 
-                  <form className="mx-2 my-2">
+                  <form className="mx-2 my-2" onSubmit={handleSubmit}>
                     <button
                       onClick={() =>
                         setDatos((prevUsuario) => ({
                           ...prevUsuario,
-                          CodigoVivienda: record.CodigoVivienda,
                           Nombre: record.Nombre,
                           Apellido: record.Apellido,
-                          Teléfono: record.Teléfono,
+                          Teléfono: record.Tel,
+                          NumeroDocumento: record.NumDocumento,
                           Correo: record.Correo,
-                          NumeroDocumento: record.NumeroDocumento,
-                          MesesAtrasados: 0,
-                          EspacioParqueadero: 0,
-                          User: record.Nombre + record.NumeroDocumento,
-                          Pass: record.NumeroDocumento,
-                          id: record.NumeroDocumento,
+                          CodigoVivienda: record.CodVivienda,
                         }))
                       }
                       type="submit"

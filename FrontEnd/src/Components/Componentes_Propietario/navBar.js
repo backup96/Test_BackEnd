@@ -33,13 +33,14 @@ export function NavBar() {
       .get("http://localhost:8081/public")
       .then((res) => {
         if (res.data.Status === "Success") {
-          setName(res.data.Usuario);
+          setName(res.data.nombreUsuario);
         } else {
           navigate("/");
         }
       })
       .catch((err) => console.log(err));
   }, []);
+  
   const [currentTable, setCurrentTable] = useState("Parqueadero");
   const [showSideBar, setShowSideBar] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -55,7 +56,7 @@ export function NavBar() {
 
   return (
     <div className="d-flex flex-column justify-content-start h-100 ">
-      {/* Barra de navegación */ console.log("Hola", name)}
+      {/* Barra de navegación */}
       <nav className="navbar navbar-expand-lg navbar-dark w-100 bg-dark">
         <div className="container px-lg-5 d-flex flex-row justify-content-between">
           <div>
@@ -198,7 +199,7 @@ export function NavBar() {
         </div>
         <div className="w-100 h-100" style={{ marginLeft: "3%" }}>
           {currentTable === "perfil" ? (
-            <Profile />
+            <Profile name={name} />
           ) : (
             <Tabla apiS={currentTable} />
           )}

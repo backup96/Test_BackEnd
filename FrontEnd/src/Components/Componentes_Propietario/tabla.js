@@ -27,8 +27,8 @@ const Tabla = ({ apiS }) => {
         axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro`)
       ])
       .then(([responseMoto, responseCarro]) => {
-        console.log("Datos Moto:", responseMoto.data.data);
-        console.log("Datos Carro:", responseCarro.data.data);
+        console.log("Datos Moto:", responseMoto.data);
+        console.log("Datos Carro:", responseCarro.data);
   
         setDataMoto(responseMoto.data.data || []);
         setDataCarro(responseCarro.data.data || []);

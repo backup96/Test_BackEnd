@@ -6,7 +6,7 @@ import crypto from "crypto";
 const routerPublic = (app, db, transporter) => {
   const router = express.Router();
 
-  dotenv.config({ path: "../.env" });
+   dotenv.config({ path: "../.env" });
 
   // Ruta para consulta de apartamentos
   router.get("/Apartamentos", (req, res) => {
@@ -32,7 +32,7 @@ const routerPublic = (app, db, transporter) => {
         if (err) {
           return res.json({ Error: "Error con el token" });
         } else {
-          req.Usuario = decoded.Usuario;
+          req.nombreUsuario = decoded.nombreUsuario;
           next();
         }
       });
@@ -40,7 +40,7 @@ const routerPublic = (app, db, transporter) => {
   };
 
   router.get("/", verifyUser, (req, res) => {
-    return res.json({ Status: "Success", Usuario: req.Usuario });
+    return res.json({ Status: "Success", nombreUsuario: req.nombreUsuario });
   });
 
   // Ruta para limpiar cookies creadas y cerrar sesión

@@ -10,8 +10,8 @@ import Validation from "../../auth/../../Components/Componentes_Validaciones/Val
 
 const LoginPropietario = () => {
   const [values, setValues] = useState({
-    Usuario: "",
-    Pass: "",
+    nombreUsuario: "",
+    clave: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -30,7 +30,7 @@ const LoginPropietario = () => {
       validationErrors.Valid === "valid"
     ) {
       axios
-        .post("/propietario/loginPropietario", values)
+        .post("/propietario/vista_perfil", values)
         .then((res) => {
           if (res.data.Status === "Success") {
             navigate("/MainPropietario");
@@ -89,11 +89,11 @@ const LoginPropietario = () => {
                     className="form-control"
                     name="nombreUsuario"
                     onChange={(e) =>
-                      setValues({ ...values, Usuario: e.target.value })
+                      setValues({ ...values, nombreUsuario: e.target.value })
                     }
                   />
-                  {errors.Usuario && (
-                    <span className="text-danger">{errors.Usuario}</span>
+                  {errors.nombreUsuario && (
+                    <span className="text-danger">{errors.nombreUsuario}</span>
                   )}
                 </div>
                 <div className="w-50">
@@ -106,11 +106,11 @@ const LoginPropietario = () => {
                     className="form-control"
                     name="clave"
                     onChange={(e) =>
-                      setValues({ ...values, Pass: e.target.value })
+                      setValues({ ...values, clave: e.target.value })
                     }
                   />
-                  {errors.Pass && (
-                    <span className="text-danger">{errors.Pass}</span>
+                  {errors.clave && (
+                    <span className="text-danger">{errors.clave}</span>
                   )}
                 </div>
               </div>

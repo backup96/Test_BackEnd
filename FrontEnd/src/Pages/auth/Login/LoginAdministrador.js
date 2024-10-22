@@ -11,8 +11,8 @@ import { ToastContainer, toast } from "react-toastify";
 
 const LoginAdministrador = () => {
   const [values, setValues] = useState({
-    Usuario: "",
-    Pass: "",
+    nombreUsuario: "",
+    clave: "",
   });
 
   const [errors, setError] = useState({});
@@ -88,11 +88,11 @@ const LoginAdministrador = () => {
                     className="form-control"
                     name="name"
                     onChange={(e) =>
-                      setValues({ ...values, Usuario: e.target.value })
+                      setValues({ ...values, nombreUsuario: e.target.value })
                     }
                   />
-                  {errors.Usuario && (
-                    <span className="text-danger">{errors.Usuario}</span>
+                  {errors.nombreUsuario && (
+                    <span className="text-danger">{errors.nombreUsuario}</span>
                   )}
                 </div>
                 <div className="w-50">
@@ -105,11 +105,11 @@ const LoginAdministrador = () => {
                     className="form-control"
                     name="password"
                     onChange={(e) =>
-                      setValues({ ...values, Pass: e.target.value })
+                      setValues({ ...values, clave: e.target.value })
                     }
                   />
-                  {errors.Pass && (
-                    <span className="text-danger">{errors.Pass}</span>
+                  {errors.clave && (
+                    <span className="text-danger">{errors.clave}</span>
                   )}
                 </div>
               </div>
