@@ -38,7 +38,7 @@ export function NavBar() {
       })
       .catch((err) => console.log(err));
   }, []);
-  
+
   const [currentTable, setCurrentTable] = useState("Parqueadero");
   const [showSideBar, setShowSideBar] = useState(false);
   const [isHovered, setIsHovered] = useState(false);

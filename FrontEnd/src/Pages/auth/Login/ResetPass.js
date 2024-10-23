@@ -33,13 +33,11 @@ const ResetPass = () => {
         .then((res) => {
           if (res.status === 200) {
             toast.success("Contraseña actualizada correctamente");
-          } else if (res.status === 400) {
-            
-          } else {
-            toast.error("Ocurrio un error al intentar iniciar sesión");
           }
         })
-        .catch((err) => toast.error("Vencio el link de recuperación de contraseña"));
+        .catch((err) =>
+          toast.error("Vencio el link de recuperación de contraseña",err)
+        );
     }
   };
 

@@ -1,5 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const routerAdmin = (app, db) => {
   const router = express.Router();
@@ -37,7 +38,7 @@ const routerAdmin = (app, db) => {
   // Ruta para inicio de sesión en administrador
   router.post("/login", (req, res) => {
     const sql = "SELECT * FROM login_admin WHERE nombreUsuario = ?";
-    const values = [req.body.Usuario];
+    const values = [req.body.nombreUsuario];
     db.query(sql, [values], (err, data) => {
       if (err) {
         console.error("Error en la consulta:", err); // Muestra el error en el servidor
@@ -45,8 +46,25 @@ const routerAdmin = (app, db) => {
           .status(500)
           .json({ Error: "Error al enviar solicitud de registro" });
       }
-      if (data.length > 0 && data[0].Pass) {
-        return res.json({ Status: "Success" });
+      if (data.length > 0) {
+        bcrypt.compare(
+          req.body.clave.toString(),
+          data[0].clave,
+          (err, response) => {
+            if (err)
+              return res.json({ Error: "Error al comparar constraseñas" });
+            if (response) {
+              const nombreUsuario = data[0].nombreUsuario;
+              const token = jwt.sign({ nombreUsuario }, "jwt-secret-key", {
+                expiresIn: "1d",
+              });
+              res.cookie("token", token);
+              return res.json({ Status: "Success" });
+            } else {
+              return res.json({ Error: "Las constraseñas no coinciden" });
+            }
+          }
+        );
       } else {
         return res.json({
           Error: "Nombre de usuario o contraseña incorrectos",

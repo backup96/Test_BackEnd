@@ -27,13 +27,15 @@ const AskChangePass = () => {
         .post("/public/RecPass", values)
         .then((res) => {
           if (res.status === 200) {
-            toast.success("Revisa tu correo, hemos enviado un link para el cambio de contraseña")
+            toast.success(
+              "Revisa tu correo, hemos enviado un link para el cambio de contraseña"
+            );
           } else {
-            toast.error("Ocurrio un error al intentar iniciar sesión");
+            toast.error("Ocurrio un error al intentar enviar el correo de recuperación");
           }
         })
         .catch((err) => console.log(err));
-    } console.log(errors)
+    }
   };
 
   return (
