@@ -26,18 +26,50 @@
   color: #212529; 
 }
 
-.profile-parkings, .profile-grid, .profile-columns {
+.profile-grid, .profile-columns {
   display: flex;
   justify-content: space-between;
   gap: 20px;
 }
 
-.profile-parkings {
-  flex-direction: column;
-  align-items: center;
+.profile-left, .profile-right {
+  width: 48%;
 }
 
-.profile-parkings div {
+.profile-left {
+  text-align: left; /* Alineación de la sección izquierda */
+}
+
+.profile-right {
+  text-align: right; /* Alineación de la sección derecha */
+  align-self: flex-end; /* Alinea todo el contenedor hacia la derecha */
+}
+
+.profile-section {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.profile-section2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Alinea los elementos hijos a la derecha */
+}
+
+.profile-section2 p {
+  text-align: right; /* Alinea el texto dentro de los párrafos a la derecha */
+}
+
+.profile-section h4, .profile-section2 h4 {
+  color: #007bff;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: left; 
+}
+
+.profile-section p {
   margin: 5px 0;
 }
 
@@ -53,11 +85,16 @@
   color: #0056b3;
 }
 
-.profile-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.check-icon {
+  color: #28a745; /* Verde para el icono */
+  cursor: pointer;
+  margin-left: 8px; /* Espacio entre el input/texto y el icono */
+  font-size: 20px; /* Ajusta el tamaño del icono si es necesario */
+  transition: color 0.3s ease; /* Transición suave */
+}
+
+.check-icon:hover {
+  color: #218838; /* Verde más oscuro al pasar el mouse */
 }
 
 .btn-secondary {
@@ -111,64 +148,34 @@
   font-size: 14px;
 }
 
-.profile-left, .profile-right {
-  width: 48%;
-}
-
-.profile-section {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.profile-section h4 {
-  color: #007bff;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: left;
-}
-
-.profile-section p {
-  margin: 5px 0;
-}
-
 @media (max-width: 768px) {
   .profile-container {
-      margin: 20px;
-      padding: 15px;
+    margin: 20px;
+    padding: 15px;
   }
 
   .profile-title {
-      font-size: 20px;
+    font-size: 20px;
   }
 
   .profile-info p {
-      font-size: 14px;
+    font-size: 14px;
   }
 
   .btn-secondary {
-      font-size: 14px;
-      padding: 8px 16px;
+    font-size: 14px;
+    padding: 8px 16px;
   }
 
   .profile-columns {
-      flex-direction: column;
+    flex-direction: column;
   }
 
   .profile-left, .profile-right {
-      width: 100%;
+    width: 100%;
   }
-}
 
-.check-icon {
-  color: #28a745; /* Verde para el icono */
-  cursor: pointer;
-  margin-left: 8px; /* Espacio entre el input/texto y el icono */
-  font-size: 20px; /* Ajusta el tamaño del icono si es necesario */
-  transition: color 0.3s ease; /* Transición suave */
-}
-
-.check-icon:hover {
-  color: #218838; /* Verde más oscuro al pasar el mouse */
+  .profile-right {
+    text-align: left; /* Para dispositivos pequeños, texto alineado a la izquierda */
+  }
 }

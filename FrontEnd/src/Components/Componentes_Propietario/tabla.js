@@ -1,30 +1,44 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { useUser } from "../../userContext";
 import Calendario from "./calendario"; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-const Tabla = ({ apiS }) => {
+const Tabla = ({ apiS, name }) => {
   const [currentPageMoto, setCurrentPageMoto] = useState(1);
   const [currentPageCarro, setCurrentPageCarro] = useState(1);
-  const { user, setUser } = useUser();
   const [searchTermMoto, setSearchTermMoto] = useState("");
   const [searchTermCarro, setSearchTermCarro] = useState("");
 
   const recordsPerPage = 12;
-
   const [dataMoto, setDataMoto] = useState([]);
   const [dataCarro, setDataCarro] = useState([]);
+  const [perfilData, setPerfilData] = useState(null);  // Inicializamos como null
+  
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.post("http://localhost:8081/vista_perfil", { name });
+        setPerfilData(response.data); // Guardamos el objeto directamente
+      } catch (error) {
+        toast.error("Error al obtener los datos del perfil");
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, [name]);
+
+  
 
   useEffect(() => {
     const fetchEspacios = () => {
       Promise.all([
-        axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto`),
-        axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro`)
+        axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto"),
+        axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro")
       ])
       .then(([responseMoto, responseCarro]) => {
         console.log("Datos Moto:", responseMoto.data);
@@ -53,8 +67,7 @@ const Tabla = ({ apiS }) => {
     .slice(indexOfFirstRecordMoto, indexOfLastRecordMoto);
 
   const totalPagesMoto = Math.ceil(
-    dataMoto.filter((record) => record.estado === 'Disponible').length /
-      recordsPerPage
+    dataMoto.filter((record) => record.estado === 'Disponible').length / recordsPerPage
   );
 
   const currentRecordsCarro = dataCarro
@@ -62,8 +75,7 @@ const Tabla = ({ apiS }) => {
     .slice(indexOfFirstRecordCarro, indexOfLastRecordCarro);
 
   const totalPagesCarro = Math.ceil(
-    dataCarro.filter((record) => record.estado === 'Disponible').length /
-      recordsPerPage
+    dataCarro.filter((record) => record.estado === 'Disponible').length / recordsPerPage
   );
 
   const handlePageChangeMoto = (pageNumber) => {
@@ -76,10 +88,14 @@ const Tabla = ({ apiS }) => {
     setCurrentPageCarro(pageNumber);
   };
 
-  const rentSpace = (spaceId, EspacioParqueadero, espacioNumero) => {
- 
-    const espacioMoto = user.espacioMoto || null;
-    const espacioCarro = user.espacioCarro || null;
+  const rentSpace = async (spaceId, EspacioParqueadero, espacioNumero) => {
+    if (!perfilData) {
+      toast.error("Error: No se han cargado los datos del perfil");
+      return;
+    }
+  
+    const espacioMoto = perfilData.espacioMoto;
+    const espacioCarro = perfilData.espacioCarro;
   
     if (
       (EspacioParqueadero === "Moto" && espacioMoto) ||
@@ -89,63 +105,56 @@ const Tabla = ({ apiS }) => {
       return;
     }
   
-    axios.put(`http://localhost:8081/espacio_parqueadero/${spaceId}/estado`, {
-      idEstado: 2 // Asumiendo que 2 es el ID del estado "Ocupado"
-    })
-    .then(() => {
+    try {
+      // Rentar el espacio
+      await axios.put('http://localhost:8081/rentar_espacio', {
+        nombreUsuario: perfilData.nombreUsuario,
+        numEspacio: espacioNumero
+      });
+  
+      // Actualizar el estado local
       if (EspacioParqueadero === "Moto") {
-        setDataMoto((prevData) =>
-          prevData.map((item) =>
+        setDataMoto(prevData =>
+          prevData.map(item =>
             item.numEspacio === espacioNumero ? { ...item, estado: "Ocupado" } : item
           )
         );
       } else {
-        setDataCarro((prevData) =>
-          prevData.map((item) =>
+        setDataCarro(prevData =>
+          prevData.map(item =>
             item.numEspacio === espacioNumero ? { ...item, estado: "Ocupado" } : item
           )
         );
       }
   
-      const updatedUser = {
-        ...user,
-        espacioMoto: EspacioParqueadero === "Moto" ? espacioNumero : espacioMoto,
-        espacioCarro: EspacioParqueadero === "Carro" ? espacioNumero : espacioCarro,
-      };
-  
-      return axios.patch(`http://localhost:8081/usuarios/${user.id}`, updatedUser);
-    })
-    .then((response) => {
-      setUser(response.data);
       toast.success("Usted rentó un espacio de parqueadero exitosamente");
-    })
-    .catch((error) => {
+      
+    } catch (error) {
       console.error("Error al rentar el espacio:", error);
-      toast.error("Error al rentar el espacio");
-    });
-  };
+      if (error.response && error.response.data && error.response.data.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Error al rentar el espacio");
+      }
+    }
+  }
+  
   
   const handleSearchMoto = (e) => {
     e.preventDefault();
-    console.log("Buscando Moto:", searchTermMoto); // Debugging
     fetchFilteredRecordsMoto(searchTermMoto);
   };
 
   const handleSearchCarro = (e) => {
     e.preventDefault();
-    console.log("Buscando Carro:", searchTermCarro); // Debugging
     fetchFilteredRecordsCarro(searchTermCarro);
   };
 
   const fetchFilteredRecordsMoto = async (term) => {
     try {
       if (term) {
-        const response = await axios.get(
-          `http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Moto`
-        );
-        console.log("Datos Moto Filtrados:", response.data.data);
+        const response = await axios.get(`http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Moto`);
         if (response.data.status === 'success' && response.data.data.length > 0) {
-          // Filtrar los datos para mostrar solo el espacio buscado
           const filteredData = response.data.data.filter(record => record.numEspacio === parseInt(term));
           setDataMoto(filteredData);
           setCurrentPageMoto(1);
@@ -154,7 +163,7 @@ const Tabla = ({ apiS }) => {
           setDataMoto([]); // Limpia los datos si no hay resultados
         }
       } else {
-        const responseMoto = await axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto`);
+        const responseMoto = await axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto");
         setDataMoto(responseMoto.data.data);
       }
     } catch (error) {
@@ -163,15 +172,11 @@ const Tabla = ({ apiS }) => {
     }
   };
   
-
-  const fetchFilteredRecordsCarro = (term) => {
-    if (term) {
-      axios
-        .get(`http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Carro`)
-        .then((response) => {
-          console.log("Datos Carro Filtrados:", response.data.data);
+  const fetchFilteredRecordsCarro = async (term) => {
+    try {
+      if (term) {
+        const response = await axios.get(`http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Carro`);
         if (response.data.status === 'success' && response.data.data.length > 0) {
-          // Filtrar los datos para mostrar solo el espacio buscado
           const filteredData = response.data.data.filter(record => record.numEspacio === parseInt(term));
           setDataCarro(filteredData);
           setCurrentPageCarro(1);
@@ -179,26 +184,20 @@ const Tabla = ({ apiS }) => {
           toast.warning("No se encontraron espacios de carro con ese número.");
           setDataCarro([]); // Limpia los datos si no hay resultados
         }
-        })
-        .catch((error) => {
-          console.error(error);
-          toast.error("Este espacio no se encuentra disponible.");
-        });
-    } else {
-      axios
-        .get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro`)
-        .then((responseCarro) => {
-          setDataCarro(responseCarro.data.data);
-        })
-        .catch((error) => {
-          console.error(error);
-          toast.error("Error al obtener los espacios de carro.");
-        });
+      } else {
+        const responseCarro = await axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro");
+        setDataCarro(responseCarro.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al obtener los espacios de carro.");
     }
   };
+
   
-  const hasRentedMoto = user && user.espacioMoto;
-  const hasRentedCarro = user && user.espacioCarro;
+  const hasRentedMoto = perfilData && perfilData.espacioMoto;
+  const hasRentedCarro = perfilData && perfilData.espacioCarro;
+
 
   return (
     <div className="w-100 h-100">

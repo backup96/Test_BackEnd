@@ -11,6 +11,7 @@ import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
+
 dotenv.config({ path: "./.env" });
 
 const app = express();
@@ -18,10 +19,12 @@ app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Añadido PUT y OPTIONS
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"], // Añadido headers permitidos
   })
 );
+app.options('*', cors());
 
 app.use(cookieParser());
 
@@ -71,6 +74,79 @@ app.get("/espacio_parqueadero", (req, res) => {
   });
 });
 
+app.put('/rentar_espacio', (req, res) => {
+  console.log(req.body);
+  const { name, numEspacio } = req.body;
+  const estadoOcupado = "Ocupado";
+
+  // Primero verificamos si el espacio está disponible
+  const sqlCheckEspacio = `
+    SELECT numEspacio, estado 
+    FROM espacios_parqueadero 
+    WHERE numEspacio = ?`;
+  
+  db.query(sqlCheckEspacio, [numEspacio], (err, espacioResult) => {
+    if (err) {
+      console.error("Error al verificar el espacio:", err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (espacioResult.length === 0) {
+      return res.status(404).json({ error: "Espacio no encontrado" });
+    }
+
+    if (espacioResult[0].estado === "Ocupado") {
+      return res.status(400).json({ error: "El espacio ya está ocupado" });
+    }
+
+    // Si está disponible, actualizamos el estado del espacio
+    const sqlUpdateEspacio = `
+      UPDATE espacios_parqueadero 
+      SET estado = ? 
+      WHERE numEspacio = ?`;
+    
+    db.query(sqlUpdateEspacio, [estadoOcupado, numEspacio], (err, updateResult) => {
+      if (err) {
+        console.error("Error al actualizar el espacio:", err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      // Actualizamos la tabla personas con el id del espacio
+      const sqlUpdatePersona = `
+        UPDATE rentar_espacio 
+        SET idParqueaderoFk = ? 
+        WHERE nombreUsuario = ?`;
+      
+      db.query(sqlUpdatePersona, [espacioResult[0].id, name], (err, personaResult) => {
+        if (err) {
+          console.error("Error al actualizar la persona:", err.message);
+          // Si hay error, revertimos el cambio en espacios_parqueadero
+          db.query(
+            "UPDATE espacios_parqueadero SET estado = 'Disponible' WHERE numEspacio = ?", 
+            [numEspacio]
+          );
+          return res.status(500).json({ error: err.message });
+        }
+
+        if (personaResult.affectedRows === 0) {
+          // Si no se actualizó ninguna persona, revertimos el cambio en espacios_parqueadero
+          db.query(
+            "UPDATE espacios_parqueadero SET estado = 'Disponible' WHERE numEspacio = ?", 
+            [numEspacio]
+          );
+          return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        res.json({ 
+          status: 'success',
+          message: "Espacio de parqueadero rentado exitosamente." 
+        });
+      });
+    });
+  });
+});
+
+
 
 
 
@@ -111,7 +187,6 @@ app.get("/citas_salon_comunal", (req, res) => {
     const formattedData = data.map(cita => ({
       ...cita,
       Fecha: new Date(cita.Fecha).toISOString().split('T')[0],
-      // Convertir ambos números de documento a string para la comparación
       numDocumento: String(cita.numDocumento),
       esPropia: String(cita.numDocumento) === userDocString
     }));
@@ -142,14 +217,14 @@ app.get("/citas_salon_comunal", (req, res) => {
 
 // Ruta para datos del propietario (Perfil)
 app.post('/vista_perfil', (req, res) => {
-  const nombreUsuario = req.body.name; // Obtener el ID del usuario desde el parámetro de consulta
+  const nombreUsuario = req.body.name;
   const sql = "SELECT * FROM vista_perfil WHERE nombreUsuario = ?";
   db.query(sql, [nombreUsuario], (err, results) => {
     if (err) {
-      console.error("Error en la consulta:", err.message); // Log para errores
+      console.error("Error en la consulta:", err.message); 
       return res.status(500).json({ error: err.message });
     }
-    console.log("Datos obtenidos:", results); // Log para verificar los datos obtenidos
+    console.log("Datos obtenidos:", results); 
     res.json(results);
   });
 });
@@ -170,8 +245,7 @@ app.post('/actualizar_perfil', (req, res) => {
     if (results.affectedRows === 0) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
-    
-    console.log("Perfil actualizado:", results);
+    // console.log("Perfil actualizado:", results);
     res.json({ message: "Perfil actualizado exitosamente" });
   });
 });

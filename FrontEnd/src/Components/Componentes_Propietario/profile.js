@@ -4,8 +4,9 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { Link } from "react-router-dom";
 import { FaEdit, FaCheck } from "react-icons/fa";
+import Tabla from "./tabla"; // Asegúrate de que la ruta sea correcta
 
-const Profile = ({ name }) => {  // Destructuración correcta
+const Profile = ({ name }) => {
   const [loading, setLoading] = useState(true);
   const [perfilData, setPerfilData] = useState([]);
   const [isEditing, setIsEditing] = useState({
@@ -19,7 +20,7 @@ const Profile = ({ name }) => {  // Destructuración correcta
     nombreUsuario: "",
   });
   const [showModal, setShowModal] = useState(false);
-  
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -37,7 +38,7 @@ const Profile = ({ name }) => {  // Destructuración correcta
     };
 
     fetchProfile();
-  }, [name]);  // Agregado name como dependencia
+  }, [name]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -71,18 +72,28 @@ const Profile = ({ name }) => {  // Destructuración correcta
     const newPassword = document.getElementById("newPassword").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
 
+    // Validación de campos vacíos
     if (!newPassword || !confirmPassword) {
       toast.error("Por favor complete ambos campos");
       return;
     }
 
+    // Validación de contraseñas coincidentes
     if (newPassword !== confirmPassword) {
       toast.error("Las contraseñas no coinciden");
       return;
     }
 
+    // Validación de longitud mínima
     if (newPassword.length < 8) {
       toast.error("La contraseña debe tener al menos 8 caracteres");
+      return;
+    }
+
+    // Validación de que comience con mayúscula y contenga letras y números
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Z][A-Za-z\d]*$/;
+    if (!passwordRegex.test(newPassword)) {
+      toast.error("La contraseña debe comenzar con una letra mayúscula y contener letras y números");
       return;
     }
 
@@ -99,7 +110,7 @@ const Profile = ({ name }) => {  // Destructuración correcta
         document.getElementById("confirmPassword").value = "";
       }
     } catch (error) {
-      // toast.error(error.response?.data?.error || "Error al cambiar la contraseña");
+      toast.error(error.response?.data?.error || "Error al cambiar la contraseña");
     }
   };
 
@@ -137,7 +148,7 @@ const Profile = ({ name }) => {  // Destructuración correcta
                         name="telefono"
                         value={editableData.telefono}
                         onChange={handleInputChange}
-                        onBlur={() => handleToggleEdit("telefono")} 
+                        onBlur={() => handleToggleEdit("telefono")}
                         autoFocus
                       />
                       <FaCheck className="check-icon" onClick={() => handleToggleEdit("telefono")} />
@@ -159,7 +170,7 @@ const Profile = ({ name }) => {  // Destructuración correcta
                         name="correo"
                         value={editableData.correo}
                         onChange={handleInputChange}
-                        onBlur={() => handleToggleEdit("correo")} 
+                        onBlur={() => handleToggleEdit("correo")}
                         autoFocus
                       />
                       <FaCheck className="check-icon" onClick={() => handleToggleEdit("correo")} />
@@ -176,7 +187,7 @@ const Profile = ({ name }) => {  // Destructuración correcta
               <div className="profile-section">
                 <h4>Información de Acceso</h4>
                 <p>
-                  <strong>Nombre Usuario:</strong>
+                  <strong>Usuario:</strong>
                   {isEditing.nombreUsuario ? (
                     <>
                       <input
@@ -184,7 +195,7 @@ const Profile = ({ name }) => {  // Destructuración correcta
                         name="nombreUsuario"
                         value={editableData.nombreUsuario}
                         onChange={handleInputChange}
-                        onBlur={() => handleToggleEdit("nombreUsuario")} 
+                        onBlur={() => handleToggleEdit("nombreUsuario")}
                         autoFocus
                       />
                       <FaCheck className="check-icon" onClick={() => handleToggleEdit("nombreUsuario")} />
@@ -229,6 +240,9 @@ const Profile = ({ name }) => {  // Destructuración correcta
           </div>
         ))}
       </div>
+
+      {/* Aquí se integra el componente Tabla */}
+      <Tabla apiS={"http://localhost:8081/espacio_parqueadero"} name={perfilData[0]?.nombreUsuario} />
 
       {showModal && (
         <div className="modal show d-block" tabIndex="-1" role="dialog">
