@@ -68,13 +68,17 @@ app.get("/espacio_parqueadero", (req, res) => {
 });
 
 
+
+
+
+
 // Ruta para calendario-propietario
 app.post('/citas_salon_comunal', (req, res) => {
-  const { nombreUsuario, numeroDoc, telefono, codigoVivienda, horarioInicio, horarioFin, motivoReunion, Fecha } = req.body;
+  const { numDocumento, horarioInicio, horarioFin, motivoReunion, Fecha } = req.body;
   const sql = `
-    INSERT INTO citas_salon_comunal (nombreUsuario, numeroDoc, telefono, codigoVivienda, horarioInicio, horarioFin, motivoReunion, Fecha)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-  db.query(sql, [nombreUsuario, numeroDoc, telefono, codigoVivienda, horarioInicio, horarioFin, motivoReunion, Fecha], (err, results) => {
+    INSERT INTO citas_salon_comunal ( numDocumento, horarioInicio, horarioFin, motivoReunion, Fecha)
+    VALUES (?, ?, ?, ?, ?)`;
+  db.query(sql, [numDocumento, horarioInicio, horarioFin, motivoReunion, Fecha], (err, results) => {
     if (err) {
       console.error("Error al insertar la reserva:", err);
       return res.status(500).json({ message: "Error al realizar la reserva" });
@@ -85,7 +89,7 @@ app.post('/citas_salon_comunal', (req, res) => {
 
 
 app.get("/citas_salon_comunal", (req, res) => {
-  const userDoc = req.query.numeroDoc; 
+  const userDoc = req.query.numDocumento; 
   const sql = "SELECT * FROM citas_salon_comunal";
   
   db.query(sql, (err, data) => {
@@ -96,7 +100,7 @@ app.get("/citas_salon_comunal", (req, res) => {
     const formattedData = data.map(cita => ({
       ...cita,
       Fecha: new Date(cita.Fecha).toISOString().split('T')[0],
-      esPropia: cita.numeroDoc === userDoc // Indica si la reserva pertenece al usuario actual
+      esPropia: cita.numDocumento === userDoc // Indica si la reserva pertenece al usuario actual
     }));
     
     return res.status(200).json(formattedData);
@@ -134,6 +138,28 @@ app.post('/vista_perfil', (req, res) => {
     }
     console.log("Datos obtenidos:", results); // Log para verificar los datos obtenidos
     res.json(results);
+  });
+});
+
+// Actualizar ddatos del perfil
+app.post('/actualizar_perfil', (req, res) => {
+  const { telefono, correo, nombreUsuario } = req.body;
+
+  console.log("Datos a actualizar:", { telefono, correo, nombreUsuario });
+
+  const sql = "UPDATE vista_perfil SET telefono = ?, correo = ? WHERE nombreUsuario = ?";
+  db.query(sql, [telefono, correo, nombreUsuario], (err, results) => {
+    if (err) {
+      console.error("Error en la consulta:", err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+    
+    console.log("Perfil actualizado:", results);
+    res.json({ message: "Perfil actualizado exitosamente" });
   });
 });
 
