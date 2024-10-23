@@ -5,19 +5,19 @@ import { Link } from "react-router-dom";
 import "./Logins.css";
 import myImg from "../../../img/logo2.png";
 import Fondo1 from "../../../img/fondo1.png"; /* Importación de la imagen de fondo */
-import Validation from "../../../Components/Componentes_Validaciones/Validation";
+import ValidationPass from "../../../Components/Componentes_Validaciones/ValidationPass";
 import { ToastContainer, toast } from "react-toastify";
 
 const AskChangePass = () => {
   const [values, setValues] = useState({
-    Usuario: "",
+    Correo: "",
   });
 
   const [errors, setError] = useState({});
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const validationErrors = Validation(values);
+    const validationErrors = ValidationPass(values);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&
@@ -33,7 +33,7 @@ const AskChangePass = () => {
           }
         })
         .catch((err) => console.log(err));
-    }
+    } console.log(errors)
   };
 
   return (
@@ -84,11 +84,11 @@ const AskChangePass = () => {
                     className="form-control"
                     name="name"
                     onChange={(e) =>
-                      setValues({ ...values, Usuario: e.target.value })
+                      setValues({ ...values, Correo: e.target.value })
                     }
                   />
-                  {errors.Usuario && (
-                    <span className="text-danger">{errors.Usuario}</span>
+                  {errors.Correo && (
+                    <span className="text-danger">{errors.Correo}</span>
                   )}
                 </div>
               </div>

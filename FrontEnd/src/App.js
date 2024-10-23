@@ -10,6 +10,7 @@ import MainPortero from "./Pages/auth/portero/mainPortero.";
 import RegisterPropietario from "./Pages/auth/Login/RegisterPropietario";
 import Tabla from "./Components/Componentes_Propietario/tabla"; // Asegúrate de la ruta correcta
 import Profile from "./Components/Componentes_Propietario/profile";
+import ResetPass from "./Pages/auth/Login/ResetPass.js"
 import InvitadoDetalle from './Pages/auth/portero/InvitadoDetalles.js';
 import AskChangePass from "./Pages/auth/Login/AskChangePass.js";
 
@@ -30,6 +31,7 @@ function App() {
           <Route path="MainPropietario" exact element={<MainPropietario />}></Route>
           <Route path="/profile" exact element={<Profile />} />
           <Route path="/invitado/:id" exact element={<InvitadoDetalle />} />
+          <Route path="reset-password/:token" exact element={<ResetPass/>} />
         </Routes>
       </Router>
     </Fragment>

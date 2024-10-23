@@ -11,6 +11,12 @@ const Profile = (name) => {
     name: name.name,
   });
 
+  const [obj, setobj] = ({
+    Pass: "",
+    RecPass: "",
+    nom: ""
+  })
+
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -27,24 +33,6 @@ const Profile = (name) => {
 
     fetchProfile();
   }, []);
-
-  // const fetchPerfilData = async (userId) => {
-  //   try {
-  //     const response = await fetch(`http://localhost:8081/vista_perfil?userId=${userId}`);
-  //     if (!response.ok) throw new Error('Error al obtener los datos del perfil');
-  //     const data = await response.json();
-  //     if (data && data.length > 0) {
-  //       setPerfilData(data[0]);
-  //     } else {
-  //       setError("No se encontraron datos del perfil");
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     setError("Error al cargar los datos del perfil");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   if (loading === "true") {
     return (
@@ -113,7 +101,7 @@ const Profile = (name) => {
               </div>
               {/* <div className="profile-field">
             <span className="field-label">Contraseña:</span>
-            <span className="field-value">********</span>
+            <span className="field-value"> {record.numDoc || "No disponible"}</span>
           </div> */}
             </div>
 
