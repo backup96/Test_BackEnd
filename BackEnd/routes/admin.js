@@ -113,6 +113,33 @@ const routerAdmin = (app, db) => {
     });
   });
 
+  // Crud viviendas
+  // Consultar viviendas
+  router.get("/getApartamentos", (req, res) => {
+    const sql = "SELECT * FROM apartamento";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Consultar viviendas específico
+  router.post("/getApartamentosEsp", (req, res) => {
+    const sql = "SELECT * FROM apartamento WHERE codigoVivienda = ?";
+    db.query(sql, [req.body.Term], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al buscar apartamento" });
+      }
+      res.json(data);
+    });
+  });
+
   // Crud porteros
   // Consultar porteros
   router.get("/getPorteros", (req, res) => {

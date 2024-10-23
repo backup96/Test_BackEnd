@@ -5,7 +5,7 @@ import "./Pages/auth/portero/InvitadoDetalle.css";
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [records, setRecords] = useState([]);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -109,28 +109,11 @@ export const UserProvider = ({ children }) => {
     )}:${String(secs).padStart(2, "0")}`;
   };
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        if (user) {
-          const response = await axios.get(
-            `http://localhost:4000/Propietarios/${user.id}`
-          ); // Actualiza con el ID correcto
-          setUser(response.data);
-        }
-      } catch (error) {
-        console.error("Error al obtener el usuario:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
   return (
     <UserContext.Provider
       value={{
-        user,
-        setUser,
+        records,
+        setRecords,
         hours,
         setHours,
         minutes,

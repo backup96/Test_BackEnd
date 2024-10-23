@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Solicitudes from "./solicitudes";
@@ -14,6 +14,8 @@ import Info from "./informacion";
 import Reporte from "./reporte";
 import { faAnglesRight } from "@fortawesome/free-solid-svg-icons";
 import { faAnglesLeft } from "@fortawesome/free-solid-svg-icons";
+
+const TableContext = createContext();
 
 const Tabla = ({ item, apiS }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +38,6 @@ const Tabla = ({ item, apiS }) => {
         } else {
           const response = await axios.get(`/admin/get${apiS}`);
           setDatos(response.data);
-          console.log(response.data)
           if (response.data.length === 0) {
             setDatos([]);
           }
@@ -82,6 +83,7 @@ const Tabla = ({ item, apiS }) => {
                 item={item}
                 currentRecords={currentRecords}
                 apiS={apiS}
+                length={data.length}
               />
             ) : apiS === "Propietarios" ? (
               <Propietario

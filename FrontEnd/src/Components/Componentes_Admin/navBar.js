@@ -337,7 +337,7 @@ export function NavBar() {
             className="z-0"
             item={
               currentTable === "Apartamentos"
-                ? ["Código de vivienda", "Número de parqueadero"]
+                ? ["Código de vivienda", "Bloque", "Numero de apartamento", "Torre"]
                 : currentTable === "Propietarios"
                 ? [
                     "Código de vivienda",

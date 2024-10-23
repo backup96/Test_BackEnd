@@ -27,7 +27,9 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
     id: "",
   });
 
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+  const [searchTerm, setSearchTerm] = useState({
+    Term: "",
+  }); // Estado para el término de búsqueda
   const [filteredRecords, setFilteredRecords] = useState(currentRecords);
 
   const enviar = async (e) => {
@@ -110,27 +112,17 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
     setAccion(() => "Eliminar");
   };
 
-  const fetchFilteredRecords = async (term) => {
+  const handleSearch = async (e) => {
+    e.preventDefault();
     try {
-      if (term) {
-        const response = await axios.get(
-          `http://localhost:4000/${apiS}?CodigoVivienda=${term}`
-        );
-        if (response.status === 200) {
-          setFilteredRecords(response.data);
-        }
-      } else {
-        setFilteredRecords(currentRecords);
+      const response = await axios.post(`/admin/getApartamentosEsp`, searchTerm);
+      if (response.status === 200) {
+        setFilteredRecords(response.data);
       }
     } catch (error) {
       console.error(error);
       alert("Ocurrió un error al filtrar los registros");
     }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchFilteredRecords(searchTerm);
   };
 
   return (
@@ -211,12 +203,13 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
             placeholder="Ejemplo -> 1103"
             aria-label="Search"
             required
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) =>
+              setSearchTerm({ ...searchTerm, Term: e.target.value })
+            }
           />
         </div>
         <button
-          onClick={() => setCurrentAccion("Consultar")}
+          onClick={(e) => setCurrentAccion("Consultar")}
           className="btn btn-success py-1"
           type="submit"
         >
@@ -259,8 +252,10 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
           {accion !== "Consultar"
             ? currentRecords.map((record, index) => (
                 <tr key={index}>
-                  <td>{record.CodigoVivienda}</td>
-                  <td>{record.NumeroParqueadero}</td>
+                  <td>{record.codigoVivienda}</td>
+                  <td>{record.bloque}</td>
+                  <td>{record.numApartamento}</td>
+                  <td>{record.torre}</td>
                   <td>
                     <div className="d-flex flex-row justify-content-center">
                       <div className="mx-2">
@@ -294,102 +289,15 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                         </button>
                       </div>
                     </div>
-                    <div
-                      class="modal fade"
-                      id="exampleModal"
-                      tabindex="-1"
-                      aria-labelledby="exampleModalLabel"
-                      aria-hidden="true"
-                    >
-                      <div class="modal-dialog w-75">
-                        <div class="modal-content w-100">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">
-                              {accion} Apartamentos
-                            </h1>
-                            <button
-                              type="button"
-                              class="btn-close"
-                              data-bs-dismiss="modal"
-                              aria-label="Close"
-                            ></button>
-                          </div>
-                          <form onSubmit={enviar}>
-                            <div class="modal-body">
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputEmail1"
-                                  className="form-label"
-                                >
-                                  Código de Vivienda
-                                </label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  id="exampleInputEmail1"
-                                  required
-                                  value={apartamentos.CodigoVivienda}
-                                  onChange={(e) =>
-                                    setApartamentos((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      CodigoVivienda: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Número de Parqueadero
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={apartamentos.NumeroParqueadero}
-                                  onChange={(e) =>
-                                    setApartamentos((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      NumeroParqueadero: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                            </div>
-                            <div class="modal-footer">
-                              <button
-                                type="submit"
-                                className={
-                                  accion === "Actualizar"
-                                    ? "btn btn-warning"
-                                    : accion === "Insertar"
-                                    ? "btn btn-success w-25 m-0 ms-1 h-100"
-                                    : ""
-                                }
-                              >
-                                {accion === "Actualizar" ? (
-                                  <FontAwesomeIcon icon={faPenToSquare} />
-                                ) : accion === "Insertar" ? (
-                                  <FontAwesomeIcon icon={faSquarePlus} />
-                                ) : (
-                                  ""
-                                )}
-                              </button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
                   </td>
                 </tr>
               ))
             : filteredRecords.map((record, index) => (
                 <tr key={index}>
-                  <td>{record.CodigoVivienda}</td>
-                  <td>{record.NumeroParqueadero}</td>
+                  <td>{record.codigoVivienda}</td>
+                  <td>{record.bloque}</td>
+                  <td>{record.numApartamento}</td>
+                  <td>{record.torre}</td>
                   <td>
                     <div className="d-flex flex-row justify-content-center">
                       <div className="mx-2">
@@ -518,7 +426,7 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
         </tbody>
         <tfoot>
           <tr>
-            <th colSpan="2" className="text-light bg-dark"></th>
+            <th colSpan="4" className="text-light bg-dark"></th>
             <th rowSpan="1" colSpan="1" className="text-light bg-dark">
               <button
                 type="button"
