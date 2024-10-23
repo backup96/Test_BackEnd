@@ -4,47 +4,46 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Logins.css";
 import myImg from "../../../img/logo2.png";
-import { useUser } from "../../../userContext";
+import Validation from "../../auth/../../Components/Componentes_Validaciones/Validation";
+import { ToastContainer, toast } from "react-toastify";
 import Fondo1 from "../../../img/fondo1.png"; /* Importación de la imagen de fondo */
 
 const LoginPortero = () => {
   const [Username, setUsername] = useState("");
   const [Password, setPassword] = useState("");
-  const { setUser: setContextUser } = useUser();
-  const [showAlert, setShowAlert] = useState(false);
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
 
-  const enviar = async (e) => {
-    e.preventDefault();
+  const [values, setValues] = useState({
+    nombreUsuario: "",
+    clave: "",
+  });
 
-    // try {
-    //   // Solicitud GET para obtener los datos del usuario
-    //   const response = await axios.get(
-    //     `http://localhost:4000/Porteros?User=${Username}`
-    //   );
-
-    //   if (response.data.length > 0) {
-    //     const usuario = response.data[0];
-
-    //     if (usuario.Pass === Password) {
-    //       setContextUser(usuario); // Actualizar el contexto con el usuario
-    //       navigate("/MainPortero");
-    //     } else {
-    //       setShowAlert("pass");
-    //     }
-    //   } else {
-    //     setShowAlert("user");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   alert("Ocurrió un error al intentar iniciar sesión");
-    // }
-
-    navigate("/MainPortero");
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const validationErrors = Validation(values);
+    setErrors(validationErrors);
+    if (
+      Object.keys(validationErrors).length === 1 &&
+      validationErrors.Valid === "valid"
+    ) {
+      axios
+        .post("/portero/loginPortero", values)
+        .then((res) => {
+          if (res.data.Status === "Success") {
+            navigate("/MainPortero");
+          } else {
+            toast.error("Nombre de usuario o contraseña incorrectos");
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+    console.log(errors);
   };
 
   return (
     <>
+      <ToastContainer />
       <div
         className="login-page"
         style={{
@@ -58,23 +57,6 @@ const LoginPortero = () => {
           filter: "brightness(90%)", // Oscurecer la imagen de fondo
         }}
       >
-        {showAlert === "pass" ? (
-          <div
-            className="alert alert-warning alert-dismissible fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Contraseña incorrecta
-          </div>
-        ) : showAlert === "user" ? (
-          <div
-            className="alert alert-warning alert-dismissible fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Usuario no encontrado
-          </div>
-        ) : null}
         <div className="login-box rounded-4 p-5 bg-white w-50">
           <div className="login-logo d-flex flex-column align-items-center">
             <Link
@@ -91,7 +73,7 @@ const LoginPortero = () => {
             Ingrese como portero
           </p>
           <div className="card-body login-card-body">
-            <form onSubmit={enviar}>
+            <form onSubmit={handleSubmit}>
               {/* Nombre y Apellido */}
               <div className="d-flex flex-row">
                 <div className="me-4 w-50">
@@ -99,22 +81,28 @@ const LoginPortero = () => {
                     type="text"
                     className="form-control"
                     placeholder="Usuario"
-                    name="Username"
-                    required
-                    value={Username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    name="nombreUsuario"
+                    onChange={(e) =>
+                      setValues({ ...values, nombreUsuario: e.target.value })
+                    }
                   />
+                  {errors.nombreUsuario && (
+                    <span className="text-danger">{errors.nombreUsuario}</span>
+                  )}
                 </div>
                 <div className="w-50">
                   <input
                     type="password"
                     className="form-control"
                     placeholder="Contraseña"
-                    name="Pass"
-                    required
-                    value={Password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="clave"
+                    onChange={(e) =>
+                      setValues({ ...values, clave: e.target.value })
+                    }
                   />
+                  {errors.clave && (
+                    <span className="text-danger">{errors.clave}</span>
+                  )}
                 </div>
               </div>
               <div>

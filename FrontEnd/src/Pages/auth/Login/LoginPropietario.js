@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify'; 
-import 'react-toastify/dist/ReactToastify.css'; 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Logins.css";
 import myImg from "../../../img/logo2.png";
 import Fondo1 from "../../../img/fondo1.png";
@@ -40,6 +40,7 @@ const LoginPropietario = () => {
         })
         .catch((err) => console.log(err));
     }
+    console.log(errors);
   };
 
   return (

@@ -2,11 +2,12 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import crypto from "crypto";
+import bcrypt from "bcrypt";
 
 const routerPublic = (app, db, transporter) => {
   const router = express.Router();
 
-   dotenv.config({ path: "../.env" });
+  dotenv.config({ path: "../.env" });
 
   // Ruta para consulta de apartamentos
   router.get("/Apartamentos", (req, res) => {
@@ -51,7 +52,7 @@ const routerPublic = (app, db, transporter) => {
 
   // Ruta para solicitar recuperación de contraseña
   router.post("/RecPass", (req, res) => {
-    const email = req.body.Usuario;
+    const email = req.body.Correo;
     const sql1 = "SELECT * FROM reset_pass_view WHERE correo = ?";
     const sql2 =
       "INSERT INTO Reset_Pass (token, expiración, idUsuario_FK) VALUES (?, ?, ?)";
@@ -86,13 +87,54 @@ const routerPublic = (app, db, transporter) => {
 
           // Enviar el correo
           transporter.sendMail(mailOptions, (error, info) => {
-            if (error)
-              console.log(error)
+            if (error) console.log(error);
             return res.json({ message: "Correo enviado con éxito" });
           });
         });
-      } console.log(data);
+      }
+      console.log(data.length);
     });
+  });
+
+  // Ruta para restablecer la contraseña
+  router.post("/reset-password", (req, res) => {
+    const token = req.body.token;
+    const password = req.body.Pass;
+
+    // Buscar al usuario con el token y verificar que no haya expirado
+    db.query(
+      "SELECT * FROM reset_pass WHERE token = ? AND expiración > ?",
+      [token, Date.now()],
+      (err, result) => {
+        if (err)
+          return res.status(500).json({ error: "Error en la base de datos" });
+        if (result.length === 0)
+          return res.status(400).json({ message: "Token inválido o expirado" });
+
+        const user = result[0].idUsuario_FK;
+
+        // Encriptar la nueva contraseña
+        bcrypt.hash(password, 10, (err, hashedPassword) => {
+          if (err)
+            return res
+              .status(500)
+              .json({ error: "Error encriptando la contraseña" });
+
+          // Actualizar la contraseña del usuario y limpiar el token
+          db.query(
+            "Call cambiar_pass(?, ?)",
+            [hashedPassword, user],
+            (err) => {
+              if (err)
+                return res.status(500).json({
+                  error: "Error actualizando la contraseña en la base de datos",
+                });
+              res.json({ status: "Contraseña restablecida correctamente" });
+            }
+          );
+        });
+      }
+    );
   });
 
   // Agregar el router al prefijo /users

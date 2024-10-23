@@ -30,10 +30,10 @@ const LoginAdministrador = () => {
       axios
         .post("/admin/login", values)
         .then((res) => {
-          if (res.status === 200) {
+          if (res.data.Status === "Success") {
             navigate("/MainAdmin");
           } else {
-            toast.error("Ocurrio un error al intentar iniciar sesión");
+            toast.error("Nombre de usuario o contraseña incorrectos");
           }
         })
         .catch((err) => console.log(err));
@@ -42,6 +42,7 @@ const LoginAdministrador = () => {
 
   return (
     <>
+      <ToastContainer />
       <div
         className="login-page"
         style={{

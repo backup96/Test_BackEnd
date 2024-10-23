@@ -1,40 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Logins.css";
 import myImg from "../../../img/logo2.png";
 import Fondo1 from "../../../img/fondo1.png"; /* Importación de la imagen de fondo */
-import ValidationPass from "../../../Components/Componentes_Validaciones/ValidationPass";
+import ValidationNewPass from "../../../Components/Componentes_Validaciones/ValidationNewPass";
 import { ToastContainer, toast } from "react-toastify";
+import { useParams } from "react-router-dom";
 
-const AskChangePass = () => {
+const ResetPass = () => {
+  const token = useParams();
+
   const [values, setValues] = useState({
-    Correo: "",
+    Pass: "",
+    RecPass: "",
+    token: token.token,
   });
 
   const [errors, setError] = useState({});
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const validationErrors = ValidationPass(values);
+    const validationErrors = ValidationNewPass(values);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&
       validationErrors.Valid === "valid"
     ) {
       axios
-        .post("/public/RecPass", values)
+        .post("/public/reset-password", values)
         .then((res) => {
           if (res.status === 200) {
-            toast.success(
-              "Revisa tu correo, hemos enviado un link para el cambio de contraseña"
-            );
-          } else {
-            toast.error("Ocurrio un error al intentar enviar el correo de recuperación");
+            toast.success("Contraseña actualizada correctamente");
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) =>
+          toast.error("Vencio el link de recuperación de contraseña",err)
+        );
     }
   };
 
@@ -54,7 +57,7 @@ const AskChangePass = () => {
         }}
       >
         <ToastContainer />
-
+        {console.log(values)}
         <div className="login-box rounded-4 p-5 bg-white w-50">
           <div className="login-logo d-flex flex-column align-items-center">
             <Link
@@ -68,7 +71,7 @@ const AskChangePass = () => {
             </Link>
           </div>
           <p className="login-box-msg p-0 text-center mb-2 fs-2">
-            Ingrese el correo vinculado a su cuenta
+            Recuperación de constraseña
           </p>
           <div className="card-body login-card-body">
             <form action="" onSubmit={handleSubmit}>
@@ -78,7 +81,7 @@ const AskChangePass = () => {
                     className="text-start w-100 fw-normal"
                     htmlFor="Username"
                   >
-                    Correo electrónico
+                    Ingrese su nueva contraseña
                   </label>
                   <input
                     id="username"
@@ -86,11 +89,31 @@ const AskChangePass = () => {
                     className="form-control"
                     name="name"
                     onChange={(e) =>
-                      setValues({ ...values, Correo: e.target.value })
+                      setValues({ ...values, Pass: e.target.value })
                     }
                   />
-                  {errors.Correo && (
-                    <span className="text-danger">{errors.Correo}</span>
+                  {errors.Pass && (
+                    <span className="text-danger">{errors.Pass}</span>
+                  )}
+                </div>
+                <div className="me-4 w-100">
+                  <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="Username"
+                  >
+                    Repita la contraseña
+                  </label>
+                  <input
+                    id="username"
+                    type="text"
+                    className="form-control"
+                    name="name"
+                    onChange={(e) =>
+                      setValues({ ...values, RecPass: e.target.value })
+                    }
+                  />
+                  {errors.RecPass && (
+                    <span className="text-danger">{errors.RecPass}</span>
                   )}
                 </div>
               </div>
@@ -112,4 +135,4 @@ const AskChangePass = () => {
   );
 };
 
-export default AskChangePass;
+export default ResetPass;

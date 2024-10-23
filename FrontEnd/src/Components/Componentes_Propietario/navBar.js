@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import myImg from "../../img/logo2.png";
 import Tabla from "./tabla";
 import { useEffect, useState } from "react";
-import { useUser } from "../../userContext";
 import Profile from "./profile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -24,7 +23,6 @@ library.add(faPersonMilitaryPointing);
 library.add(faXmark);
 
 export function NavBar() {
-  const { setUser: setContextUser } = useUser();
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
@@ -40,7 +38,7 @@ export function NavBar() {
       })
       .catch((err) => console.log(err));
   }, []);
-  
+
   const [currentTable, setCurrentTable] = useState("Parqueadero");
   const [showSideBar, setShowSideBar] = useState(false);
   const [isHovered, setIsHovered] = useState(false);

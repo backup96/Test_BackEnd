@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import routerPropietario from "./routes/propietario.js";
 import routerAdmin from "./routes/admin.js";
 import routerPublic from "./routes/public.js";
+import routerPortero from "./routes/portero.js";
 import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
@@ -47,6 +48,7 @@ routerAdmin(app, db);
 
 routerPublic(app, db, transporter);
 
+routerPortero(app, db);
 
 // Ruta para vista parqueadero-propietario
 app.get("/espacio_parqueadero", (req, res) => {
@@ -68,6 +70,9 @@ app.get("/espacio_parqueadero", (req, res) => {
       return res.json({ status: 'success', data });
   });
 });
+
+
+
 
 
 
