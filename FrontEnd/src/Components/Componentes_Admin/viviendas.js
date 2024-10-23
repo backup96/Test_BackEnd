@@ -6,7 +6,9 @@ import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import ValidationReg from "../../Components/Componentes_Validaciones/ValidationReg";
+import { ToastContainer, toast } from "react-toastify";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 library.add(faTrash);
@@ -15,87 +17,113 @@ library.add(faSquarePlus);
 library.add(faXmark);
 library.add(faCheck);
 
-const Vivienda = ({ item, currentRecords, apiS }) => {
+const Vivienda = ({ item, currentRecords, apiS, data }) => {
   const [accion, setAccion] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState("");
-  const [eliminarRecord, setEliminarRecord] = useState("");
-
-  const [apartamentos, setApartamentos] = useState({
-    CodigoVivienda: "",
-    NumeroParqueadero: "",
-    id: "",
+  const [errors, setError] = useState({});
+  const [values, setValues] = useState({
+    Bloque: "",
+    Torre: "",
+    numAprt: "",
+    codApt: "",
   });
+
+  useEffect(() => {
+    if (accion === "Eliminar") {
+      eliminar(values.codigoVivienda);
+    }
+  }, [accion]);
+
+  const customToast = (mess, record) => {
+    return (
+      <>
+        {mess}
+        <form className="p-0" onSubmit={enviar}>
+          <div className="d-flex flex-row mt-3 justify-content-end">
+            <div className="ms-3">
+              <button
+                type="submit"
+                class="btn btn-success p-0 m-0"
+                style={{ width: "30px", height: "30px" }}
+              >
+                <FontAwesomeIcon icon={faCheck} />
+              </button>
+            </div>
+          </div>
+        </form>
+      </>
+    );
+  };
 
   const [searchTerm, setSearchTerm] = useState({
     Term: "",
   }); // Estado para el término de búsqueda
+
   const [filteredRecords, setFilteredRecords] = useState(currentRecords);
 
-  const enviar = async (e) => {
+  const enviar = (e) => {
     e.preventDefault();
-    try {
-      if (accion === "Actualizar") {
-        if (apartamentos.id) {
-          const response = await axios.patch(
-            `http://localhost:4000/${apiS}/${apartamentos.id}`,
-            {
-              CodigoVivienda: apartamentos.CodigoVivienda,
-              NumeroParqueadero: apartamentos.NumeroParqueadero,
-              id: apartamentos.id,
-            }
-          );
-          if (response.status === 200) {
-            setStatus(response.status);
-            setTimeout(() => {
-              setStatus("");
-            }, 5000);
-            setApartamentos((prevUsuario) => ({
-              ...prevUsuario,
-              id: "",
-            }));
-          }
+    const validationErrors = ValidationReg(values, data, apiS);
+    setError(validationErrors);
+    if (
+      Object.keys(validationErrors).length === 1 &&
+      validationErrors.Valid === "valid"
+    ) {
+      try {
+        if (accion === "Actualizar") {
+          axios
+            .post(`/admin/patch${apiS}`, values)
+            .then((res) => {
+              console.log(res.status);
+              if (res.data.Status === "Success") {
+                toast.success("Apartamento actualizado correctamente");
+              } else if (res.status === 500) {
+                toast.error("Ocurrio un error al actualizar el apartamento");
+              }
+            })
+            .catch((err) => toast.error(""));
+        } else if (accion === "Insertar") {
+          axios
+            .post(`/admin/post${apiS}`, values)
+            .then((res) => {
+              if (res.data.Status === "Success") {
+                toast.success("Apartamento insertado correctamente");
+              } else {
+                toast.error("Ocurrio un error al insertar el apartamento");
+              }
+            })
+            .catch((err) => console.log(err));
         }
-      } else if (accion === "Eliminar") {
-        if (apartamentos.id) {
-          const response = await axios.delete(
-            `http://localhost:4000/${apiS}/${apartamentos.id}`
-          );
-          console.log(response.status);
-          if (response.status === 200) {
-            setShowAlert(false);
-            setStatus(response.status);
-            setTimeout(() => {
-              setStatus("");
-            }, 5000);
-          }
-        } else {
-          setShowAlert(false);
-        }
-      } else if (accion === "Insertar") {
-        const response = await axios.post(`http://localhost:4000/${apiS}`, {
-          CodigoVivienda: apartamentos.CodigoVivienda,
-          NumeroParqueadero: apartamentos.NumeroParqueadero,
-        });
-        if (response.status === 201) {
-          setStatus(response.status);
-          setTimeout(() => {
-            setStatus("");
-          }, 5000);
-          setApartamentos((prevUsuario) => ({
-            ...prevUsuario,
-            id: "",
-          }));
-        }
+      } catch (error) {
+        console.error(error);
+        setAccion("");
+        setStatus("err");
+        setTimeout(() => {
+          setStatus("");
+        }, 5000);
       }
-    } catch (error) {
-      console.error(error);
-      setAccion("");
-      setStatus("err");
-      setTimeout(() => {
-        setStatus("");
-      }, 5000);
+    } else if (accion === "Eliminar") {
+      try {
+        axios
+          .post(`/admin/delete${apiS}`, values)
+          .then((res) => {
+            if (res.data.Status === "Success") {
+              toast.success("Registro eliminado correctamente");
+            } else {
+              toast.error("Ocurrio un error al eliminar el registro");
+            }
+          })
+          .catch((err) => console.log(err));
+      } catch (error) {
+        console.error(error);
+        setAccion("");
+        setStatus("err");
+        setTimeout(() => {
+          setStatus("");
+        }, 5000);
+      }
     }
+    console.log(errors, accion);
   };
 
   const setCurrentAccion = (accion) => {
@@ -103,19 +131,22 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
   };
 
   const eliminar = (record) => {
-    if (apiS === "Apartamentos") {
-      setApartamentos((prevApartamento) => ({
-        ...prevApartamento,
-        id: record,
-      }));
-    }
-    setAccion(() => "Eliminar");
+    toast.warning(
+      customToast("¿ Esta seguro de eliminar este registro ?"),
+      record,
+      {
+        autoClose: 10000,
+      }
+    );
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`/admin/getApartamentosEsp`, searchTerm);
+      const response = await axios.post(
+        `/admin/getApartamentosEsp`,
+        searchTerm
+      );
       if (response.status === 200) {
         setFilteredRecords(response.data);
       }
@@ -127,66 +158,7 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
 
   return (
     <>
-      {showAlert === true ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-warning alert-dismissible fade show w-25 z-1 position-absolute px-4 py-4"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Esta seguro de eliminar este registro ?
-            <form className="p-0" onSubmit={enviar}>
-              <div className="d-flex flex-row mt-3 justify-content-end">
-                <div>
-                  <button
-                    type="submit"
-                    class="btn btn-danger p-0 m-0"
-                    onClick={() => {
-                      eliminar();
-                    }}
-                    style={{ width: "30px", height: "30px" }}
-                  >
-                    <FontAwesomeIcon icon={faXmark} />
-                  </button>
-                </div>
-
-                <div className="ms-3">
-                  <button
-                    type="submit"
-                    class="btn btn-success p-0 m-0"
-                    onClick={() => {
-                      eliminar(eliminarRecord);
-                    }}
-                    style={{ width: "30px", height: "30px" }}
-                  >
-                    <FontAwesomeIcon icon={faCheck} />
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      ) : status === 200 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Operación completada
-          </div>
-        </div>
-      ) : status === 201 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Operación completada
-          </div>
-        </div>
-      ) : null}
+      <ToastContainer />
       <form
         className="d-flex mb-3 align-items-end"
         role="search"
@@ -261,8 +233,11 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                       <div className="mx-2">
                         <button
                           onClick={() => {
-                            setShowAlert(true);
-                            setEliminarRecord(record.id);
+                            setAccion("Eliminar");
+                            setValues((prevApartamento) => ({
+                              ...prevApartamento,
+                              codApt: record.codigoVivienda,
+                            }));
                           }}
                           class="btn btn-danger p-2"
                         >
@@ -276,11 +251,12 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                           data-bs-toggle="modal"
                           data-bs-target="#exampleModal"
                           onClick={() => {
-                            setApartamentos((prevApartamento) => ({
+                            setValues((prevApartamento) => ({
                               ...prevApartamento,
-                              CodigoVivienda: record.CodigoVivienda,
-                              NumeroParqueadero: record.NumeroParqueadero,
-                              id: record.id,
+                              Bloque: record.bloque,
+                              Torre: record.torre,
+                              numAprt: record.numApartamento,
+                              codApt: record.codigoVivienda,
                             }));
                             setCurrentAccion("Actualizar");
                           }}
@@ -303,7 +279,13 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                       <div className="mx-2">
                         <form className="p-0" onSubmit={enviar}>
                           <button
-                            onClick={() => eliminar(record.id)}
+                            onClick={() => {
+                              setAccion("Eliminar");
+                              setValues((prevApartamento) => ({
+                                ...prevApartamento,
+                                codApt: record.codigoVivienda,
+                              }));
+                            }}
                             type="submit"
                             className="btn btn-danger px-2"
                           >
@@ -318,11 +300,12 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                           data-bs-toggle="modal"
                           data-bs-target="#exampleModal"
                           onClick={() => {
-                            setApartamentos((prevApartamento) => ({
+                            setValues((prevApartamento) => ({
                               ...prevApartamento,
-                              CodigoVivienda: record.CodigoVivienda,
-                              NumeroParqueadero: record.NumeroParqueadero,
-                              id: record.id,
+                              Bloque: record.bloque,
+                              Torre: record.torre,
+                              numAprt: record.numApartamento,
+                              codApt: record.codigoVivienda,
                             }));
                             setCurrentAccion("Actualizar");
                           }}
@@ -356,47 +339,79 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                 </div>
                 <form onSubmit={enviar}>
                   <div class="modal-body">
+                    {errors.CodigoVivienda && (
+                      <span className="text-danger">
+                        {errors.CodigoVivienda}
+                      </span>
+                    )}
                     <div className="mb-3">
                       <label
                         htmlFor="exampleInputEmail1"
                         className="form-label"
                       >
-                        Código de Vivienda
+                        Bloque
                       </label>
                       <input
-                        type="text"
+                        type="number"
                         className="form-control"
                         id="exampleInputEmail1"
-                        required
-                        value={apartamentos.CodigoVivienda}
+                        value={values.Bloque}
                         onChange={(e) =>
-                          setApartamentos((prevApartamento) => ({
+                          setValues((prevApartamento) => ({
                             ...prevApartamento,
-                            CodigoVivienda: e.target.value,
+                            Bloque: e.target.value,
                           }))
                         }
                       />
+                      {errors.Bloque && (
+                        <span className="text-danger">{errors.Bloque}</span>
+                      )}
                     </div>
                     <div className="mb-3">
                       <label
                         htmlFor="exampleInputPassword1"
                         className="form-label"
                       >
-                        Numero de Parqueadero
+                        Torre
                       </label>
                       <input
                         type="number"
                         className="form-control"
                         id="exampleInputPassword1"
-                        required
-                        value={apartamentos.NumeroParqueadero}
+                        value={values.Torre}
                         onChange={(e) =>
-                          setApartamentos((prevApartamento) => ({
+                          setValues((prevApartamento) => ({
                             ...prevApartamento,
-                            NumeroParqueadero: e.target.value,
+                            Torre: e.target.value,
                           }))
                         }
                       />
+                      {errors.Torre && (
+                        <span className="text-danger">{errors.Torre}</span>
+                      )}
+                    </div>
+                    <div className="mb-3">
+                      <label
+                        htmlFor="exampleInputPassword1"
+                        className="form-label"
+                      >
+                        Numero de apartamento
+                      </label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="exampleInputPassword1"
+                        value={values.numAprt}
+                        onChange={(e) =>
+                          setValues((prevApartamento) => ({
+                            ...prevApartamento,
+                            numAprt: e.target.value,
+                          }))
+                        }
+                      />
+                      {errors.numAprt && (
+                        <span className="text-danger">{errors.numAprt}</span>
+                      )}
                     </div>
                   </div>
                   <div class="modal-footer">
@@ -434,10 +449,12 @@ const Vivienda = ({ item, currentRecords, apiS }) => {
                 data-bs-toggle="modal"
                 data-bs-target="#exampleModal"
                 onClick={() => {
-                  setApartamentos((prevApartamento) => ({
+                  setValues((prevApartamento) => ({
                     ...prevApartamento,
-                    CodigoVivienda: "",
-                    NumeroParqueadero: "",
+                    Bloque: "",
+                    Torre: "",
+                    numAprt: "",
+                    codApt: "",
                   }));
                   setCurrentAccion("Insertar");
                 }}

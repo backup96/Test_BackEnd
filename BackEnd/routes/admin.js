@@ -113,6 +113,8 @@ const routerAdmin = (app, db) => {
     });
   });
 
+  // -----------------------------------------------------------------//
+
   // Crud viviendas
   // Consultar viviendas
   router.get("/getApartamentos", (req, res) => {
@@ -139,6 +141,141 @@ const routerAdmin = (app, db) => {
       res.json(data);
     });
   });
+
+  // Insertar viviendas
+  router.post("/postApartamentos", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Inserción_Apartamento(?)";
+    const values = [req.body.Bloque, req.body.Torre, req.body.numAprt];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // Actualizar viviendas
+  router.post("/patchApartamentos", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Actualización_Apartamento(?)";
+    const values = [
+      req.body.codApt,
+      req.body.Bloque,
+      req.body.Torre,
+      req.body.numAprt,
+    ];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al actualizar el apartamento" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // Eliminar viviendas
+  router.post("/deleteApartamentos", (req, res) => {
+    console.log(req.body);
+    const sql = "DELETE FROM apartamento WHERE codigoVivienda = ?";
+    const values = [req.body.codApt];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Al eliminar el registro:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al eliminar el registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  //--------------------------------------------------------//
+
+  // Crud propietarios
+  // Consultar propietarios
+  router.get("/getPropietarios", (req, res) => {
+    const sql = "SELECT * FROM get_propietarios";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Consultar propietarios específico
+  router.post("/getPropietarioEsp", (req, res) => {
+    const sql = "SELECT * FROM get_propietarios WHERE numDocumento = ?";
+    db.query(sql, [req.body.Term], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al buscar apartamento" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Insertar propietarios
+  router.post("/postPropietarios", (req, res) => {
+    console.log(req);
+    const sql = "Call Inserción_Persona_Admin(?)";
+    bcrypt.hash(req.body.NumeroDocumento.toString(), salt, (err, hash) => {
+      if (err)
+        return res.json({ Error: "Fallo en la encriptación de la contraseña" });
+      const values = [
+        req.body.Nombre,
+        req.body.Apellido,
+        req.body.Teléfono,
+        req.body.NumeroDocumento,
+        req.body.Correo,
+        req.body.CodigoVivienda,
+        req.body.EspacioParqueadero,
+        req.body.Placa,
+        hash,
+      ];
+      db.query(sql, [values], (err, data) => {
+        if (err) {
+          console.error("Error en la consulta:", err); // Muestra el error en el servidor
+          return res
+            .status(500)
+            .json({ Error: "Error al enviar solicitud de registro" });
+        }
+        return res.json({ Status: "Success" });
+      });
+    });
+  });
+
+  // Actualizar propietarios
+  router.post("/patchPropietarios", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Actualizacion_Propietarios(?)";
+    const values = [
+      req.body.NumeroDocumento,
+      req.body.Teléfono,
+      req.body.Correo,
+      req.body.EspacioParqueadero,
+      req.body.Placa,
+      req.body.CodigoVivienda,
+    ];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al actualizar el apartamento" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // -------------------------------------------------------//
 
   // Crud porteros
   // Consultar porteros

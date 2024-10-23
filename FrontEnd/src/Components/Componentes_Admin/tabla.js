@@ -25,7 +25,7 @@ const Tabla = ({ item, apiS }) => {
   const [data, setDatos] = useState([]);
 
   useEffect(() => {
-    async function fetchApartamentos() {
+    const fetchApartamentos = async () => {
       try {
         if (apiS === "Informacion" || apiS === "Reporte") {
           const response = await axios.get(
@@ -49,6 +49,24 @@ const Tabla = ({ item, apiS }) => {
 
     fetchApartamentos();
   }, [apiS]);
+
+  const [dataApart, setDatosApart] = useState([]);
+
+  useEffect(() => {
+    async function fetchApartamentos() {
+      try {
+        const response = await axios.get(`/public/Apartamentos`);
+        setDatosApart(response.data);
+        if (response.data.length === 0) {
+          setDatosApart([]);
+        }
+      } catch (error) {
+        console.error("Error al obtener los apartamentos:", error);
+      }
+    }
+
+    fetchApartamentos();
+  }, []);
 
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
@@ -83,13 +101,14 @@ const Tabla = ({ item, apiS }) => {
                 item={item}
                 currentRecords={currentRecords}
                 apiS={apiS}
-                length={data.length}
+                data={dataApart}
               />
             ) : apiS === "Propietarios" ? (
               <Propietario
                 item={item}
                 currentRecords={currentRecords}
                 apiS={apiS}
+                data={dataApart}
               />
             ) : apiS === "Parqueadero" ? (
               <Parqueadero

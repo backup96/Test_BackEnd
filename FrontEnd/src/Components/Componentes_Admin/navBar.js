@@ -345,7 +345,8 @@ export function NavBar() {
                     "Teléfono",
                     "Correo",
                     "Número de Documento",
-                    "Meses Atrasados",
+                    "Numero de parqueadero",
+                    "Placa de Vehículo"
                   ]
                 : currentTable === "Parqueadero"
                 ? ["Número de Espacio", "Tipo de Espacio", "Estado"]
