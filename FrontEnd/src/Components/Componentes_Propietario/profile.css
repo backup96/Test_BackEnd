@@ -129,3 +129,93 @@
     color: #666; /* Estilo para el color del texto en el p dentro del card */
     font-size: 14px;
   }
+
+  .profile-grid {
+    display: flex;
+    justify-content: space-between; /* Separa las columnas */
+    gap: 20px; /* Añade espacio entre las columnas */
+  }
+  
+  .profile-columns {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Asegura que las columnas tomen todo el ancho disponible */
+  }
+  
+  .profile-left, .profile-right {
+    width: 48%; /* Cada columna ocupa el 48% del ancho, dejando espacio entre ellas */
+  }
+  
+  .profile-section {
+    margin-bottom: 20px; /* Espaciado entre las secciones */
+  }
+  
+  @media (max-width: 768px) {
+    .profile-columns {
+      flex-direction: column; /* Apila las columnas en dispositivos móviles */
+    }
+  
+    .profile-left, .profile-right {
+      width: 100%; /* Cada columna ocupa el 100% del ancho en dispositivos móviles */
+    }
+  }
+
+  /* profile.css */
+.profile-section h4 {
+    color: #007bff; /* Azul similar al del perfil */
+    font-weight: bold;
+    margin-bottom: 10px; 
+  }
+
+  /* profile.css */
+
+/* Contenedor general de las columnas */
+.profile-grid {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* Contenedor para las columnas izquierda y derecha */
+  .profile-columns {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  /* Columnas izquierda y derecha */
+  .profile-left, .profile-right {
+    width: 48%; /* Asigna un ancho igual a ambas columnas */
+  }
+  
+  /* Secciones de información dentro de cada columna */
+  .profile-section {
+    margin-bottom: 20px; /* Espacio entre cada sección */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinea el contenido a la izquierda */
+  }
+  
+  /* Estilo para los títulos de cada sección */
+  .profile-section h4 {
+    color: #007bff; /* Azul similar al perfil */
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+  
+  /* Asegura que los campos de texto dentro de las secciones estén alineados */
+  .profile-section p {
+    margin: 5px 0;
+  }
+  
+  /* Alinea verticalmente los títulos */
+  .profile-grid {
+    align-items: flex-start; /* Los títulos estarán alineados en la parte superior */
+  }
+  
+  /* Asegura que haya espaciado uniforme entre secciones a ambos lados */
+  .profile-left .profile-section,
+  .profile-right .profile-section {
+    margin-bottom: 30px;
+  }
+  

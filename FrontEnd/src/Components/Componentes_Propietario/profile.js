@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./profile.css";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify"; 
+import { Link } from "react-router-dom";
+import { FaEdit, FaCheck } from "react-icons/fa"; // Iconos para editar y guardar
 
 const Profile = (name) => {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [perfilData, setPerfilData] = useState([]);
+  const [isEditing, setIsEditing] = useState({ telefono: false, correo: false, nombreUsuario: false }); // Control de edición
+  const [editableData, setEditableData] = useState({ telefono: "", correo: "", nombreUsuario: "" });
+  const [showModal, setShowModal] = useState(false);
   const [values, setValues] = useState({
     name: name.name,
   });
@@ -19,6 +23,11 @@ const Profile = (name) => {
           values
         );
         setPerfilData(response.data);
+        setEditableData({
+          telefono: response.data[0].telefono || "",
+          correo: response.data[0].correo || "",
+          nombreUsuario: response.data[0].nombreUsuario || ""
+        });
         setLoading(false);
       } catch (error) {
         toast.error("Error al obtener los datos");
@@ -28,36 +37,76 @@ const Profile = (name) => {
     fetchProfile();
   }, []);
 
-  // const fetchPerfilData = async (userId) => {
-  //   try {
-  //     const response = await fetch(`http://localhost:8081/vista_perfil?userId=${userId}`);
-  //     if (!response.ok) throw new Error('Error al obtener los datos del perfil');
-  //     const data = await response.json();
-  //     if (data && data.length > 0) {
-  //       setPerfilData(data[0]);
-  //     } else {
-  //       setError("No se encontraron datos del perfil");
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     setError("Error al cargar los datos del perfil");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditableData({
+      ...editableData,
+      [name]: value,
+    });
+  };
 
-  if (loading === "true") {
+  const handleToggleEdit = (field) => {
+    setIsEditing((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field], // Cambia el estado de edición
+    }));
+
+    if (isEditing[field]) {
+      handleUpdate(); // Actualizar cuando se termina de editar
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      // Incluye el nombreUsuario actual en la petición
+      const dataToUpdate = {
+        ...editableData,
+        nombreUsuario: perfilData[0].nombreUsuario // Asumiendo que quieres usar el nombreUsuario actual
+      };
+  
+      const response = await axios.post(
+        "http://localhost:8081/actualizar_perfil", 
+        dataToUpdate
+      );
+  
+      if (response.data.message) {
+        toast.success("Perfil actualizado exitosamente");
+        // Actualiza los datos locales
+        setPerfilData(prevData => {
+          const newData = [...prevData];
+          newData[0] = { ...newData[0], ...editableData };
+          return newData;
+        });
+      }
+    } catch (error) {
+      console.error("Error al actualizar:", error);
+      toast.error(error.response?.data?.error || "Error al actualizar el perfil");
+    }
+  };
+
+  const handlePasswordChange = () => {
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
+
+    axios.post("http://localhost:8081/cambiar_contrasena", { newPassword })
+      .then(() => {
+        toast.success("Contraseña actualizada exitosamente");
+        setShowModal(false);
+      })
+      .catch((error) => {
+        toast.error("Error al cambiar la contraseña");
+      });
+  };
+
+  if (loading) {
     return (
       <div className="profile-container">
         <div className="loading-spinner">Cargando...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="profile-container">
-        <div className="error-message">{error}</div>
       </div>
     );
   }
@@ -68,95 +117,138 @@ const Profile = (name) => {
       <h1 className="profile-title">Mi Perfil</h1>
       <div className="profile-grid">
         {perfilData.map((record, index) => (
-          <>
-            <div className="profile-section">
-              <h2>Información Personal</h2>
-              <div className="profile-field">
-                <span className="field-label">Nombre: </span>
-                <span key={index} className="field-value">
-                  {record.nombre || "No disponible"}
-                </span>
+          <div key={index} className="profile-columns">
+            <div className="profile-left">
+              <div className="profile-section">
+                <h4>Información Personal</h4>
+                <p><strong>Nombre:</strong> {record.nombre || "No disponible"}</p>
+                <p><strong>Apellido:</strong> {record.apellido || "No disponible"}</p>
+
+                <p>
+                  <strong>Teléfono:</strong>
+                  {isEditing.telefono ? (
+                    <>
+                      <input
+                        type="text"
+                        name="telefono"
+                        value={editableData.telefono}
+                        onChange={handleInputChange}
+                        onBlur={() => handleToggleEdit("telefono")} // Deja de editar al perder foco
+                        autoFocus
+                      />
+                      <FaCheck className="check-icon" onClick={() => handleToggleEdit("telefono")} /> {/* Icono de check */}
+                    </>
+                  ) : (
+                    <>
+                      {editableData.telefono || "No disponible"}
+                      <FaEdit onClick={() => handleToggleEdit("telefono")} className="edit-icon" /> {/* Icono de edición */}
+                    </>
+                  )}
+                </p>
+
+                <p><strong>Número de Documento:</strong> {record.numDocumento || "No disponible"}</p>
+
+                <p>
+                  <strong>Correo:</strong>
+                  {isEditing.correo ? (
+                    <>
+                      <input
+                        type="email"
+                        name="correo"
+                        value={editableData.correo}
+                        onChange={handleInputChange}
+                        onBlur={() => handleToggleEdit("correo")} // Deja de editar al perder foco
+                        autoFocus
+                      />
+                      <FaCheck className="check-icon" onClick={() => handleToggleEdit("correo")} /> {/* Icono de check */}
+                    </>
+                  ) : (
+                    <>
+                      {editableData.correo || "No disponible"}
+                      <FaEdit onClick={() => handleToggleEdit("correo")} className="edit-icon" /> {/* Icono de edición */}
+                    </>
+                  )}
+                </p>
               </div>
-              <div className="profile-field">
-                <span className="field-label">Apellido: </span>
-                <span key={index} className="field-value">
-                  {record.apellido || "No disponible"}
-                </span>
-              </div>
-              <div className="profile-field">
-                <span className="field-label">Teléfono: </span>
-                <span key={index} className="field-value">
-                  {record.telefono || "No disponible"}
-                </span>
-              </div>
-              <div className="profile-field">
-                <span className="field-label">Número de Documento: </span>
-                <span key={index} className="field-value">
-                  {record.numDocumento || "No disponible"}
-                </span>
-              </div>
-              <div className="profile-field">
-                <span className="field-label">Correo: </span>
-                <span key={index} className="field-value">
-                  {record.correo || "No disponible"}
-                </span>
+
+              <div className="profile-section">
+                <h4>Información de Acceso</h4>
+                <p>
+                  <strong>Nombre de Usuario:</strong>
+                  {isEditing.nombreUsuario ? (
+                    <>
+                      <input
+                        type="text"
+                        name="nombreUsuario"
+                        value={editableData.nombreUsuario}
+                        onChange={handleInputChange}
+                        onBlur={() => handleToggleEdit("nombreUsuario")} // Deja de editar al perder foco
+                        autoFocus
+                      />
+                      <FaCheck className="check-icon" onClick={() => handleToggleEdit("nombreUsuario")} /> {/* Icono de check */}
+                    </>
+                  ) : (
+                    <>
+                      {editableData.nombreUsuario || "No disponible"}
+                      <FaEdit onClick={() => handleToggleEdit("nombreUsuario")} className="edit-icon" /> {/* Icono de edición */}
+                    </>
+                  )}
+                </p>
+                <Link to="#" className="text-primary" onClick={() => setShowModal(true)}>
+                  Cambiar Contraseña
+                </Link>
               </div>
             </div>
 
-            <div className="profile-section">
-              <h2>Información de Acceso</h2>
-              <div className="profile-field">
-                <span className="field-label">Nombre de Usuario:</span>
-                <span key={index} className="field-value">
-                  {record.nombreUsuario || "No disponible"}
-                </span>
+            <div className="profile-right">
+              <div className="profile-section">
+                <h4>Información de Vivienda</h4>
+                <p><strong>Apartamento:</strong> {record.Apartamento_FK || "No disponible"}</p>
+                <p><strong>Meses Atrasados:</strong> {record.mesesAtrasados || "0"}</p>
+                <p><strong>ID Propietario:</strong> {record.idPropietario || "No disponible"}</p>
               </div>
-              {/* <div className="profile-field">
-            <span className="field-label">Contraseña:</span>
-            <span className="field-value">********</span>
-          </div> */}
-            </div>
-
-            <div className="profile-section">
-              <h2>Información de Vivienda</h2>
-              <div className="profile-field">
-                <span className="field-label">Apartamento:</span>
-                <span key={index} className="field-value">
-                  {record.Apartamento_FK || "No disponible"}
-                </span>
-              </div>
-              <div className="profile-field">
-                <span className="field-label">Meses Atrasados:</span>
-                <span key={index} className="field-value">
-                  {record.mesesAtrasados || "0"}
-                </span>
-              </div>
-              <div className="profile-field">
-                <span className="field-label">ID Propietario:</span>
-                <span key={index} className="field-value">
-                  {record.idPropietario || "No disponible"}
-                </span>
+              <br />
+              <br />
+              <br />
+              <div className="profile-section">
+                <h4>Información de Vehículo</h4>
+                <p><strong>Parqueadero:</strong> {record.idParqueaderoFk || "No asignado"}</p>
+                <p><strong>Placa Vehículo:</strong> {record.placaVehiculo || "No registrado"}</p>
               </div>
             </div>
-
-            <div className="profile-section">
-              <h2>Información de Vehículo</h2>
-              <div className="profile-field">
-                <span className="field-label">Parqueadero:</span>
-                <span key={index} className="field-value">
-                  {record.idParqueaderoFk || "No asignado"}
-                </span>
-              </div>
-              <div className="profile-field">
-                <span className="field-label">Placa Vehículo:</span>
-                <span key={index} className="field-value">
-                  {record.placaVehiculo || "No registrado"}
-                </span>
-              </div>
-            </div>
-          </>
+          </div>
         ))}
       </div>
+
+      {showModal && (
+        <div className="modal show d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Cambiar Contraseña</h5>
+                <button type="button" className="close" onClick={() => setShowModal(false)} aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <form>
+                  <div className="form-group">
+                    <label htmlFor="newPassword">Nueva Contraseña</label>
+                    <input type="password" className="form-control" id="newPassword" placeholder="Nueva contraseña" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+                    <input type="password" className="form-control" id="confirmPassword" placeholder="Confirmar contraseña" />
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-success" onClick={handlePasswordChange}>Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
