@@ -7,6 +7,8 @@ import routerPropietario from "./routes/propietario.js";
 import routerAdmin from "./routes/admin.js";
 import routerPublic from "./routes/public.js";
 import nodemailer from "nodemailer";
+import bcrypt from 'bcrypt';
+const saltRounds = 10;
 
 dotenv.config({ path: "./.env" });
 
@@ -69,9 +71,6 @@ app.get("/espacio_parqueadero", (req, res) => {
 
 
 
-
-
-
 // Ruta para calendario-propietario
 app.post('/citas_salon_comunal', (req, res) => {
   const { numDocumento, horarioInicio, horarioFin, motivoReunion, Fecha } = req.body;
@@ -87,22 +86,31 @@ app.post('/citas_salon_comunal', (req, res) => {
   });
 });
 
-
 app.get("/citas_salon_comunal", (req, res) => {
-  const userDoc = req.query.numDocumento; 
+  const userDoc = req.query.numDocumento;
+
+  // Si no se proporciona numDocumento, traer todas las citas
   const sql = "SELECT * FROM citas_salon_comunal";
   
   db.query(sql, (err, data) => {
     if (err) {
-      return res.status(500).json({ message: "Error al obtener las citas" });
+      return res.status(500).json({ 
+        message: "Error al obtener las citas",
+        error: err 
+      });
     }
+
+    // Convertir el userDoc a string para comparación consistente
+    const userDocString = String(userDoc);
     
     const formattedData = data.map(cita => ({
       ...cita,
       Fecha: new Date(cita.Fecha).toISOString().split('T')[0],
-      esPropia: cita.numDocumento === userDoc // Indica si la reserva pertenece al usuario actual
+      // Convertir ambos números de documento a string para la comparación
+      numDocumento: String(cita.numDocumento),
+      esPropia: String(cita.numDocumento) === userDocString
     }));
-    
+
     return res.status(200).json(formattedData);
   });
 });
@@ -161,6 +169,42 @@ app.post('/actualizar_perfil', (req, res) => {
     console.log("Perfil actualizado:", results);
     res.json({ message: "Perfil actualizado exitosamente" });
   });
+});
+// CAMBIAR CONTRASEÑA CON ENCRIPTACIÓN EN PERFIL PROP
+app.post('/cambiar_contrasena', async (req, res) => {
+  const { newPassword, nombreUsuario } = req.body;
+  
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    
+    const sql = "UPDATE personas_cuenta SET clave = ? WHERE nombreUsuario = ?";
+    
+    db.query(sql, [hashedPassword, nombreUsuario], (err, results) => {
+      if (err) {
+        console.error("Error al actualizar la contraseña:", err);
+        return res.status(500).json({ 
+          error: "Error al actualizar la contraseña" 
+        });
+      }
+      
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ 
+          error: "Usuario no encontrado" 
+        });
+      }
+      
+      // Solo enviamos una respuesta exitosa
+      return res.status(200).json({ 
+        message: "Contraseña actualizada exitosamente" 
+      });
+    });
+    
+  } catch (error) {
+    console.error("Error al encriptar la contraseña:", error);
+    return res.status(500).json({ 
+      error: "Error al procesar la contraseña" 
+    });
+  }
 });
 
 

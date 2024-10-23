@@ -3,7 +3,7 @@ import "./profile.css";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify"; 
 import { Link } from "react-router-dom";
-import { FaEdit, FaCheck } from "react-icons/fa"; // Iconos para editar y guardar
+import { FaEdit, FaCheck } from "react-icons/fa";
 
 const Profile = (name) => {
   const [loading, setLoading] = useState(true);
@@ -48,20 +48,19 @@ const Profile = (name) => {
   const handleToggleEdit = (field) => {
     setIsEditing((prevState) => ({
       ...prevState,
-      [field]: !prevState[field], // Cambia el estado de edición
+      [field]: !prevState[field], 
     }));
 
     if (isEditing[field]) {
-      handleUpdate(); // Actualizar cuando se termina de editar
+      handleUpdate(); 
     }
   };
 
   const handleUpdate = async () => {
     try {
-      // Incluye el nombreUsuario actual en la petición
       const dataToUpdate = {
         ...editableData,
-        nombreUsuario: perfilData[0].nombreUsuario // Asumiendo que quieres usar el nombreUsuario actual
+        nombreUsuario: perfilData[0].nombreUsuario 
       };
   
       const response = await axios.post(
@@ -84,23 +83,46 @@ const Profile = (name) => {
     }
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     const newPassword = document.getElementById("newPassword").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
-
+  
+    if (!newPassword || !confirmPassword) {
+      toast.error("Por favor complete ambos campos");
+      return;
+    }
+  
     if (newPassword !== confirmPassword) {
       toast.error("Las contraseñas no coinciden");
       return;
     }
-
-    axios.post("http://localhost:8081/cambiar_contrasena", { newPassword })
-      .then(() => {
+  
+    if (newPassword.length < 8) {
+      toast.error("La contraseña debe tener al menos 8 caracteres");
+      return;
+    }
+  
+    try {
+      const response = await axios.post("http://localhost:8081/cambiar_contrasena", {
+        newPassword,
+        nombreUsuario: perfilData[0].nombreUsuario
+      });
+  
+      if (response.data.message) {
         toast.success("Contraseña actualizada exitosamente");
         setShowModal(false);
-      })
-      .catch((error) => {
-        toast.error("Error al cambiar la contraseña");
-      });
+        // Limpiar los campos
+        document.getElementById("newPassword").value = "";
+        document.getElementById("confirmPassword").value = "";
+      }
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.error || "Error al cambiar la contraseña");
+      } else if (error.request) {
+        toast.error("Error de conexión con el servidor");
+      } 
+      return; 
+    }
   };
 
   if (loading) {
@@ -110,6 +132,7 @@ const Profile = (name) => {
       </div>
     );
   }
+  
 
   return (
     <div className="profile-container">
@@ -146,7 +169,7 @@ const Profile = (name) => {
                   )}
                 </p>
 
-                <p><strong>Número de Documento:</strong> {record.numDocumento || "No disponible"}</p>
+                <p><strong>Número Documento:</strong> {record.numDocumento || "No disponible"}</p>
 
                 <p>
                   <strong>Correo:</strong>
@@ -172,32 +195,35 @@ const Profile = (name) => {
               </div>
 
               <div className="profile-section">
-                <h4>Información de Acceso</h4>
-                <p>
-                  <strong>Nombre de Usuario:</strong>
-                  {isEditing.nombreUsuario ? (
-                    <>
-                      <input
-                        type="text"
-                        name="nombreUsuario"
-                        value={editableData.nombreUsuario}
-                        onChange={handleInputChange}
-                        onBlur={() => handleToggleEdit("nombreUsuario")} // Deja de editar al perder foco
-                        autoFocus
-                      />
-                      <FaCheck className="check-icon" onClick={() => handleToggleEdit("nombreUsuario")} /> {/* Icono de check */}
-                    </>
-                  ) : (
-                    <>
-                      {editableData.nombreUsuario || "No disponible"}
-                      <FaEdit onClick={() => handleToggleEdit("nombreUsuario")} className="edit-icon" /> {/* Icono de edición */}
-                    </>
-                  )}
-                </p>
-                <Link to="#" className="text-primary" onClick={() => setShowModal(true)}>
-                  Cambiar Contraseña
-                </Link>
-              </div>
+    <h4>Información de Acceso</h4>
+    <p>
+        <strong>Nombre Usuario:</strong>
+        {isEditing.nombreUsuario ? (
+            <>
+                <input
+                    type="text"
+                    name="nombreUsuario"
+                    value={editableData.nombreUsuario}
+                    onChange={handleInputChange}
+                    onBlur={() => handleToggleEdit("nombreUsuario")} 
+                    autoFocus
+                />
+                <FaCheck className="check-icon" onClick={() => handleToggleEdit("nombreUsuario")} /> {/* Icono de check */}
+            </>
+        ) : (
+            <>
+                {editableData.nombreUsuario || "No disponible"}
+                <FaEdit onClick={() => handleToggleEdit("nombreUsuario")} className="edit-icon" /> {/* Icono de edición */}
+            </>
+        )}
+    </p>
+    <p>
+        <Link to="#" className="text-primary" onClick={() => setShowModal(true)}>
+            Cambiar Contraseña
+        </Link>
+    </p>
+</div>
+
             </div>
 
             <div className="profile-right">
@@ -235,6 +261,9 @@ const Profile = (name) => {
                   <div className="form-group">
                     <label htmlFor="newPassword">Nueva Contraseña</label>
                     <input type="password" className="form-control" id="newPassword" placeholder="Nueva contraseña" />
+                     <small className="form-text text-muted">
+                      La contraseña debe contener al menos 8 caracteres, una letra mayúscula y un número.
+                    </small>
                   </div>
                   <div className="form-group">
                     <label htmlFor="confirmPassword">Confirmar Contraseña</label>

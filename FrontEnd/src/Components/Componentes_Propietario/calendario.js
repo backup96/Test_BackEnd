@@ -10,6 +10,7 @@ import axios from 'axios';
 const Calendario = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [userDocumento, setUserDocumento] = useState('');
   const [formData, setFormData] = useState({
     numDocumento: '',
     horarioInicio: '',
@@ -23,20 +24,16 @@ const Calendario = () => {
     motivoReunion: ''
   });
   const [charCount, setCharCount] = useState({
-    motivoReunion: 0,
-    telefono: 0,
-    codigoVivienda: 0
+    motivoReunion: 0
   });
 
   const toastId = React.useRef(null);
 
   useEffect(() => {
-    // Actualiza currentUserDoc cuando cambie el número de documento en el formulario
     setCurrentUserDoc(formData.numDocumento);
   }, [formData.numDocumento]);
 
   useEffect(() => {
-
     axios.get(`http://localhost:8081/citas_salon_comunal?numDocumento=${currentUserDoc}`)
       .then((res) => {
         if (res.status === 200) {
@@ -45,6 +42,7 @@ const Calendario = () => {
       })
       .catch((err) => console.log(err));
   }, [currentUserDoc]);
+
   const isDateReserved = (date) => reservas.some(res => res.Fecha === date);
 
   const handleDateChange = (date) => {
@@ -62,38 +60,36 @@ const Calendario = () => {
     
     setShowModal(true);
   };
-  
 
   const handleModalClose = () => setShowModal(false);
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     let isValid = true;
     let errorMessage = '';
 
-
     if (name === "motivoReunion") {
-      if (!/^[\w\s.,!?ñÑ]*$/.test(value)) {  // Agregamos ñÑ aquí
+      if (!/^[\w\s.,!?ñÑ]*$/.test(value)) {
         errorMessage = "El motivo solo puede contener letras (incluyendo ñ), números y puntuación básica.";
         isValid = false;
       } else if (value.length > 200) {
         errorMessage = "El motivo de la reunión no puede exceder los 200 caracteres.";
         isValid = false;
       }
-      // Actualiza el conteo de caracteres
       setCharCount(prev => ({ ...prev, motivoReunion: value.length }));
     }
-    
+
+    // Validación para numDocumento
     if (name === "numDocumento") {
-      if (!/^\d{8,}$/.test(value)) {
-        errorMessage = "El número de documento debe tener al menos 8 dígitos.";
+      // Validar solo números y longitud máxima de 15 caracteres
+      if (!/^\d*$/.test(value)) { // Permitir solo números
+        errorMessage = "El número de documento solo puede contener números.";
+        isValid = false;
+      } else if (value.length > 15) {
+        errorMessage = "El número de documento no puede exceder los 15 dígitos.";
         isValid = false;
       }
     }
-
-   
-
     if (name === "horarioInicio" || name === "horarioFin") {
       const horaValida = validarHora(value, name);
       if (!horaValida.isValid) {
@@ -112,17 +108,21 @@ const Calendario = () => {
         ...prevState,
         [name]: value
       }));
+      if (name === 'numDocumento') {
+        setUserDocumento(value);
+      }
     }
   };
+
   const validarHora = (hora, tipo) => {
     if (!hora) {
       return { isValid: false, message: "Por favor, ingrese una hora válida." };
     }
-  
+
     const [hours, minutes] = hora.split(':').map(Number);
-    const horaInicio = 9; // 9:00 AM
-    const horaFin = 23;   // 11:00 PM
-  
+    const horaInicio = 9;
+    const horaFin = 23;
+
     if (tipo === "horarioInicio") {
       if (hours < horaInicio || hours >= 24) {
         return { isValid: false, message: "La hora de inicio debe estar entre las 9:00 AM y las 11:59 PM." };
@@ -132,28 +132,32 @@ const Calendario = () => {
         return { isValid: false, message: "La hora de fin debe estar entre las 9:00 AM y la 1:00 AM del día siguiente." };
       }
     }
-  
+
     return { isValid: true, message: "" };
   };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    
+
     if (isDateReserved(selectedDate)) {
-      console.log("Este día ya está reservado.");
       return;
     }
-    
+
     axios.post('http://localhost:8081/citas_salon_comunal', formData)
     .then((response) => {
       if (!toast.isActive(toastId.current)) {
         toastId.current = toast.success("¡Reserva realizada con éxito!");
+        
+        // Actualizar el documento del usuario cuando hace una reserva exitosa
+        setUserDocumento(formData.numDocumento);
 
         handleModalClose();
         setReservas(prevReservas => [
           ...prevReservas,
           {
             ...response.data,
-            Fecha: selectedDate
+            Fecha: selectedDate,
+            numDocumento: formData.numDocumento // Asegurarse de incluir el número de documento
           }
         ]);
       } else {
@@ -162,45 +166,40 @@ const Calendario = () => {
     })
     .catch((error) => {
       toast.error(`Error al realizar la reserva: ${error.response?.data?.message || 'Por favor, intente de nuevo.'}`);
-    });    
-};
+    });
+  };
+  const tileContent = ({ date, view }) => {
+    if (view === 'month') {
+      const dateStr = date.toISOString().split('T')[0];
+      const reservaParaFecha = reservas.find(res => res.Fecha === dateStr);
 
-const tileContent = ({ date, view }) => {
-  if (view === 'month') {
-    const dateStr = date.toISOString().split('T')[0];
-    const reserva = reservas.find(res => res.Fecha === dateStr);
-    
-    if (reserva) {
-      // Asegúrate de que currentUserDoc esté definido y sea el mismo tipo de dato que reserva.numDocumento
-      const isCurrentUserReservation = String(reserva.numDocumento) === String(currentUserDoc);
-      return (
-        <div 
-          className="indicator" 
-          style={{ 
-            backgroundColor: isCurrentUserReservation ? 'green' : 'red',
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            margin: '0 auto'
-          }}
-        />
-      );
+      if (reservaParaFecha) {
+        // Comparar con el documento del usuario actual
+        const esReservaPropia = String(reservaParaFecha.numDocumento) === String(userDocumento);
+        
+        return (
+          <div className="tile-content">
+            <div 
+              className="indicator" 
+              style={{ 
+                backgroundColor: esReservaPropia ? '#4CAF50' : '#FF5252',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                margin: '0 auto',
+                marginTop: '2px'
+              }}
+              title={esReservaPropia ? 'Tu reserva' : 'Reservado por otro propietario'}
+            />
+            <div className="reservation-time" style={{ fontSize: '8px', marginTop: '2px' }}>
+              {reservaParaFecha.horarioInicio}
+            </div>
+          </div>
+        );
+      }
     }
-  }
-  return null;
-};
-
-  // const tileContent = ({ date, view }) => {
-  //   if (view === 'month') {
-  //     const dateStr = date.toISOString().split('T')[0];
-  //     const reserva = reservas.find(res => res.Fecha === dateStr);
-  //     if (reserva) {
-  //       const colorClass = reserva.numDocumento === propietario ? 'green' : 'red';
-  //       return <div className={`indicator ${colorClass}`}></div>;
-  //     }
-  //   }
-  //   return null;
-  // };
+    return null;
+  };
 
   return (
     <div>
@@ -208,17 +207,15 @@ const tileContent = ({ date, view }) => {
       <Calendar
         onChange={handleDateChange}
         tileDisabled={({ date }) => date < new Date()}
-        tileContent={tileContent} // Añade aquí la función tileContent
+        tileContent={tileContent}
       />
-      <Modal show={showModal} onHide={handleModalClose} centered size="lg"> {/* Tamaño grande del modal */}
+      <Modal show={showModal} onHide={handleModalClose} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Reserva para el {selectedDate}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleFormSubmit}>
             <Row>
-
-  
               <Col md={6}>
                 <Form.Group controlId="numDocumento">
                   <Form.Label>Numero Documento</Form.Label>
@@ -229,19 +226,17 @@ const tileContent = ({ date, view }) => {
                     value={formData.numDocumento}
                     onChange={handleChange}
                     isInvalid={!!formErrors.numDocumento}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.numDocumento}
-                    </Form.Control.Feedback>
-                  </Form.Group>
+                    maxLength={15}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.numDocumento}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </Col>
             </Row>
-  <br></br>
-            <Row>
-  
-          
-            </Row>
-            <br></br>
+
+            <br />
+
             <Row>
               <Col md={6}>
                 <Form.Group controlId="HorarioInicio">
@@ -255,7 +250,7 @@ const tileContent = ({ date, view }) => {
                   />
                 </Form.Group>
               </Col>
-  
+
               <Col md={6}>
                 <Form.Group controlId="HorarioFin">
                   <Form.Label>Hora de Fin</Form.Label>
@@ -269,7 +264,9 @@ const tileContent = ({ date, view }) => {
                 </Form.Group>
               </Col>
             </Row>
-            <br></br>
+
+            <br />
+
             <Form.Group controlId="MotivoReunion">
               <Form.Label>Motivo de la Reserva</Form.Label>
               <Form.Control
@@ -282,15 +279,15 @@ const tileContent = ({ date, view }) => {
                 required
               />
               <Form.Control.Feedback type="invalid">
-                      {formErrors.motivoReunion}
-                    </Form.Control.Feedback>
+                {formErrors.motivoReunion}
+              </Form.Control.Feedback>
               <Form.Text className="text-muted">
-                {charCount.motivoReunion} / 200 caracteres
+                {charCount.motivoReunion}/200 caracteres
               </Form.Text>
             </Form.Group>
-  
-            <Button type="submit" variant="primary" className="mt-3 float-end">
-              Confirmar Reserva
+
+            <Button variant="primary" type="submit">
+              Reservar
             </Button>
           </Form>
         </Modal.Body>
@@ -298,7 +295,6 @@ const tileContent = ({ date, view }) => {
       <ToastContainer />
     </div>
   );
-  
 };
 
 export default Calendario;

@@ -1,221 +1,174 @@
 .profile-container {
-    background-color: #f8f9fa; 
-    padding: 20px;
-    border-radius: 20px; 
-    border: 1px solid #007bff;
-    max-width: 800px;
-    margin: 100px auto; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    text-align: center; 
+  background-color: #f8f9fa; 
+  padding: 20px;
+  border-radius: 20px; 
+  border: 1px solid #007bff;
+  max-width: 800px;
+  margin: 100px auto; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  text-align: center; 
 }
 
 .profile-title {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 24px; 
-    color: #007bff; 
-    font-weight: bold; 
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px; 
+  color: #007bff; 
+  font-weight: bold; 
 }
 
 .profile-info {
-    padding: 10px; 
+  padding: 10px; 
 }
-
-
 
 .profile-info p strong {
-    font-weight: bold;
-    color: #212529; 
+  font-weight: bold;
+  color: #212529; 
 }
 
-.profile-info .profile-parkings {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centra los elementos dentro de la columna */
+.profile-parkings, .profile-grid, .profile-columns {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
 }
 
-.profile-info .profile-parkings div {
-    margin: 5px 0; /* Espaciado entre las líneas */
+.profile-parkings {
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-parkings div {
+  margin: 5px 0;
 }
 
 .edit-icon {
-    color: #007bff; /* Color azul del ícono */
-    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
-    font-size: 20px; /* Tamaño del ícono */
-    margin-left: 10px; /* Espaciado entre el texto y el ícono */
-    transition: color 0.3s; /* Transición suave para el cambio de color */
+  color: #007bff;
+  cursor: pointer;
+  font-size: 20px;
+  margin-left: 10px;
+  transition: color 0.3s;
 }
 
 .edit-icon:hover {
-    color: #0056b3; /* Azul más oscuro para hover */
+  color: #0056b3;
 }
 
 .profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .btn-secondary {
-    background-color: #007bff; /* Azul de fondo */
-    color: #ffffff; /* Texto blanco */
-    border: 1px solid #007bff; 
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    text-align: center; 
-    font-size: 16px;
+  background-color: #007bff;
+  color: #ffffff;
+  border: 1px solid #007bff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
 }
 
 .btn-secondary:hover {
-    background-color: #0056b3; /* Azul más oscuro para hover */
-    color: #ffffff; 
-}
-
-/* Estilos para dispositivos móviles */
-@media (max-width: 768px) {
-    .profile-container {
-        margin: 20px; 
-        padding: 15px; 
-    }
-
-    .profile-title {
-        font-size: 20px; 
-    }
-
-    .profile-info p {
-        font-size: 14px; /* Tamaño de fuente ajustado para dispositivos móviles */
-    }
-
-    .btn-secondary {
-        font-size: 14px; /* Tamaño de fuente ajustado para dispositivos móviles */
-        padding: 8px 16px; /* Ajuste del padding para dispositivos móviles */
-    }
+  background-color: #0056b3;
 }
 
 .cards-container {
-    display: flex;
-    justify-content: center; /* Centra horizontalmente los cards */
-    flex-wrap: wrap; /* Permite que los cards se ajusten en varias filas si no caben en una sola */
-    gap: 20px; /* Añade espacio entre los cards */
-    margin: 0 auto; /* Centra el contenedor en la página */
-    background-color: #333;
-  }
-  .card-perfil {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    width: 250px;
-    padding: 16px;
-    text-align: center;
-    font-family: Arial, sans-serif;
-    margin: 20px auto;
-    justify-content: center;
-  }
-  
-  .card img {
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-  }
-  
-  .card h1 {
-    color: #000;
-    font-size: 18px;
-    margin: 8px 0;
-  }
-  
-  .card p {
-    color: #666; /* Estilo para el color del texto en el p dentro del card */
-    font-size: 14px;
-  }
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0 auto;
+  background-color: #333;
+}
 
-  .profile-grid {
-    display: flex;
-    justify-content: space-between; /* Separa las columnas */
-    gap: 20px; /* Añade espacio entre las columnas */
-  }
-  
-  .profile-columns {
-    display: flex;
-    justify-content: space-between;
-    width: 100%; /* Asegura que las columnas tomen todo el ancho disponible */
-  }
-  
-  .profile-left, .profile-right {
-    width: 48%; /* Cada columna ocupa el 48% del ancho, dejando espacio entre ellas */
-  }
-  
-  .profile-section {
-    margin-bottom: 20px; /* Espaciado entre las secciones */
-  }
-  
-  @media (max-width: 768px) {
-    .profile-columns {
-      flex-direction: column; /* Apila las columnas en dispositivos móviles */
-    }
-  
-    .profile-left, .profile-right {
-      width: 100%; /* Cada columna ocupa el 100% del ancho en dispositivos móviles */
-    }
-  }
+.card-perfil {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 250px;
+  padding: 16px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  margin: 20px auto;
+}
 
-  /* profile.css */
+.card img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+}
+
+.card h1 {
+  color: #000;
+  font-size: 18px;
+  margin: 8px 0;
+}
+
+.card p {
+  color: #666;
+  font-size: 14px;
+}
+
+.profile-left, .profile-right {
+  width: 48%;
+}
+
+.profile-section {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .profile-section h4 {
-    color: #007bff; /* Azul similar al del perfil */
-    font-weight: bold;
-    margin-bottom: 10px; 
+  color: #007bff;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.profile-section p {
+  margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+      margin: 20px;
+      padding: 15px;
   }
 
-  /* profile.css */
-
-/* Contenedor general de las columnas */
-.profile-grid {
-    display: flex;
-    justify-content: space-between;
+  .profile-title {
+      font-size: 20px;
   }
-  
-  /* Contenedor para las columnas izquierda y derecha */
+
+  .profile-info p {
+      font-size: 14px;
+  }
+
+  .btn-secondary {
+      font-size: 14px;
+      padding: 8px 16px;
+  }
+
   .profile-columns {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
+      flex-direction: column;
   }
-  
-  /* Columnas izquierda y derecha */
+
   .profile-left, .profile-right {
-    width: 48%; /* Asigna un ancho igual a ambas columnas */
+      width: 100%;
   }
-  
-  /* Secciones de información dentro de cada columna */
-  .profile-section {
-    margin-bottom: 20px; /* Espacio entre cada sección */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Alinea el contenido a la izquierda */
-  }
-  
-  /* Estilo para los títulos de cada sección */
-  .profile-section h4 {
-    color: #007bff; /* Azul similar al perfil */
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: left;
-  }
-  
-  /* Asegura que los campos de texto dentro de las secciones estén alineados */
-  .profile-section p {
-    margin: 5px 0;
-  }
-  
-  /* Alinea verticalmente los títulos */
-  .profile-grid {
-    align-items: flex-start; /* Los títulos estarán alineados en la parte superior */
-  }
-  
-  /* Asegura que haya espaciado uniforme entre secciones a ambos lados */
-  .profile-left .profile-section,
-  .profile-right .profile-section {
-    margin-bottom: 30px;
-  }
-  
+}
+
+.check-icon {
+  color: #28a745; /* Verde para el icono */
+  cursor: pointer;
+  margin-left: 8px; /* Espacio entre el input/texto y el icono */
+  font-size: 20px; /* Ajusta el tamaño del icono si es necesario */
+  transition: color 0.3s ease; /* Transición suave */
+}
+
+.check-icon:hover {
+  color: #218838; /* Verde más oscuro al pasar el mouse */
+}
