@@ -126,7 +126,7 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
 
   return (
     <>
-      {showAlert === true ? (
+      {/* {showAlert === true ? (
         <div className="d-flex justify-content-center">
           <div
             className="alert alert-warning alert-dismissible fade show w-25 z-1 position-absolute px-4 py-4"
@@ -185,7 +185,7 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
             Operación completada
           </div>
         </div>
-      ) : null}
+      ) : null} */}
       <div className="accordion" id="accordionExample">
         {length === 0 ? (
           <div className="accordion-item">

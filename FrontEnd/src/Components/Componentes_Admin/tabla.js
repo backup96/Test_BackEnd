@@ -45,7 +45,7 @@ const Tabla = ({ item, apiS }) => {
       } catch (error) {
         console.error("Error al obtener los apartamentos:", error);
       }
-    }
+    };
 
     fetchApartamentos();
   }, [apiS]);
@@ -65,6 +65,23 @@ const Tabla = ({ item, apiS }) => {
       }
     }
 
+    fetchApartamentos();
+  }, []);
+
+  const [dataEsp, setdataEsp] = useState([]);
+
+  useEffect(() => {
+    async function fetchApartamentos() {
+      try {
+        const response = await axios.get(`/admin/getParqueadero`);
+        setdataEsp(response.data);
+        if (response.data.length === 0) {
+          setdataEsp([]);
+        }
+      } catch (error) {
+        console.error("Error al obtener los apartamentos:", error);
+      }
+    }
     fetchApartamentos();
   }, []);
 
@@ -109,18 +126,22 @@ const Tabla = ({ item, apiS }) => {
                 currentRecords={currentRecords}
                 apiS={apiS}
                 data={dataApart}
+                data2={dataEsp}
               />
             ) : apiS === "Parqueadero" ? (
               <Parqueadero
                 item={item}
                 currentRecords={currentRecords}
                 apiS={apiS}
+                data={dataEsp}
               />
             ) : apiS === "Invitados" ? (
               <Invitados
                 item={item}
                 currentRecords={currentRecords}
                 apiS={apiS}
+                data={dataApart}
+                data2={dataEsp}
               />
             ) : apiS === "Reuniones" ? (
               <Reunion

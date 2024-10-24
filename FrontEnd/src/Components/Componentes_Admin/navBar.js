@@ -357,7 +357,6 @@ export function NavBar() {
                     "Teléfono",
                     "Correo",
                     "Número de parqueadero",
-                    "Costo",
                     "Código de Vivienda",
                   ]
                 : currentTable === "ReservaSalon"

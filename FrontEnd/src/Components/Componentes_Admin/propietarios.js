@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -18,12 +18,10 @@ library.add(faSquarePlus);
 library.add(faXmark);
 library.add(faCheck);
 
-const Propietario = ({ item, currentRecords, apiS, data }) => {
+const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
   const [accion, setAccion] = useState("");
   const [errors, setError] = useState({});
-  const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState("");
-  const [eliminarRecord, setEliminarRecord] = useState("");
 
   const [values, setValues] = useState({
     Nombre: "",
@@ -36,14 +34,42 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
     Placa: "",
   });
 
+  const customToast = (mess, record) => {
+    return (
+      <>
+        {mess}
+        <form className="p-0" onSubmit={enviar}>
+          <div className="d-flex flex-row mt-3 justify-content-end">
+            <div className="ms-3">
+              <button
+                type="submit"
+                class="btn btn-success p-0 m-0"
+                style={{ width: "30px", height: "30px" }}
+              >
+                <FontAwesomeIcon icon={faCheck} />
+              </button>
+            </div>
+          </div>
+        </form>
+      </>
+    );
+  };
+
+  useEffect(() => {
+    if (accion === "Eliminar") {
+      eliminar(values.NumeroDocumento);
+    }
+  }, [accion]);
+
   const [searchTerm, setSearchTerm] = useState({
     Term: "",
   }); // Estado para el término de búsqueda
+
   const [filteredRecords, setFilteredRecords] = useState(currentRecords);
 
   const enviar = async (e) => {
     e.preventDefault();
-    const validationErrors = ValidationReg(values, data, apiS);
+    const validationErrors = ValidationReg(values, data, data2, apiS);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&
@@ -51,33 +77,17 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
     ) {
       try {
         if (accion === "Actualizar") {
-          // axios
-          //   .post(`/admin/patch${apiS}`, values)
-          //   .then((res) => {
-          //     console.log(res.status);
-          //     if (res.data.Status === "Success") {
-          //       toast.success("Propietario actualizado correctamente");
-          //     } else if (res.status === 500) {
-          //       toast.error("Ocurrio un error al actualizar el registro");
-          //     }
-          //   })
-          //   .catch((err) => toast.error(""));
-        } else if (accion === "Eliminar") {
-          if (values.id) {
-            const response = await axios.delete(
-              `http://localhost:4000/${apiS}/${values.id}`
-            );
-            console.log(response.status);
-            if (response.status === 200) {
-              setShowAlert(false);
-              setStatus(response.status);
-              setTimeout(() => {
-                setStatus("");
-              }, 5000);
-            }
-          } else {
-            setShowAlert(false);
-          }
+          axios
+            .post(`/admin/patch${apiS}`, values)
+            .then((res) => {
+              console.log(res.status);
+              if (res.data.Status === "Success") {
+                toast.success("Propietario actualizado correctamente");
+              } else if (res.status === 500) {
+                toast.error("Ocurrio un error al actualizar el registro");
+              }
+            })
+            .catch((err) => toast.error(""));
         } else if (accion === "Insertar") {
           console.log(values);
           axios
@@ -127,13 +137,13 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
   };
 
   const eliminar = (record) => {
-    if (apiS === "values") {
-      setValues((prevSalon) => ({
-        ...prevSalon,
-        id: record,
-      }));
-    }
-    setAccion(() => "Eliminar");
+    toast.warning(
+      customToast("¿ Esta seguro de eliminar este registro ?"),
+      record,
+      {
+        autoClose: 10000,
+      }
+    );
   };
 
   const handleSearch = async (e) => {
@@ -230,8 +240,11 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                       <div className="mx-2">
                         <button
                           onClick={() => {
-                            setShowAlert(true);
-                            setEliminarRecord(record.id);
+                            setAccion("Eliminar");
+                            setValues((prevPropietario) => ({
+                              ...prevPropietario,
+                              NumeroDocumento: record.numDocumento,
+                            }));
                           }}
                           class="btn btn-danger p-2"
                         >
@@ -280,7 +293,13 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                       <div className="mx-2">
                         <form className="p-0" onSubmit={enviar}>
                           <button
-                            onClick={() => eliminar(record.id)}
+                            onClick={() => {
+                              setAccion("Eliminar");
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                NumeroDocumento: record.numDocumento,
+                              }));
+                            }}
                             type="submit"
                             className="btn btn-danger px-2"
                           >
@@ -297,16 +316,14 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                           onClick={() => {
                             setValues((prevPropietario) => ({
                               ...prevPropietario,
-                              CodigoVivienda: record.CodigoVivienda,
-                              Nombre: record.Nombre,
-                              Teléfono: record.Teléfono,
-                              Correo: record.Correo,
-                              NumeroDocumento: record.NumeroDocumento,
-                              MesesAtrasados: record.MesesAtrasados,
-                              EspacioParqueadero: record.EspacioParqueadero,
-                              User: record.User,
-                              Pass: record.Pass,
-                              id: record.id,
+                              Nombre: record.nombre,
+                              Apellido: record.apellido,
+                              Teléfono: record.telefono,
+                              NumeroDocumento: record.numDocumento,
+                              Correo: record.correo,
+                              CodigoVivienda: record.codigoVivienda,
+                              EspacioParqueadero: record.idParqueaderoFk,
+                              Placa: record.placaVehiculo,
                             }));
                             setCurrentAccion("Actualizar");
                           }}
@@ -353,7 +370,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="text"
                             className="form-control"
                             id="exampleInputEmail1"
-                            required
                             disabled={accion === "Actualizar" ? true : false}
                             value={values.Nombre}
                             onChange={(e) =>
@@ -378,7 +394,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="number"
                             className="form-control"
                             id="exampleInputPassword1"
-                            required
                             value={values.Teléfono}
                             onChange={(e) =>
                               setValues((prevPropietario) => ({
@@ -404,7 +419,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="text"
                             className="form-control"
                             id="exampleInputPassword1"
-                            required
                             value={values.Correo}
                             onChange={(e) =>
                               setValues((prevPropietario) => ({
@@ -428,7 +442,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="text"
                             className="form-control"
                             id="exampleInputPassword1"
-                            required
                             value={values.Placa}
                             onChange={(e) =>
                               setValues((prevPropietario) => ({
@@ -437,8 +450,8 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                               }))
                             }
                           />
-                          {errors.Correo && (
-                            <span className="text-danger">{errors.Correo}</span>
+                          {errors.Placa && (
+                            <span className="text-danger">{errors.Placa}</span>
                           )}
                         </div>
                       </div>
@@ -454,7 +467,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="text"
                             className="form-control"
                             id="exampleInputEmail1"
-                            required
                             disabled={accion === "Actualizar" ? true : false}
                             value={values.Apellido}
                             onChange={(e) =>
@@ -464,6 +476,11 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                               }))
                             }
                           />
+                          {errors.Apellido && (
+                            <span className="text-danger">
+                              {errors.Apellido}
+                            </span>
+                          )}
                         </div>
                         <div className="mb-3">
                           <label
@@ -476,7 +493,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="number"
                             className="form-control"
                             id="exampleInputPassword1"
-                            required
                             disabled={accion === "Actualizar" ? true : false}
                             value={values.NumeroDocumento}
                             onChange={(e) =>
@@ -486,6 +502,11 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                               }))
                             }
                           />
+                          {errors.NumeroDocumento && (
+                            <span className="text-danger">
+                              {errors.NumeroDocumento}
+                            </span>
+                          )}
                         </div>
                         <div className="mb-3">
                           <label
@@ -498,7 +519,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="number"
                             className="form-control"
                             id="exampleInputEmail1"
-                            required
                             value={values.CodigoVivienda}
                             onChange={(e) =>
                               setValues((prevPropietario) => ({
@@ -507,6 +527,11 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                               }))
                             }
                           />
+                          {errors.CodigoVivienda && (
+                            <span className="text-danger">
+                              {errors.CodigoVivienda}
+                            </span>
+                          )}
                         </div>
                         <div className="mb-3">
                           <label
@@ -519,7 +544,6 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                             type="number"
                             className="form-control"
                             id="exampleInputPassword1"
-                            required
                             value={values.EspacioParqueadero}
                             onChange={(e) =>
                               setValues((prevPropietario) => ({
@@ -528,6 +552,11 @@ const Propietario = ({ item, currentRecords, apiS, data }) => {
                               }))
                             }
                           />
+                          {errors.EspacioParqueadero && (
+                            <span className="text-danger">
+                              {errors.EspacioParqueadero}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

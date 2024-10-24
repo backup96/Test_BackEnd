@@ -275,6 +275,20 @@ const routerAdmin = (app, db) => {
     });
   });
 
+  // Eliminar propietarios
+  router.post("/deletePropietarios", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Eliminar_propietario(?)";
+    const values = [req.body.NumeroDocumento];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Al eliminar el registro:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al eliminar el registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
   // -------------------------------------------------------//
 
   // Crud porteros
@@ -317,6 +331,213 @@ const routerAdmin = (app, db) => {
         }
         return res.json({ Status: "Success" });
       });
+    });
+  });
+
+  //---------------------------------------------------------//
+
+  // Crud parqueaderos
+  // Consultar Parqeuaderos
+  router.get("/getParqueadero", (req, res) => {
+    const sql = "SELECT * FROM espacios_parqueadero";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Consultar parqueaderos específico
+  router.post("/getParqueaderoEsp1", (req, res) => {
+    console.log(req.body);
+    const sql = "SELECT * FROM espacios_parqueadero WHERE numEspacio = ?";
+    db.query(sql, [req.body.Term], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al buscar apartamento" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Consultar parqueaderos específico
+  router.post("/getParqueaderoEsp2", (req, res) => {
+    console.log(req.body);
+    const sql = "SELECT * FROM espacios_parqueadero WHERE tipoEspacio = ?";
+    db.query(sql, [req.body.Term], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al buscar apartamento" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Insertar parqueaderos
+  router.post("/postParqueadero", (req, res) => {
+    console.log(req);
+    const sql = "Call Insertar_parqueadero(?)";
+    const values = [req.body.NumeroEspacio, req.body.TipoEspacio];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // Actualizar propietarios
+  router.post("/patchParqueadero", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Actualizar_parqueadero(?)";
+    const values = [
+      req.body.NumeroEspacio,
+      req.body.TipoEspacio,
+      req.body.Estado,
+    ];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al actualizar el apartamento" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // Eliminar propietarios
+  router.post("/deleteParqueadero", (req, res) => {
+    console.log(req.body);
+    const sql = "DELETE FROM espacios_parqueadero WHERE numEspacio = ?";
+    const values = [req.body.NumeroEspacio];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Al eliminar el registro:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al eliminar el registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  //-----------------------------------------------------------//
+
+  // Crud Invitados
+  // Consultar Invitados
+  router.get("/getInvitados", (req, res) => {
+    const sql = "SELECT * FROM get_invitados";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Consultar específica Invitados
+  router.post("/getInvitadosEsp", (req, res) => {
+    const sql = "SELECT * FROM get_invitados Where numDocumento = ?";
+    db.query(sql, [req.body.Term], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Inserción Invitados
+  router.post("/postInvitados", (req, res) => {
+    console.log(req);
+    const sql = "Call Inserción_Invitados(?)";
+    bcrypt.hash(req.body.NumeroDocumento.toString(), salt, (err, hash) => {
+      if (err)
+        return res.json({ Error: "Fallo en la encriptación de la contraseña" });
+      const values = [
+        req.body.Nombre,
+        req.body.Apellido,
+        req.body.Teléfono,
+        req.body.NumeroDocumento,
+        req.body.Correo,
+        req.body.CodigoVivienda,
+        req.body.EspacioParqueadero,
+        req.body.Placa,
+      ];
+      db.query(sql, [values], (err, data) => {
+        if (err) {
+          console.error("Error en la consulta:", err); // Muestra el error en el servidor
+          return res
+            .status(500)
+            .json({ Error: "Error al enviar solicitud de registro" });
+        }
+        return res.json({ Status: "Success" });
+      });
+    });
+  });
+
+  // Actualizar Invitados
+  router.post("/patchInvitados", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Actualizar_Invitados(?)";
+    const values = [
+      req.body.Teléfono,
+      req.body.Correo,
+      req.body.EspacioParqueadero,
+      req.body.Placa,
+      req.body.NumeroDocumento,
+      req.body.CodigoVivienda,
+      req.body.CodigoViviendaOld,
+    ];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al actualizar el apartamento" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // Eliminar Invitados
+  router.post("/deleteInvitados", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Eliminar_Invitado(?)";
+    const values = [req.body.NumeroDocumento];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Al eliminar el registro:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al eliminar el registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  //--------------------------------------------------//
+  // Crud Salon comunal
+  // Consultar Salon comunal
+  router.get("/getReservaSalon", (req, res) => {
+    const sql = "SELECT * FROM espacios_parqueadero";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
     });
   });
 

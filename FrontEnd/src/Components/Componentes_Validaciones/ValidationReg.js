@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const ValidationReg = (values, data, apiS) => {
-
+const ValidationReg = (values, data, data2, apiS) => {
   const getCode = data.some(
     (item) => item.codigoVivienda === parseInt(values.CodigoVivienda, 10)
   );
-
+console.log("hellow");
   let errors = {};
   // Validaciones
 
@@ -45,23 +44,21 @@ const ValidationReg = (values, data, apiS) => {
     } else errors.Valid = "valid";
   }
 
-  if (apiS === "Propietarios") {
+  if (apiS === "Propietarios" || apiS === "Invitados") {
+    const getEsp = data2.some(
+      (item) => item.numEspacio === parseInt(values.EspacioParqueadero, 10)
+    );
     const first3 = values.Placa.slice(0, 3);
 
     const last3 = values.Placa.slice(4, 7);
 
-    const separator = values.Placa.slice(4, 5);
+    const separator = values.Placa.slice(3, 4);
 
     const verMayus = /^[A-Z]{3}$/.test(first3);
 
     const verNums = /^[1-9]{3}$/.test(last3);
 
-    console.log(separator);
-    console.log(first3);
-    console.log(last3);
-
-    console.log(verMayus);
-    console.log(verNums);
+    const verSep = /^[-]{1}$/.test(separator);
 
     if (!values.Nombre) {
       errors.Nombre = "Ingrese su nombre";
@@ -95,6 +92,8 @@ const ValidationReg = (values, data, apiS) => {
 
     if (values.Placa.length > 7) {
       errors.Placa = "Valores < 7";
+    } else if (!verMayus || !verNums || !verSep) {
+      errors.Placa = "Siga el ejemplo: AAA-111";
     } else errors.Valid = "valid";
 
     if (!values.CodigoVivienda) {
@@ -107,9 +106,23 @@ const ValidationReg = (values, data, apiS) => {
 
     if (values.EspacioParqueadero.length > 2) {
       errors.EspacioParqueadero = "Valores entre 1 y 99";
-    } else if (!getCode) {
-      errors.EspacioParqueadero = "Vivienda no registrada en el sistema";
+    } else if (!getEsp) {
+      errors.EspacioParqueadero = "Espacio no registrado en el sistema";
     } else errors.Valid = "valid";
+  }
+
+  if (apiS === "Parqueadero") {
+    
+    if (!values.NumeroEspacio) {
+      errors.NumeroEspacio = "Ingrese el numero de espacio";
+    } else if (values.NumeroEspacio.length > 3) {
+      errors.NumeroEspacio = "Valores entre 1 y 99";
+    } else errors.Valid = "valid";
+
+    if (!values.TipoEspacio) {
+      errors.TipoEspacio = "Seleccione un tipo de espacio";
+    } else errors.Valid = "valid";
+
   }
 
   if (apiS === "Porteros" || apiS === "") {
