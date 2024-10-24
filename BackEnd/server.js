@@ -11,7 +11,6 @@ import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
-
 dotenv.config({ path: "./.env" });
 
 const app = express();
@@ -19,12 +18,11 @@ app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Añadido PUT y OPTIONS
+    methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"], // Añadido headers permitidos
   })
 );
-app.options('*', cors());
+
 
 app.use(cookieParser());
 
@@ -74,77 +72,27 @@ app.get("/espacio_parqueadero", (req, res) => {
   });
 });
 
-app.put('/rentar_espacio', (req, res) => {
-  console.log(req.body);
-  const { name, numEspacio } = req.body;
-  const estadoOcupado = "Ocupado";
 
-  // Primero verificamos si el espacio está disponible
-  const sqlCheckEspacio = `
-    SELECT numEspacio, estado 
-    FROM espacios_parqueadero 
-    WHERE numEspacio = ?`;
-  
-  db.query(sqlCheckEspacio, [numEspacio], (err, espacioResult) => {
-    if (err) {
-      console.error("Error al verificar el espacio:", err.message);
-      return res.status(500).json({ error: err.message });
+// Endpoint para rentar espacio
+app.post('/rentar_espacio', (req, res) => {
+    const { nombreUsuario, idParqueaderoFk } = req.body;
+
+    if (!nombreUsuario || !idParqueaderoFk) {
+        return res.status(400).json({ error: 'nombreUsuario e idParqueaderoFk son requeridos' });
     }
 
-    if (espacioResult.length === 0) {
-      return res.status(404).json({ error: "Espacio no encontrado" });
-    }
-
-    if (espacioResult[0].estado === "Ocupado") {
-      return res.status(400).json({ error: "El espacio ya está ocupado" });
-    }
-
-    // Si está disponible, actualizamos el estado del espacio
-    const sqlUpdateEspacio = `
-      UPDATE espacios_parqueadero 
-      SET estado = ? 
-      WHERE numEspacio = ?`;
-    
-    db.query(sqlUpdateEspacio, [estadoOcupado, numEspacio], (err, updateResult) => {
-      if (err) {
-        console.error("Error al actualizar el espacio:", err.message);
-        return res.status(500).json({ error: err.message });
-      }
-
-      // Actualizamos la tabla personas con el id del espacio
-      const sqlUpdatePersona = `
-        UPDATE rentar_espacio 
-        SET idParqueaderoFk = ? 
-        WHERE nombreUsuario = ?`;
-      
-      db.query(sqlUpdatePersona, [espacioResult[0].id, name], (err, personaResult) => {
+    const query = 'INSERT INTO rentar_espacio (nombreUsuario, idParqueaderoFk) VALUES (?, ?)';
+    db.query(query, [nombreUsuario, idParqueaderoFk], (err, results) => {
         if (err) {
-          console.error("Error al actualizar la persona:", err.message);
-          // Si hay error, revertimos el cambio en espacios_parqueadero
-          db.query(
-            "UPDATE espacios_parqueadero SET estado = 'Disponible' WHERE numEspacio = ?", 
-            [numEspacio]
-          );
-          return res.status(500).json({ error: err.message });
+            console.error('Error al insertar en rentar_espacio:', err);
+            return res.status(500).json({ error: 'Error al procesar la solicitud' });
         }
-
-        if (personaResult.affectedRows === 0) {
-          // Si no se actualizó ninguna persona, revertimos el cambio en espacios_parqueadero
-          db.query(
-            "UPDATE espacios_parqueadero SET estado = 'Disponible' WHERE numEspacio = ?", 
-            [numEspacio]
-          );
-          return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        res.json({ 
-          status: 'success',
-          message: "Espacio de parqueadero rentado exitosamente." 
-        });
-      });
+        res.status(201).json({ message: 'Espacio rentado exitosamente', id: results.insertId });
     });
-  });
 });
+
+
+
 
 
 
@@ -181,7 +129,6 @@ app.get("/citas_salon_comunal", (req, res) => {
       });
     }
 
-    // Convertir el userDoc a string para comparación consistente
     const userDocString = String(userDoc);
     
     const formattedData = data.map(cita => ({
@@ -249,6 +196,7 @@ app.post('/actualizar_perfil', (req, res) => {
     res.json({ message: "Perfil actualizado exitosamente" });
   });
 });
+
 // CAMBIAR CONTRASEÑA CON ENCRIPTACIÓN EN PERFIL PROP
 app.post('/cambiar_contrasena', async (req, res) => {
   const { newPassword, nombreUsuario } = req.body;

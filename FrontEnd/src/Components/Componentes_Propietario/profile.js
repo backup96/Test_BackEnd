@@ -4,15 +4,13 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { Link } from "react-router-dom";
 import { FaEdit, FaCheck } from "react-icons/fa";
-import Tabla from "./tabla"; // Asegúrate de que la ruta sea correcta
 
-const Profile = ({ name }) => {
+const Profile = ({ name }) => {  
   const [loading, setLoading] = useState(true);
   const [perfilData, setPerfilData] = useState([]);
   const [isEditing, setIsEditing] = useState({
     telefono: false,
-    correo: false,
-    nombreUsuario: false,
+    correo: false
   });
   const [editableData, setEditableData] = useState({
     telefono: "",
@@ -20,7 +18,8 @@ const Profile = ({ name }) => {
     nombreUsuario: "",
   });
   const [showModal, setShowModal] = useState(false);
-
+  const [isUpdating, setIsUpdating] = useState(false);
+  
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -38,23 +37,34 @@ const Profile = ({ name }) => {
     };
 
     fetchProfile();
-  }, [name]);
+  }, [name]);  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditableData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleToggleEdit = async (field) => {
+  const handleToggleEdit = async (field, event) => {
+    event?.preventDefault();  // Prevenir comportamiento por defecto si existe el evento
+    
     if (isEditing[field]) {
-      await handleUpdate();
+      if (!isUpdating) {  // Verificar si no hay una actualización en curso
+        await handleUpdate();
+      }
     }
     setIsEditing((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   const handleUpdate = async () => {
+    if (isUpdating) return;  
+    
+    setIsUpdating(true);
     try {
-      const response = await axios.post("http://localhost:8081/actualizar_perfil", editableData);
+      const response = await axios.post("http://localhost:8081/actualizar_perfil", {
+        telefono: editableData.telefono,
+        correo: editableData.correo,
+        nombreUsuario: perfilData[0].nombreUsuario 
+      });
       if (response.data.message) {
         toast.success("Perfil actualizado exitosamente");
         setPerfilData((prevData) => {
@@ -65,44 +75,47 @@ const Profile = ({ name }) => {
       }
     } catch (error) {
       toast.error(error.response?.data?.error || "Error al actualizar el perfil");
+    } finally {
+      setIsUpdating(false);
     }
   };
+
 
   const handlePasswordChange = async () => {
     const newPassword = document.getElementById("newPassword").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
-
+  
     // Validación de campos vacíos
     if (!newPassword || !confirmPassword) {
       toast.error("Por favor complete ambos campos");
       return;
     }
-
+  
     // Validación de contraseñas coincidentes
     if (newPassword !== confirmPassword) {
       toast.error("Las contraseñas no coinciden");
       return;
     }
-
+  
     // Validación de longitud mínima
     if (newPassword.length < 8) {
       toast.error("La contraseña debe tener al menos 8 caracteres");
       return;
     }
-
+  
     // Validación de que comience con mayúscula y contenga letras y números
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Z][A-Za-z\d]*$/;
     if (!passwordRegex.test(newPassword)) {
       toast.error("La contraseña debe comenzar con una letra mayúscula y contener letras y números");
       return;
     }
-
+  
     try {
       const response = await axios.post("http://localhost:8081/cambiar_contrasena", {
         newPassword,
         nombreUsuario: perfilData[0].nombreUsuario,
       });
-
+  
       if (response.data.message) {
         toast.success("Contraseña actualizada exitosamente");
         setShowModal(false);
@@ -110,10 +123,10 @@ const Profile = ({ name }) => {
         document.getElementById("confirmPassword").value = "";
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al cambiar la contraseña");
+      // toast.error(error.response?.data?.error || "Error al cambiar la contraseña");
     }
   };
-
+  
   if (loading) {
     return (
       <div className="profile-container">
@@ -124,8 +137,9 @@ const Profile = ({ name }) => {
 
   return (
     <div className="profile-container">
-      <ToastContainer />
+      <ToastContainer limit={1} />
       <h1 className="profile-title">Mi Perfil</h1>
+      <br></br>
       <div className="profile-grid">
         {perfilData.map((record, index) => (
           <div key={index} className="profile-columns">
@@ -148,7 +162,7 @@ const Profile = ({ name }) => {
                         name="telefono"
                         value={editableData.telefono}
                         onChange={handleInputChange}
-                        onBlur={() => handleToggleEdit("telefono")}
+                        onBlur={() => handleToggleEdit("telefono")} 
                         autoFocus
                       />
                       <FaCheck className="check-icon" onClick={() => handleToggleEdit("telefono")} />
@@ -170,7 +184,7 @@ const Profile = ({ name }) => {
                         name="correo"
                         value={editableData.correo}
                         onChange={handleInputChange}
-                        onBlur={() => handleToggleEdit("correo")}
+                        onBlur={() => handleToggleEdit("correo")} 
                         autoFocus
                       />
                       <FaCheck className="check-icon" onClick={() => handleToggleEdit("correo")} />
@@ -187,34 +201,16 @@ const Profile = ({ name }) => {
               <div className="profile-section">
                 <h4>Información de Acceso</h4>
                 <p>
-                  <strong>Usuario:</strong>
-                  {isEditing.nombreUsuario ? (
-                    <>
-                      <input
-                        type="text"
-                        name="nombreUsuario"
-                        value={editableData.nombreUsuario}
-                        onChange={handleInputChange}
-                        onBlur={() => handleToggleEdit("nombreUsuario")}
-                        autoFocus
-                      />
-                      <FaCheck className="check-icon" onClick={() => handleToggleEdit("nombreUsuario")} />
-                    </>
-                  ) : (
-                    <>
-                      {editableData.nombreUsuario || "No disponible"}
-                      <FaEdit onClick={() => handleToggleEdit("nombreUsuario")} className="edit-icon" />
-                    </>
-                  )}
-                </p>
+          <strong>Usuario:</strong> {editableData.nombreUsuario || "No disponible"}
+        </p>
                 <Link to="#" className="text-primary" onClick={() => setShowModal(true)}>
                   Cambiar Contraseña
                 </Link>
               </div>
             </div>
 
-            <div className="profile-right">
-              <div className="profile-section">
+            <div>
+            <div className="housing-info">
                 <h4>Información de Vivienda</h4>
                 <p>
                   <strong>Apartamento:</strong> {record.Apartamento_FK || "No disponible"}
@@ -227,7 +223,7 @@ const Profile = ({ name }) => {
                 </p>
               </div>
 
-              <div className="profile-section">
+              <div className="vehicle-info">
                 <h4>Información de Vehículo</h4>
                 <p>
                   <strong>Parqueadero:</strong> {record.idParqueaderoFk || "No asignado"}
@@ -240,9 +236,6 @@ const Profile = ({ name }) => {
           </div>
         ))}
       </div>
-
-      {/* Aquí se integra el componente Tabla */}
-      <Tabla apiS={"http://localhost:8081/espacio_parqueadero"} name={perfilData[0]?.nombreUsuario} />
 
       {showModal && (
         <div className="modal show d-block" tabIndex="-1" role="dialog">

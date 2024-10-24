@@ -7,6 +7,7 @@
   margin: 100px auto; 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
   text-align: center; 
+  position: relative;
 }
 
 .profile-title {
@@ -28,23 +29,61 @@
 
 .profile-grid, .profile-columns {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 20px;
-}
-
-.profile-left, .profile-right {
-  width: 48%;
+  position: relative;
 }
 
 .profile-left {
-  text-align: left; /* Alineación de la sección izquierda */
+  text-align: left;
+  width: 100%;
 }
 
-.profile-right {
-  text-align: right; /* Alineación de la sección derecha */
-  align-self: flex-end; /* Alinea todo el contenedor hacia la derecha */
+.housing-info {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 300px;
+  text-align: right;
 }
 
+.housing-info h4 {
+  color: #007bff;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.housing-info p {
+  margin: 5px 0;
+  text-align: right;
+}
+.vehicle-info {
+  position: absolute;
+  right: 0;
+  top: 195px; /* Ajusta este valor según necesites para la separación */
+  width: 300px;
+  text-align: right;
+}
+
+.housing-info h4, .vehicle-info h4 {
+  color: #007bff;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.housing-info p, .vehicle-info p {
+  margin: 5px 0;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .housing-info, .vehicle-info {
+    position: relative;
+    width: 100%;
+    top: auto;
+    margin-top: 20px;
+  }
+}
 .profile-section {
   margin-bottom: 20px;
   display: flex;
@@ -55,11 +94,11 @@
 .profile-section2 {
   display: flex;
   flex-direction: column;
-  align-items: flex-end; /* Alinea los elementos hijos a la derecha */
+  align-items: flex-end;
 }
 
 .profile-section2 p {
-  text-align: right; /* Alinea el texto dentro de los párrafos a la derecha */
+  text-align: right;
 }
 
 .profile-section h4, .profile-section2 h4 {
@@ -86,15 +125,15 @@
 }
 
 .check-icon {
-  color: #28a745; /* Verde para el icono */
+  color: #28a745;
   cursor: pointer;
-  margin-left: 8px; /* Espacio entre el input/texto y el icono */
-  font-size: 20px; /* Ajusta el tamaño del icono si es necesario */
-  transition: color 0.3s ease; /* Transición suave */
+  margin-left: 8px;
+  font-size: 20px;
+  transition: color 0.3s ease;
 }
 
 .check-icon:hover {
-  color: #218838; /* Verde más oscuro al pasar el mouse */
+  color: #218838;
 }
 
 .btn-secondary {
@@ -148,6 +187,83 @@
   font-size: 14px;
 }
 
+/* Estilos para el modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  color: #007bff;
+  margin: 0;
+}
+
+.close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-footer {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
 @media (max-width: 768px) {
   .profile-container {
     margin: 20px;
@@ -171,11 +287,14 @@
     flex-direction: column;
   }
 
-  .profile-left, .profile-right {
+  .housing-info {
+    position: relative;
     width: 100%;
+    margin-top: 20px;
   }
 
-  .profile-right {
-    text-align: left; /* Para dispositivos pequeños, texto alineado a la izquierda */
+  .modal-content {
+    width: 95%;
+    margin: 10px;
   }
 }

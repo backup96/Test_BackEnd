@@ -21,7 +21,9 @@ const Calendario = () => {
   const [reservas, setReservas] = useState([]);
   const [currentUserDoc, setCurrentUserDoc] = useState('');
   const [formErrors, setFormErrors] = useState({
-    motivoReunion: ''
+    motivoReunion: '',
+    horarioInicio: '',  // Añadimos estos campos
+    horarioFin: ''
   });
   const [charCount, setCharCount] = useState({
     motivoReunion: 0
@@ -97,13 +99,15 @@ const Calendario = () => {
         isValid = false;
       }
     }
-
+  
+    // Actualizar todos los errores
     setFormErrors(prev => ({
       ...prev,
       [name]: errorMessage
     }));
-
-    if (isValid) {
+  
+    // Actualizar el formData solo si es válido
+    if (isValid || value === '') {  // Permitimos valor vacío para poder borrar campos
       setFormData(prevState => ({
         ...prevState,
         [name]: value
@@ -118,55 +122,87 @@ const Calendario = () => {
     if (!hora) {
       return { isValid: false, message: "Por favor, ingrese una hora válida." };
     }
-
+  
     const [hours, minutes] = hora.split(':').map(Number);
-    const horaInicio = 9;
-    const horaFin = 23;
-
+    const horaInicio = 9; // 9 AM
+    const horaFinMaxima = 23; // 11 PM
+    const minutosFinMaximos = 30; // 30 minutos
+  
     if (tipo === "horarioInicio") {
-      if (hours < horaInicio || hours >= 24) {
-        return { isValid: false, message: "La hora de inicio debe estar entre las 9:00 AM y las 11:59 PM." };
+      if (hours < horaInicio || hours > horaFinMaxima || (hours === horaFinMaxima && minutes > minutosFinMaximos)) {
+        return { 
+          isValid: false, 
+          message: "La hora de inicio debe estar entre las 9:00 AM y las 11:30 PM." 
+        };
       }
     } else if (tipo === "horarioFin") {
-      if ((hours < horaInicio && hours >= horaFin) || hours >= 24) {
-        return { isValid: false, message: "La hora de fin debe estar entre las 9:00 AM y la 1:00 AM del día siguiente." };
+      if (hours < horaInicio || hours > horaFinMaxima || (hours === horaFinMaxima && minutes > minutosFinMaximos)) {
+        return { 
+          isValid: false, 
+          message: "La hora de fin debe estar entre las 9:00 AM y las 11:30 PM." 
+        };
       }
     }
-
+  
+    // Validar que la hora de fin sea posterior a la hora de inicio
+    if (tipo === "horarioFin" && formData.horarioInicio) {
+      const [inicioHours, inicioMinutes] = formData.horarioInicio.split(':').map(Number);
+      const inicioEnMinutos = inicioHours * 60 + inicioMinutes;
+      const finEnMinutos = hours * 60 + minutes;
+  
+      if (finEnMinutos <= inicioEnMinutos) {
+        return { 
+          isValid: false, 
+          message: "La hora de fin debe ser posterior a la hora de inicio." 
+        };
+      }
+    }
+  
     return { isValid: true, message: "" };
   };
-
   const handleFormSubmit = (e) => {
     e.preventDefault();
-
+  
+    // Validar horarios antes de enviar
+    const horaInicioValida = validarHora(formData.horarioInicio, "horarioInicio");
+    const horaFinValida = validarHora(formData.horarioFin, "horarioFin");
+  
+    if (!horaInicioValida.isValid || !horaFinValida.isValid) {
+      setFormErrors(prev => ({
+        ...prev,
+        horarioInicio: horaInicioValida.message,
+        horarioFin: horaFinValida.message
+      }));
+      return;
+    }
+  
     if (isDateReserved(selectedDate)) {
       return;
     }
-
+  
     axios.post('http://localhost:8081/citas_salon_comunal', formData)
-    .then((response) => {
-      if (!toast.isActive(toastId.current)) {
-        toastId.current = toast.success("¡Reserva realizada con éxito!");
-        
-        // Actualizar el documento del usuario cuando hace una reserva exitosa
-        setUserDocumento(formData.numDocumento);
-
-        handleModalClose();
-        setReservas(prevReservas => [
-          ...prevReservas,
-          {
-            ...response.data,
-            Fecha: selectedDate,
-            numDocumento: formData.numDocumento // Asegurarse de incluir el número de documento
-          }
-        ]);
-      } else {
-        toast.error("Hubo un problema al registrar la cita");
-      }
-    })
-    .catch((error) => {
-      toast.error(`Error al realizar la reserva: ${error.response?.data?.message || 'Por favor, intente de nuevo.'}`);
-    });
+      .then((response) => {
+        if (!toast.isActive(toastId.current)) {
+          toastId.current = toast.success("¡Reserva realizada con éxito!");
+          
+          setUserDocumento(formData.numDocumento);
+  
+          handleModalClose();
+          setReservas(prevReservas => [
+            ...prevReservas,
+            {
+              ...response.data,
+              Fecha: selectedDate,
+              numDocumento: formData.numDocumento
+            }
+          ]);
+        } else {
+          toast.error("Hubo un problema al registrar la cita");
+        }
+      })
+      .catch((error) => {
+        toast.error(`Error al realizar la reserva: ${error.response?.data?.message || 'Por favor, intente de nuevo.'}`);
+      });
   };
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
@@ -174,7 +210,6 @@ const Calendario = () => {
       const reservaParaFecha = reservas.find(res => res.Fecha === dateStr);
 
       if (reservaParaFecha) {
-        // Comparar con el documento del usuario actual
         const esReservaPropia = String(reservaParaFecha.numDocumento) === String(userDocumento);
         
         return (
@@ -209,13 +244,20 @@ const Calendario = () => {
         tileDisabled={({ date }) => date < new Date()}
         tileContent={tileContent}
       />
-      <Modal show={showModal} onHide={handleModalClose} centered size="lg">
+      <Modal 
+        show={showModal} 
+        onHide={handleModalClose} 
+        centered 
+        size="lg"
+        backdrop="static"
+        keyboard={false}
+      >
         <Modal.Header closeButton>
-          <Modal.Title>Reserva para el {selectedDate}</Modal.Title>
+          <Modal.Title className="text-dark">Reserva para el {selectedDate}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleFormSubmit}>
-            <Row>
+            <Row className="justify-content-center">
               <Col md={6}>
                 <Form.Group controlId="numDocumento">
                   <Form.Label>Numero Documento</Form.Label>
@@ -223,6 +265,7 @@ const Calendario = () => {
                     type="number"
                     name="numDocumento"
                     placeholder="Ingrese su documento"
+                    required
                     value={formData.numDocumento}
                     onChange={handleChange}
                     isInvalid={!!formErrors.numDocumento}
@@ -234,9 +277,7 @@ const Calendario = () => {
                 </Form.Group>
               </Col>
             </Row>
-
             <br />
-
             <Row>
               <Col md={6}>
                 <Form.Group controlId="HorarioInicio">
@@ -246,11 +287,14 @@ const Calendario = () => {
                     name="horarioInicio"
                     value={formData.horarioInicio}
                     onChange={handleChange}
+                    isInvalid={!!formErrors.horarioInicio}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                  {formErrors.horarioInicio}
+                </Form.Control.Feedback>
                 </Form.Group>
               </Col>
-
               <Col md={6}>
                 <Form.Group controlId="HorarioFin">
                   <Form.Label>Hora de Fin</Form.Label>
@@ -259,14 +303,16 @@ const Calendario = () => {
                     name="horarioFin"
                     value={formData.horarioFin}
                     onChange={handleChange}
+                    isInvalid={!!formErrors.horarioFin}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                  {formErrors.horarioFin}
+                </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
-
             <br />
-
             <Form.Group controlId="MotivoReunion">
               <Form.Label>Motivo de la Reserva</Form.Label>
               <Form.Control
@@ -285,14 +331,15 @@ const Calendario = () => {
                 {charCount.motivoReunion}/200 caracteres
               </Form.Text>
             </Form.Group>
-
-            <Button variant="primary" type="submit">
-              Reservar
-            </Button>
+            <div className="text-end mt-3">
+              <Button variant="success" type="submit">
+                Reservar
+              </Button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>
-      <ToastContainer />
+      <ToastContainer limit={1} />
     </div>
   );
 };

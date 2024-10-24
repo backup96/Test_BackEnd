@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useUser } from "../../userContext";
 import Calendario from "./calendario"; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -10,40 +11,22 @@ import 'react-toastify/dist/ReactToastify.css';
 const Tabla = ({ apiS, name }) => {
   const [currentPageMoto, setCurrentPageMoto] = useState(1);
   const [currentPageCarro, setCurrentPageCarro] = useState(1);
+  const { user, setUser } = useUser();
   const [searchTermMoto, setSearchTermMoto] = useState("");
   const [searchTermCarro, setSearchTermCarro] = useState("");
 
   const recordsPerPage = 12;
+
   const [dataMoto, setDataMoto] = useState([]);
   const [dataCarro, setDataCarro] = useState([]);
-  const [perfilData, setPerfilData] = useState(null);  // Inicializamos como null
-  
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.post("http://localhost:8081/vista_perfil", { name });
-        setPerfilData(response.data); // Guardamos el objeto directamente
-      } catch (error) {
-        toast.error("Error al obtener los datos del perfil");
-        console.error("Error fetching profile:", error);
-      }
-    };
-
-    fetchProfile();
-  }, [name]);
-
-  
 
   useEffect(() => {
     const fetchEspacios = () => {
       Promise.all([
-        axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto"),
-        axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro")
+        axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto`),
+        axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro`)
       ])
       .then(([responseMoto, responseCarro]) => {
-        console.log("Datos Moto:", responseMoto.data);
-        console.log("Datos Carro:", responseCarro.data);
-  
         setDataMoto(responseMoto.data.data || []);
         setDataCarro(responseCarro.data.data || []);
       })
@@ -67,7 +50,8 @@ const Tabla = ({ apiS, name }) => {
     .slice(indexOfFirstRecordMoto, indexOfLastRecordMoto);
 
   const totalPagesMoto = Math.ceil(
-    dataMoto.filter((record) => record.estado === 'Disponible').length / recordsPerPage
+    dataMoto.filter((record) => record.estado === 'Disponible').length /
+      recordsPerPage
   );
 
   const currentRecordsCarro = dataCarro
@@ -75,7 +59,8 @@ const Tabla = ({ apiS, name }) => {
     .slice(indexOfFirstRecordCarro, indexOfLastRecordCarro);
 
   const totalPagesCarro = Math.ceil(
-    dataCarro.filter((record) => record.estado === 'Disponible').length / recordsPerPage
+    dataCarro.filter((record) => record.estado === 'Disponible').length /
+      recordsPerPage
   );
 
   const handlePageChangeMoto = (pageNumber) => {
@@ -88,14 +73,16 @@ const Tabla = ({ apiS, name }) => {
     setCurrentPageCarro(pageNumber);
   };
 
-  const rentSpace = async (spaceId, EspacioParqueadero, espacioNumero) => {
-    if (!perfilData) {
-      toast.error("Error: No se han cargado los datos del perfil");
+  const rentSpace = (spaceId, EspacioParqueadero, espacioNumero) => {
+    const nombreUsuario = user?.name; // Obtener el nombre del usuario
+  
+    if (!nombreUsuario) { // Verifica si el usuario existe y tiene un nombre
+      toast.error("Error: Usuario no encontrado.");
       return;
     }
   
-    const espacioMoto = perfilData.espacioMoto;
-    const espacioCarro = perfilData.espacioCarro;
+    const espacioMoto = user.espacioMoto || null;
+    const espacioCarro = user.espacioCarro || null;
   
     if (
       (EspacioParqueadero === "Moto" && espacioMoto) ||
@@ -105,55 +92,69 @@ const Tabla = ({ apiS, name }) => {
       return;
     }
   
-    try {
-      // Rentar el espacio
-      await axios.put('http://localhost:8081/rentar_espacio', {
-        nombreUsuario: perfilData.nombreUsuario,
-        numEspacio: espacioNumero
-      });
-  
-      // Actualizar el estado local
+    axios.put(`http://localhost:8081/espacio_parqueadero/${spaceId}/estado`, {
+      idEstado: 2 // Asumiendo que 2 es el ID del estado "Ocupado"
+    })
+    .then(() => {
+      // Actualiza el estado del espacio en la UI
       if (EspacioParqueadero === "Moto") {
-        setDataMoto(prevData =>
-          prevData.map(item =>
+        setDataMoto((prevData) =>
+          prevData.map((item) =>
             item.numEspacio === espacioNumero ? { ...item, estado: "Ocupado" } : item
           )
         );
       } else {
-        setDataCarro(prevData =>
-          prevData.map(item =>
+        setDataCarro((prevData) =>
+          prevData.map((item) =>
             item.numEspacio === espacioNumero ? { ...item, estado: "Ocupado" } : item
           )
         );
       }
   
+      const updatedUser = {
+        ...user,
+        espacioMoto: EspacioParqueadero === "Moto" ? espacioNumero : espacioMoto,
+        espacioCarro: EspacioParqueadero === "Carro" ? espacioNumero : espacioCarro,
+      };
+  
+      // Llamada al endpoint para registrar el alquiler
+      return axios.post('http://localhost:8081/rentar_espacio', {
+        nombreUsuario: user.nombre, // Asegúrate de que el nombre del usuario está disponible
+        idParqueaderoFk: spaceId
+      })
+      .then(() => {
+        return axios.patch(`http://localhost:8081/usuarios/${user.id}`, updatedUser);
+      });
+    })
+    .then((response) => {
+      setUser(response.data);
       toast.success("Usted rentó un espacio de parqueadero exitosamente");
-      
-    } catch (error) {
+    })
+    .catch((error) => {
       console.error("Error al rentar el espacio:", error);
-      if (error.response && error.response.data && error.response.data.error) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error("Error al rentar el espacio");
-      }
-    }
-  }
-  
-  
+      toast.error("Error al rentar el espacio");
+    });
+  };
+
   const handleSearchMoto = (e) => {
     e.preventDefault();
+    console.log("Buscando Moto:", searchTermMoto); // Debugging
     fetchFilteredRecordsMoto(searchTermMoto);
   };
 
   const handleSearchCarro = (e) => {
     e.preventDefault();
+    console.log("Buscando Carro:", searchTermCarro); // Debugging
     fetchFilteredRecordsCarro(searchTermCarro);
   };
 
   const fetchFilteredRecordsMoto = async (term) => {
     try {
       if (term) {
-        const response = await axios.get(`http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Moto`);
+        const response = await axios.get(
+          `http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Moto`
+        );
+        console.log("Datos Moto Filtrados:", response.data.data);
         if (response.data.status === 'success' && response.data.data.length > 0) {
           const filteredData = response.data.data.filter(record => record.numEspacio === parseInt(term));
           setDataMoto(filteredData);
@@ -163,7 +164,7 @@ const Tabla = ({ apiS, name }) => {
           setDataMoto([]); // Limpia los datos si no hay resultados
         }
       } else {
-        const responseMoto = await axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto");
+        const responseMoto = await axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto`);
         setDataMoto(responseMoto.data.data);
       }
     } catch (error) {
@@ -171,33 +172,41 @@ const Tabla = ({ apiS, name }) => {
       toast.error("Ocurrió un error al filtrar los registros");
     }
   };
-  
-  const fetchFilteredRecordsCarro = async (term) => {
-    try {
-      if (term) {
-        const response = await axios.get(`http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Carro`);
-        if (response.data.status === 'success' && response.data.data.length > 0) {
-          const filteredData = response.data.data.filter(record => record.numEspacio === parseInt(term));
-          setDataCarro(filteredData);
-          setCurrentPageCarro(1);
-        } else {
-          toast.warning("No se encontraron espacios de carro con ese número.");
-          setDataCarro([]); // Limpia los datos si no hay resultados
-        }
-      } else {
-        const responseCarro = await axios.get("http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro");
-        setDataCarro(responseCarro.data.data);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al obtener los espacios de carro.");
+
+  const fetchFilteredRecordsCarro = (term) => {
+    if (term) {
+      axios
+        .get(`http://localhost:8081/espacio_parqueadero?numEspacio=${term}&tipoEspacio=Carro`)
+        .then((response) => {
+          console.log("Datos Carro Filtrados:", response.data.data);
+          if (response.data.status === 'success' && response.data.data.length > 0) {
+            const filteredData = response.data.data.filter(record => record.numEspacio === parseInt(term));
+            setDataCarro(filteredData);
+            setCurrentPageCarro(1);
+          } else {
+            toast.warning("No se encontraron espacios de carro con ese número.");
+            setDataCarro([]); // Limpia los datos si no hay resultados
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error("Este espacio no se encuentra disponible.");
+        });
+    } else {
+      axios
+        .get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro`)
+        .then((responseCarro) => {
+          setDataCarro(responseCarro.data.data);
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error("Error al obtener los espacios de carro.");
+        });
     }
   };
-
   
-  const hasRentedMoto = perfilData && perfilData.espacioMoto;
-  const hasRentedCarro = perfilData && perfilData.espacioCarro;
-
+  const hasRentedMoto = user && user.espacioMoto;
+  const hasRentedCarro = user && user.espacioCarro;
 
   return (
     <div className="w-100 h-100">
@@ -228,7 +237,7 @@ const Tabla = ({ apiS, name }) => {
                     value={searchTermMoto}
                     onChange={(e) => setSearchTermMoto(e.target.value)}
                   />
-                  <button className="btn btn-success py-1" type="submit">
+                  <button className="btn bg-success py-1" type="submit">
                     <FontAwesomeIcon icon={faSearch} />
                   </button>
                 </div>
@@ -359,7 +368,7 @@ const Tabla = ({ apiS, name }) => {
                     value={searchTermCarro}
                     onChange={(e) => setSearchTermCarro(e.target.value)}
                   />
-                  <button className="btn btn-success py-1" type="submit">
+                  <button className="btn bg-success py-1" type="submit">
                     <FontAwesomeIcon icon={faSearch} />
                   </button>
                 </div>
