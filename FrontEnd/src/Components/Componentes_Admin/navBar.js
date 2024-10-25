@@ -146,7 +146,7 @@ export function NavBar() {
         <div className="d-flex flex-row h-100">
           {/* SideBar */}
           <div
-            className="offcanvas offcanvas-start show z-1"
+            className="offcanvas offcanvas-start show z-2"
             data-bs-scroll="true"
             data-bs-backdrop="false"
             tabindex="-1"

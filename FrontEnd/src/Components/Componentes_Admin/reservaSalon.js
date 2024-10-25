@@ -250,7 +250,7 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                       class="btn btn-warning"
                       data-bs-toggle="modal"
                       data-bs-target="#exampleModal"
-                      onClick={() =>
+                      onClick={() => {
                         setSalonComunal((prevUsuario) => ({
                           ...prevUsuario,
                           id: record.id,
@@ -262,24 +262,29 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                           HoraFin: record.HoraFin,
                           Motivo: record.Motivo,
                           Fecha: record.Fecha,
-                        }))
-                      }
+                        }));
+                        setCurrentAccion("Actualizar");
+                      }}
                     >
                       <FontAwesomeIcon icon={faPenToSquare} className="fs-1" />
                     </button>
                     {/* Modal de actualización */}
                     <div
-                      class="modal fade"
+                      class={
+                        accion === "Actualizar" || accion === "Insertar"
+                          ? "modal fade"
+                          : "modal fade z-n1"
+                      }
                       id="exampleModal"
-                      tabIndex="-1"
+                      tabindex="-1"
                       aria-labelledby="exampleModalLabel"
                       aria-hidden="true"
                     >
-                      <div class="modal-dialog w-75">
+                      <div class="modal-dialog w-75 p-0 rounded-4">
                         <div class="modal-content w-100">
                           <div class="modal-header">
                             <h1 class="modal-title fs-5" id="exampleModalLabel">
-                              {accion} Solicitud de salon comunal
+                              {accion} Porteros
                             </h1>
                             <button
                               type="button"

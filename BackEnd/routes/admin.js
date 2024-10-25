@@ -529,7 +529,7 @@ const routerAdmin = (app, db) => {
   // Crud Salon comunal
   // Consultar Salon comunal
   router.get("/getReservaSalon", (req, res) => {
-    const sql = "SELECT * FROM espacios_parqueadero";
+    const sql = "SELECT * FROM citas_salon_comunal";
     db.query(sql, (err, data) => {
       if (err) {
         console.error("Error en la consulta:", err); // Muestra el error en el servidor

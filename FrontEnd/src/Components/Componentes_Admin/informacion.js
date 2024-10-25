@@ -187,13 +187,6 @@ const Info = ({ currentRecords, apiS, data }) => {
               </td>
             </tr>
           ))}
-          <div
-            class="modal fade"
-            id="exampleModal"
-            tabindex="-1"
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-          ></div>
         </tbody>
       </table>
     </div>

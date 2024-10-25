@@ -336,14 +336,18 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
                 </tr>
               ))}
           <div
-            className="modal fade"
+            className={
+              accion === "Actualizar" || accion === "Insertar"
+                ? "modal fade"
+                : "modal fade z-n1"
+            }
             id="exampleModal"
             tabindex="-1"
             aria-labelledby="exampleModalLabel"
             aria-hidden="true"
           >
             <div class="modal-dialog w-50 p-0 rounded rounded-4">
-              <div className="modal-content mx-0 my-5 w-100">
+              <div className="modal-content mx-0 my-5 w-100" inert>
                 <div class="modal-header">
                   <h1 class="modal-title fs-5" id="exampleModalLabel">
                     {accion} Propietario

@@ -310,7 +310,11 @@ const Porteros = ({ item, currentRecords, apiS }) => {
                 </tr>
               ))}
           <div
-            class="modal fade"
+            class={
+              accion === "Actualizar" || accion === "Insertar"
+                ? "modal fade"
+                : "modal fade z-n1"
+            }
             id="exampleModal"
             tabindex="-1"
             aria-labelledby="exampleModalLabel"

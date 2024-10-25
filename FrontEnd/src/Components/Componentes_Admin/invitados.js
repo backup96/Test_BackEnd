@@ -21,7 +21,6 @@ library.add(faCheck);
 const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
   const [accion, setAccion] = useState("");
   const [errors, setError] = useState({});
-  const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState("");
   const [eliminarRecord, setEliminarRecord] = useState("");
 
@@ -336,7 +335,11 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                 </tr>
               ))}
           <div
-            class="modal fade"
+            class={
+              accion === "Actualizar" || accion === "Insertar"
+                ? "modal fade"
+                : "modal fade z-n1"
+            }
             id="exampleModal"
             tabindex="-1"
             aria-labelledby="exampleModalLabel"

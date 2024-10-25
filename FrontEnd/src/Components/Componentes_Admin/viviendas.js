@@ -318,7 +318,11 @@ const Vivienda = ({ item, currentRecords, apiS, data }) => {
                 </tr>
               ))}
           <div
-            class="modal fade"
+            className={
+              accion === "Actualizar" || accion === "Insertar"
+                ? "modal fade"
+                : "modal fade z-n1"
+            }
             id="exampleModal"
             tabindex="-1"
             aria-labelledby="exampleModalLabel"
@@ -337,104 +341,106 @@ const Vivienda = ({ item, currentRecords, apiS, data }) => {
                     aria-label="Close"
                   ></button>
                 </div>
-                <form onSubmit={enviar}>
-                  <div class="modal-body">
-                    {errors.CodigoVivienda && (
-                      <span className="text-danger">
-                        {errors.CodigoVivienda}
-                      </span>
-                    )}
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputEmail1"
-                        className="form-label"
-                      >
-                        Bloque
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputEmail1"
-                        value={values.Bloque}
-                        onChange={(e) =>
-                          setValues((prevApartamento) => ({
-                            ...prevApartamento,
-                            Bloque: e.target.value,
-                          }))
-                        }
-                      />
-                      {errors.Bloque && (
-                        <span className="text-danger">{errors.Bloque}</span>
+                <div className="modal-body" inert={true}>
+                  <form onSubmit={enviar}>
+                    <div class="modal-body">
+                      {errors.CodigoVivienda && (
+                        <span className="text-danger">
+                          {errors.CodigoVivienda}
+                        </span>
                       )}
+                      <div className="mb-3">
+                        <label
+                          htmlFor="exampleInputEmail1"
+                          className="form-label"
+                        >
+                          Bloque
+                        </label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          id="exampleInputEmail1"
+                          value={values.Bloque}
+                          onChange={(e) =>
+                            setValues((prevApartamento) => ({
+                              ...prevApartamento,
+                              Bloque: e.target.value,
+                            }))
+                          }
+                        />
+                        {errors.Bloque && (
+                          <span className="text-danger">{errors.Bloque}</span>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label
+                          htmlFor="exampleInputPassword1"
+                          className="form-label"
+                        >
+                          Torre
+                        </label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          id="exampleInputPassword1"
+                          value={values.Torre}
+                          onChange={(e) =>
+                            setValues((prevApartamento) => ({
+                              ...prevApartamento,
+                              Torre: e.target.value,
+                            }))
+                          }
+                        />
+                        {errors.Torre && (
+                          <span className="text-danger">{errors.Torre}</span>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label
+                          htmlFor="exampleInputPassword1"
+                          className="form-label"
+                        >
+                          Numero de apartamento
+                        </label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          id="exampleInputPassword1"
+                          value={values.numAprt}
+                          onChange={(e) =>
+                            setValues((prevApartamento) => ({
+                              ...prevApartamento,
+                              numAprt: e.target.value,
+                            }))
+                          }
+                        />
+                        {errors.numAprt && (
+                          <span className="text-danger">{errors.numAprt}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Torre
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        value={values.Torre}
-                        onChange={(e) =>
-                          setValues((prevApartamento) => ({
-                            ...prevApartamento,
-                            Torre: e.target.value,
-                          }))
+                    <div class="modal-footer">
+                      <button
+                        type="submit"
+                        className={
+                          accion === "Actualizar"
+                            ? "btn btn-warning"
+                            : accion === "Insertar"
+                            ? "btn btn-success w-25 m-0 ms-1 h-100"
+                            : ""
                         }
-                      />
-                      {errors.Torre && (
-                        <span className="text-danger">{errors.Torre}</span>
-                      )}
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
                       >
-                        Numero de apartamento
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        value={values.numAprt}
-                        onChange={(e) =>
-                          setValues((prevApartamento) => ({
-                            ...prevApartamento,
-                            numAprt: e.target.value,
-                          }))
-                        }
-                      />
-                      {errors.numAprt && (
-                        <span className="text-danger">{errors.numAprt}</span>
-                      )}
+                        {accion === "Actualizar" ? (
+                          <FontAwesomeIcon icon={faPenToSquare} />
+                        ) : accion === "Insertar" ? (
+                          <FontAwesomeIcon icon={faSquarePlus} />
+                        ) : (
+                          ""
+                        )}
+                      </button>
                     </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button
-                      type="submit"
-                      className={
-                        accion === "Actualizar"
-                          ? "btn btn-warning"
-                          : accion === "Insertar"
-                          ? "btn btn-success w-25 m-0 ms-1 h-100"
-                          : ""
-                      }
-                    >
-                      {accion === "Actualizar" ? (
-                        <FontAwesomeIcon icon={faPenToSquare} />
-                      ) : accion === "Insertar" ? (
-                        <FontAwesomeIcon icon={faSquarePlus} />
-                      ) : (
-                        ""
-                      )}
-                    </button>
-                  </div>
-                </form>
+                  </form>
+                </div>
               </div>
             </div>
           </div>

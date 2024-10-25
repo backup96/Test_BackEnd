@@ -308,165 +308,6 @@ const Reunion = ({ item, currentRecords, apiS }) => {
                         </button>
                       </div>
                     </div>
-                    <div
-                      class="modal fade"
-                      id="exampleModal"
-                      tabindex="-1"
-                      aria-labelledby="exampleModalLabel"
-                      aria-hidden="true"
-                    >
-                      <div class="modal-dialog w-75">
-                        <div class="modal-content w-100">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">
-                              {accion} Reuniones
-                            </h1>
-                            <button
-                              type="button"
-                              class="btn-close"
-                              data-bs-dismiss="modal"
-                              aria-label="Close"
-                            ></button>
-                          </div>
-                          <form onSubmit={enviar}>
-                            <div className="modal-body">
-                              <div className="d-flex flex-row">
-                                <div className="me-3">
-                                  <div className="mb-3">
-                                    <label
-                                      htmlFor="exampleInputEmail1"
-                                      className="form-label"
-                                    >
-                                      Número de Reunión
-                                    </label>
-                                    <input
-                                      type="number"
-                                      className="form-control"
-                                      id="exampleInputEmail1"
-                                      required
-                                      value={reuniones.NumeroReunion}
-                                      onChange={(e) =>
-                                        setReuniones((prevReuniones) => ({
-                                          ...prevReuniones,
-                                          NumeroReunion: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                  </div>
-                                  <div className="mb-3">
-                                    <label
-                                      htmlFor="exampleInputEmail1"
-                                      className="form-label"
-                                    >
-                                      Motivo
-                                    </label>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      id="exampleInputEmail1"
-                                      required
-                                      value={reuniones.Motivo}
-                                      onChange={(e) =>
-                                        setReuniones((prevReuniones) => ({
-                                          ...prevReuniones,
-                                          Motivo: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                  </div>
-                                  <div className="mb-3">
-                                    <label
-                                      htmlFor="exampleInputEmail1"
-                                      className="form-label"
-                                    >
-                                      Fecha
-                                    </label>
-                                    <input
-                                      type="date"
-                                      className="form-control"
-                                      id="exampleInputEmail1"
-                                      required
-                                      value={reuniones.Fecha}
-                                      onChange={(e) =>
-                                        setReuniones((prevReuniones) => ({
-                                          ...prevReuniones,
-                                          Fecha: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                                <div className="w-50">
-                                  <div className="mb-3 w-100">
-                                    <label
-                                      htmlFor="exampleInputEmail1"
-                                      className="form-label"
-                                    >
-                                      Hora de inicio
-                                    </label>
-                                    <input
-                                      type="time"
-                                      className="form-control"
-                                      id="exampleInputEmail1"
-                                      required
-                                      value={reuniones.HoraInicio}
-                                      onChange={(e) =>
-                                        setReuniones((prevReuniones) => ({
-                                          ...prevReuniones,
-                                          HoraInicio: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                  </div>
-                                  <div className="mb-3">
-                                    <label
-                                      htmlFor="exampleInputEmail1"
-                                      className="form-label"
-                                    >
-                                      Hora de Finalización
-                                    </label>
-                                    <input
-                                      type="time"
-                                      className="form-control"
-                                      id="exampleInputEmail1"
-                                      required
-                                      value={reuniones.HoraFin}
-                                      onChange={(e) =>
-                                        setReuniones((prevReuniones) => ({
-                                          ...prevReuniones,
-                                          HoraFin: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="modal-footer">
-                              <button
-                                data-bs-dismiss={accion === "" ? "modal" : ""}
-                                type="submit"
-                                className={
-                                  accion === "Actualizar"
-                                    ? "btn btn-warning"
-                                    : accion === "Insertar"
-                                    ? "btn btn-success w-25 m-0 ms-1 h-100"
-                                    : ""
-                                }
-                              >
-                                {accion === "Actualizar" ? (
-                                  <FontAwesomeIcon icon={faPenToSquare} />
-                                ) : accion === "Insertar" ? (
-                                  <FontAwesomeIcon icon={faSquarePlus} />
-                                ) : (
-                                  ""
-                                )}
-                              </button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
                   </td>
                 </tr>
               ))
@@ -517,7 +358,11 @@ const Reunion = ({ item, currentRecords, apiS }) => {
                 </tr>
               ))}
           <div
-            class="modal fade"
+            class={
+              accion === "Actualizar" || accion === "Insertar"
+                ? "modal fade"
+                : "modal fade z-n1"
+            }
             id="exampleModal"
             tabindex="-1"
             aria-labelledby="exampleModalLabel"

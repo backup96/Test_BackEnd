@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 import "./Pages/auth/portero/InvitadoDetalle.css";
 
 const UserContext = createContext();
