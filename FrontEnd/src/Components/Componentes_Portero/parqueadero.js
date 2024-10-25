@@ -1,20 +1,27 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faSquarePlus, faAnglesLeft, faAnglesRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+library.add(faSquarePlus, faAnglesLeft, faAnglesRight, faMagnifyingGlass);
 
 const Parqueadero = () => {
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-  const [filteredRecords, setFilteredRecords] = useState([]); // Registros filtrados
-  const [currentRecords, setCurrentRecords] = useState([]); // Registros originales
-  const [filterAvailable, setFilterAvailable] = useState(false); // Filtro por disponibilidad
-  const [filterType, setFilterType] = useState(""); // Filtro por tipo de espacio
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredRecords, setFilteredRecords] = useState([]);
+  const [currentRecords, setCurrentRecords] = useState([]);
+  const [filterAvailable, setFilterAvailable] = useState(false);
+  const [filterType, setFilterType] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 7;
 
   useEffect(() => {
-    // Función para obtener los registros de la tabla espacios_parqueadero
     const fetchParqueaderos = async () => {
       try {
         const response = await axios.get("http://localhost:8081/espacios_parqueadero");
-        setCurrentRecords(response.data); // Guardar registros originales
-        setFilteredRecords(response.data); // Mostrar todos los registros por defecto
+        setCurrentRecords(response.data);
+        setFilteredRecords(response.data);
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       }
@@ -23,38 +30,65 @@ const Parqueadero = () => {
     fetchParqueaderos();
   }, []);
 
-  // Filtrar registros manualmente
-  const fetchFilteredRecords = (term) => {
+  useEffect(() => {
+    fetchFilteredRecords(); // Llama a la función de filtrado cada vez que cambien los filtros
+  }, [searchTerm, filterAvailable, filterType, currentRecords]);
+
+  const fetchFilteredRecords = () => {
     let results = currentRecords;
 
     // Aplicar búsqueda por número de espacio
-    if (term) {
-      results = results.filter(record =>
-        record.numEspacio.toString().includes(term)
+    if (searchTerm) {
+      results = results.filter((record) =>
+        record.numEspacio.toString().includes(searchTerm)
       );
     }
 
     // Aplicar filtro por disponibilidad
     if (filterAvailable) {
-      results = results.filter(record => record.estado === "Disponible");
+      results = results.filter((record) => record.estado === "Disponible");
     }
 
     // Aplicar filtro por tipo de espacio (Carro/Moto)
     if (filterType) {
-      results = results.filter(record => record.tipoEspacio === filterType);
+      results = results.filter((record) => record.tipoEspacio === filterType);
     }
 
-    setFilteredRecords(results); // Actualizar los registros filtrados
+    setFilteredRecords(results);
+    setCurrentPage(1);
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchFilteredRecords(searchTerm); // Llamar a la función de filtrado
+    fetchFilteredRecords(); // Llama a la función de filtrado en la búsqueda
+  };
+
+  const handleReset = () => {
+    setSearchTerm("");
+    setFilterAvailable(false);
+    setFilterType("");
+    setCurrentPage(1);
+  };
+
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentFilteredRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   return (
     <>
-      {/* Formulario de búsqueda */}
       <form className="d-flex mb-3" role="search" onSubmit={handleSearch}>
         <input
           className="form-control me-2"
@@ -65,65 +99,104 @@ const Parqueadero = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button className="btn btn-success ms-2 py-1" type="submit">
-          Buscar
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
+        </button>
+        <button
+          className="btn btn-danger py-1 ms-2"
+          type="button"
+          onClick={handleReset}
+        >
+          <FontAwesomeIcon icon="fa-solid fa-xmark" />
         </button>
       </form>
 
-      {/* Botones de filtrado */}
       <div className="mb-3 mt-5">
         <button
           className={`btn me-2 ${filterAvailable ? "btn btn-primary" : "btn btn-dark"}`}
-          onClick={() => {
-            setFilterAvailable(!filterAvailable);
-            fetchFilteredRecords(searchTerm); // Actualizar los registros con el nuevo filtro
-          }}
+          onClick={() => setFilterAvailable(prev => !prev)} // Cambia solo el estado
         >
-          {filterAvailable ? "Ver Todos" : "Disponibles"}
+          Disponibles
         </button>
         <button
           type="button"
           className={`btn me-2 ${filterType === "Carro" ? "btn btn-primary" : "btn btn-dark"}`}
-          onClick={() => {
-            setFilterType(filterType === "Carro" ? "" : "Carro");
-            fetchFilteredRecords(searchTerm); // Actualizar los registros con el nuevo filtro
-          }}
+          onClick={() => setFilterType(prev => (prev === "Carro" ? "" : "Carro"))} // Cambia solo el estado
         >
-          {filterType === "Carro" ? "Ver Todos" : "Carros"}
+          Carros
         </button>
         <button
           className={`btn ${filterType === "Moto" ? "btn btn-primary" : "btn btn-dark"}`}
-          onClick={() => {
-            setFilterType(filterType === "Moto" ? "" : "Moto");
-            fetchFilteredRecords(searchTerm); // Actualizar los registros con el nuevo filtro
-          }}
+          onClick={() => setFilterType(prev => (prev === "Moto" ? "" : "Moto"))} // Cambia solo el estado
         >
-          {filterType === "Moto" ? "Ver Todos" : "Motos"}
+          Motos
         </button>
       </div>
 
-      {/* Tabla de resultados */}
-      <table
-        id="example2"
-        className="table table-bordered table-hover table-sm"
-        aria-describedby="example2_info"
-      >
+      <table className="table table-bordered table-hover table-sm">
         <thead>
           <tr>
             <th className="sorting text-light bg-dark">Número de Espacio</th>
-            <th className="sorting text-light bg-dark">Tipo de Espacio</th>
             <th className="sorting text-light bg-dark">Estado</th>
+            <th className="sorting text-light bg-dark">Tipo de Espacio</th>
           </tr>
         </thead>
         <tbody>
-          {filteredRecords.map((record, index) => (
+          {currentFilteredRecords.map((record, index) => (
             <tr key={index}>
               <td>{record.numEspacio}</td>
-              <td>{record.tipoEspacio}</td>
               <td>{record.estado}</td>
+              <td>{record.tipoEspacio}</td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <div className="row">
+        <div className="col-sm-12 col-md-5">
+          <div className="dataTables_info" role="status" aria-live="polite">
+            Mostrando {indexOfFirstRecord + 1} a{" "}
+            {indexOfLastRecord > filteredRecords.length ? filteredRecords.length : indexOfLastRecord}{" "}
+            de {filteredRecords.length} registros
+          </div>
+        </div>
+        <div className="col-sm-12 col-md-7">
+          <div className="dataTables_paginate paging_simple_numbers">
+            <ul className="pagination">
+              <li className={`paginate_button page-item previous ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                  className="page-link"
+                >
+                  <FontAwesomeIcon icon={faAnglesLeft} />
+                </button>
+              </li>
+              {[...Array(totalPages)].map((_, index) => (
+                <li
+                  key={index}
+                  className={`paginate_button page-item ${currentPage === index + 1 ? "active" : ""}`}
+                >
+                  <button
+                    onClick={() => handlePageChange(index + 1)}
+                    className="page-link"
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`paginate_button page-item next ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className="page-link"
+                >
+                  <FontAwesomeIcon icon={faAnglesRight} />
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

@@ -2,94 +2,144 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import {
-  faPenToSquare,
-  faTrash,
-  faSquarePlus,
-  faXmark,
-  faCheck,
-  faClock,
-} from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass,faAnglesLeft, faAnglesRight, faClock } from "@fortawesome/free-solid-svg-icons";
+import ValidationReg from "../../Components/Componentes_Validaciones/ValidationReg";
+import { toast, ToastContainer } from "react-toastify";
 import { useTable } from "./navBar";
 
-/* Añadir iconos a la librería */
-library.add(faTrash, faPenToSquare, faSquarePlus, faXmark, faCheck, faClock);
+/* Añadir iconos a la libraria */
+library.add(faTrash);
+library.add(faPenToSquare);
+library.add(faSquarePlus);
+library.add(faXmark);
+library.add(faCheck);
+library.add(faAnglesLeft, faAnglesRight, faClock);
 
-const Invitados = ({ item, setcurrentRecords }) => {
+const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
   const [accion, setAccion] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
+  const [errors, setError] = useState({});
   const [status, setStatus] = useState("");
   const [eliminarRecord, setEliminarRecord] = useState("");
-  const [currentRecords, setCurrentRecords] = useState([]);
 
   const {
     setCurrentTable: setCurrentContextTabla,
     setInvitado: setContextInvitado,
   } = useTable();
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 7; // Número de registros por página
 
-  const [invitados, setInvitados] = useState({
+  const [values, setValues] = useState({
     Nombre: "",
-    NumeroDocumento: "",
+    Apellido: "",
     Teléfono: "",
+    NumeroDocumento: "",
     Correo: "",
-    NumeroParqueadero: "",
-    Costo: "",
     CodigoVivienda: "",
-    HoraInicio: "",
-    Tiempo: "",
-    id: "",
+    CodigoViviendaOld: "",
+    EspacioParqueadero: "",
+    Placa: "",
   });
 
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-  const [filteredRecords, setFilteredRecords] = useState(currentRecords);
+  const customToast = (mess, record) => {
+    return (
+      <>
+        {mess}
+        <form className="p-0" onSubmit={enviar}>
+          <div className="d-flex flex-row mt-3 justify-content-end">
+            <div className="ms-3">
+              <button
+                type="submit"
+                class="btn btn-success p-0 m-0"
+                style={{ width: "30px", height: "30px" }}
+              >
+                <FontAwesomeIcon icon={faCheck} />
+              </button>
+            </div>
+          </div>
+        </form>
+      </>
+    );
+  };
 
   useEffect(() => {
-    // Función para obtener los registros de la vista invitados
-    const fetchInvitados = async () => {
-      try {
-        const response = await axios.get("http://localhost:8081/invitados");
-        setCurrentRecords(response.data);
-        setFilteredRecords(response.data);
-      } catch (error) {
-        console.error("Error al obtener los datos:", error);
-      }
-    };
+    if (accion === "Eliminar") {
+      eliminar(values.NumeroDocumento);
+    }
+  }, [accion]);
 
-    fetchInvitados();
-  }, []);
+  const [searchTerm, setSearchTerm] = useState({
+    Term: "",
+  }); // Estado para el término de búsqueda
+  const [filteredRecords, setFilteredRecords] = useState(currentRecords);
 
-  const enviar = (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
-
-    if (accion === "Actualizar") {
-      if (invitados.id) {
-        // Aquí actualizarías el estado local o la lógica según sea necesario
-        setStatus(200);
+    const validationErrors = ValidationReg(values, data, data2, apiS);
+    setError(validationErrors);
+    if (
+      Object.keys(validationErrors).length === 1 &&
+      validationErrors.Valid === "valid"
+    ) {
+      try {
+        if (accion === "Actualizar") {
+          axios
+            .post(`/admin/patch${apiS}`, values)
+            .then((res) => {
+              console.log(res.status);
+              if (res.data.Status === "Success") {
+                toast.success("Propietario actualizado correctamente");
+              } else if (res.status === 500) {
+                toast.error("Ocurrio un error al actualizar el registro");
+              }
+            })
+            .catch((err) => toast.error(""));
+        } else if (accion === "Insertar") {
+          console.log(values);
+          axios
+            .post(`/admin/post${apiS}`, values)
+            .then((res) => {
+              if (res.data.Status === "Success") {
+                toast.success("Invitado insertado correctamente");
+              } else {
+                toast.error("Ocurrio un error al insertar el apartamento");
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      } catch (error) {
+        console.error(error);
+        setAccion("");
+        setStatus("err");
         setTimeout(() => {
           setStatus("");
         }, 5000);
-        setInvitados((prevUsuario) => ({
-          ...prevUsuario,
-          id: "",
-        }));
       }
     } else if (accion === "Eliminar") {
-      if (invitados.id) {
-        // Aquí eliminarías el registro del estado local
-        setShowAlert(false);
-        setStatus(200);
+      try {
+        axios
+          .post(`/admin/delete${apiS}`, values)
+          .then((res) => {
+            if (res.data.Status === "Success") {
+              toast.success("Registro eliminado correctamente");
+            } else {
+              toast.error("Ocurrio un error al eliminar el registro");
+            }
+          })
+          .catch((err) => console.log(err));
+      } catch (error) {
+        console.error(error);
+        setAccion("");
+        setStatus("err");
         setTimeout(() => {
           setStatus("");
         }, 5000);
-      } else {
-        setShowAlert(false);
       }
-    } else if (accion === "Insertar") {
-      // Aquí insertarías el nuevo invitado en el estado local
-      setStatus(201);
-      setTimeout(() => {
-        setStatus("");
-      }, 5000);
     }
   };
 
@@ -98,111 +148,103 @@ const Invitados = ({ item, setcurrentRecords }) => {
   };
 
   const eliminar = (record) => {
-    setInvitados((prevSalon) => ({
-      ...prevSalon,
-      id: record,
-    }));
-    setAccion(() => "Eliminar");
+    toast.warning(
+      customToast("¿ Esta seguro de eliminar este registro ?"),
+      record,
+      {
+        autoClose: 10000,
+      }
+    );
   };
 
-  // Modificación: Búsqueda por nombre en lugar de documento
-  const fetchFilteredRecords = (term) => {
-    if (term) {
-      const results = currentRecords.filter((record) =>
-        record.Nombre.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredRecords(results);
-    } else {
-      setFilteredRecords(currentRecords);
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`/admin/getInvitadosEsp`, searchTerm);
+      if (response.status === 200) {
+        setFilteredRecords(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error al filtrar los registros");
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchFilteredRecords(searchTerm);
+  const handleReset = () => {
+    setSearchTerm(""); // Resetear el término de búsqueda
+    setFilteredRecords(currentRecords); // Volver a mostrar todos los registros
+    setCurrentPage(1); // Reiniciar la página a la primera
+  };
+
+  // Cálculo de paginación
+  const indexOfLastRecord = currentPage * recordsPerPage; // Último registro actual
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage; // Primer registro actual
+  const currentRecordsPaginated = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord); // Registros de la página actual
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage); // Total de páginas
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   return (
     <>
-      {showAlert === true ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-warning alert-dismissible fade show w-25 z-1 position-absolute px-4 py-4"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            ¿Está seguro de eliminar este registro?
-            <form className="p-0" onSubmit={enviar}>
-              <div className="d-flex flex-row mt-3 justify-content-end">
-                <div>
-                  <button
-                    type="submit"
-                    className="btn btn-danger p-0 m-0"
-                    onClick={() => {
-                      eliminar();
-                    }}
-                    style={{ width: "30px", height: "30px" }}
-                  >
-                    <FontAwesomeIcon icon={faXmark} />
-                  </button>
-                </div>
-
-                <div className="ms-3">
-                  <button
-                    type="submit"
-                    className="btn btn-success p-0 m-0"
-                    onClick={() => {
-                      eliminar(eliminarRecord);
-                    }}
-                    style={{ width: "30px", height: "30px" }}
-                  >
-                    <FontAwesomeIcon icon={faCheck} />
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
+      <ToastContainer />
+      <form
+        className="d-flex mb-3 align-items-end"
+        role="search"
+        onSubmit={handleSearch}
+      >
+        <div className="w-100 me-5">
+          <label className="text-start w-100 fw-normal" for="searchParam">
+          </label>
+          <input
+            id="searchParam"
+            className="form-control me-2"
+            type="search"
+            placeholder="Buscar por Número de Documento"
+            aria-label="Search"
+            required
+            onChange={(e) =>
+              setSearchTerm({ ...searchTerm, Term: e.target.value })
+            }
+          />
         </div>
-      ) : status === 200 || status === 201 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Operación completada
-          </div>
-        </div>
-      ) : null}
-
-      {/* Barra de búsqueda */}
-      <form className="d-flex mb-3" role="search" onSubmit={handleSearch}>
-        <input
-          className="form-control me-2"
-          type="search"
-          placeholder="Buscar por Nombre"
-          aria-label="Search"
-          required
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
         <button
           onClick={() => setCurrentAccion("Consultar")}
           className="btn btn-success py-1"
           type="submit"
         >
-          Search
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
+        </button>
+        
+        <button
+          className="btn btn-danger py-1 ms-2" // Añadir un margen a la izquierda para separar
+          type="button" // Cambiar a type="button" para evitar que envíe el formulario
+          onClick={handleReset} // Llamar a la función de resetear
+        >
+          <FontAwesomeIcon icon="fa-solid fa-xmark" /> {/* Icono de X */}
         </button>
       </form>
-
-      {/* Tabla de invitados */}
       <table
         id="example2"
         className="table table-bordered table-hover table-sm"
         aria-describedby="example2_info"
       >
         <thead>
-        {item.map((item, index) => (
+          <tr>
+            {item.map((item, index) => (
               <th
                 className="sorting sorting text-light bg-dark"
                 tabIndex="0"
@@ -215,20 +257,22 @@ const Invitados = ({ item, setcurrentRecords }) => {
                 {item}
               </th>
             ))}
+          </tr>
         </thead>
         <tbody>
           {accion !== "Consultar"
             ? currentRecords.map((record, index) => (
-              <tr key={index}>
-                  <td>{record.Nombre} {record.Apellido}</td> {/* Concatenar nombre y apellido */}
-                  <td>{record["Número de Documento"]}</td>
-                  <td>{record.Teléfono}</td>
-                  <td>{record.Correo}</td>
-                  <td>{record["Número de parqueadero"]}</td>
-                  <td>{record.Placa}</td>
-                  <td>{record["Código de Vivienda"]}</td>
+                <tr key={index}>
+                  <td>{`${record.nombre} ${record.apellido}`}</td>
+                  <td>{record.numDocumento}</td>
+                  <td>{record.telefono}</td>
+                  <td>{record.correo}</td>
+                  <td>{record.idParqueaderoFk}</td>
+                  <td>{record.placaVehiculo}</td>
+                  <td>{record.codigoVivienda}</td>
                   <td>
                     <div className="d-flex flex-row justify-content-center">
+                      
                       <div className="mx-2 btn btn-info p-2">
                         <FontAwesomeIcon
                           icon={faClock}
@@ -242,8 +286,11 @@ const Invitados = ({ item, setcurrentRecords }) => {
                       <div className="mx-2">
                         <button
                           onClick={() => {
-                            setShowAlert(true);
-                            setEliminarRecord(record.id);
+                            setAccion("Eliminar");
+                            setValues((prevPropietario) => ({
+                              ...prevPropietario,
+                              NumeroDocumento: record.numDocumento,
+                            }));
                           }}
                           class="btn btn-danger p-2"
                         >
@@ -257,16 +304,17 @@ const Invitados = ({ item, setcurrentRecords }) => {
                           data-bs-toggle="modal"
                           data-bs-target="#exampleModal"
                           onClick={() => {
-                            setInvitados((prevPropietario) => ({
+                            setValues((prevPropietario) => ({
                               ...prevPropietario,
-                              Nombre: record.Nombre,
-                              NumeroDocumento: record.NumeroDocumento,
-                              Teléfono: record.Teléfono,
-                              Correo: record.Correo,
-                              NumeroParqueadero: record.NumeroParqueadero,
-                              Costo: record.Costo,
-                              CodigoVivienda: record.CodigoVivienda,
-                              id: record.id,
+                              Nombre: record.nombre,
+                              Apellido: record.apellido,
+                              Teléfono: record.telefono,
+                              NumeroDocumento: record.numDocumento,
+                              Correo: record.correo,
+                              CodigoVivienda: record.codigoVivienda,
+                              CodigoViviendaOld: record.codigoVivienda,
+                              EspacioParqueadero: record.idParqueaderoFk,
+                              Placa: record.placaVehiculo,
                             }));
                             setCurrentAccion("Actualizar");
                           }}
@@ -275,220 +323,30 @@ const Invitados = ({ item, setcurrentRecords }) => {
                         </button>
                       </div>
                     </div>
-                    <div
-                      class="modal fade"
-                      id="exampleModal"
-                      tabindex="-1"
-                      aria-labelledby="exampleModalLabel"
-                      aria-hidden="true"
-                    >
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">
-                              {accion} Invitados
-                            </h1>
-                            <button
-                              type="button"
-                              class="btn-close"
-                              data-bs-dismiss="modal"
-                              aria-label="Close"
-                            ></button>
-                          </div>
-                          <form onSubmit={enviar}>
-                            <div class="modal-body">
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputEmail1"
-                                  className="form-label"
-                                >
-                                  Nombre
-                                </label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  id="exampleInputEmail1"
-                                  required
-                                  value={invitados.Nombre}
-                                  onChange={(e) =>
-                                    setInvitados((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      Nombre: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Número de Documento
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={invitados.NumeroDocumento}
-                                  onChange={(e) =>
-                                    setInvitados((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      NumeroDocumento: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Teléfono
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={invitados.Teléfono}
-                                  onChange={(e) =>
-                                    setInvitados((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      Teléfono: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Correo
-                                </label>
-                                <input
-                                  type="email"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={invitados.Correo}
-                                  onChange={(e) =>
-                                    setInvitados((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      Correo: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Número de Parqueadero
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={invitados.NumeroParqueadero}
-                                  onChange={(e) =>
-                                    setInvitados((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      NumeroParqueadero: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Costo
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={invitados.Costo}
-                                  onChange={(e) =>
-                                    setInvitados((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      Costo: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Código de Vivienda
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={invitados.CodigoVivienda}
-                                  onChange={(e) =>
-                                    setInvitados((prevApartamento) => ({
-                                      ...prevApartamento,
-                                      CodigoVivienda: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                            </div>
-                            <div class="modal-footer">
-                              <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                              >
-                                Cerrar
-                              </button>
-                              <button
-                                data-bs-dismiss={accion === "" ? "modal" : ""}
-                                type="submit"
-                                className={
-                                  accion === "Actualizar"
-                                    ? "btn btn-warning"
-                                    : accion === "Insertar"
-                                    ? "btn btn-success w-25 m-0 ms-1 h-100"
-                                    : "btn btn-primary w-25 m-0 ms-1 h-100"
-                                }
-                              >
-                                {accion === "" ? "Volver" : accion}
-                              </button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
                   </td>
                 </tr>
               ))
             : filteredRecords.map((record, index) => (
                 <tr key={index}>
-                  <td>{record.Nombre}</td>
-                  <td>{record.NumeroDocumento}</td>
-                  <td>{record.Teléfono}</td>
-                  <td>{record.Correo}</td>
-                  <td>{record.NumeroParqueadero}</td>
-                  <td>{record.Costo}</td>
-                  <td>{record.CodigoVivienda}</td>
+                  <td>{`${record.nombre} ${record.apellido}`}</td>
+                  <td>{record.numDocumento}</td>
+                  <td>{record.telefono}</td>
+                  <td>{record.correo}</td>
+                  <td>{record.idParqueaderoFk}</td>
+                  <td>{record.placaVehiculo}</td>
+                  <td>{record.codigoVivienda}</td>
                   <td>
-                    <div className="d-flex flex-row">
+                    <div className="d-flex flex-row justify-content-center">
                       <div className="mx-2">
                         <form className="p-0" onSubmit={enviar}>
                           <button
-                            onClick={() => eliminar(record.id)}
+                            onClick={() => {
+                              setAccion("Eliminar");
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                NumeroDocumento: record.numDocumento,
+                              }));
+                            }}
                             type="submit"
                             className="btn btn-danger px-2"
                           >
@@ -499,20 +357,21 @@ const Invitados = ({ item, setcurrentRecords }) => {
                       <div className="mx-2">
                         <button
                           type="button"
-                          className="btn btn-warning px-2 py-1"
+                          className="btn btn-warning px-2"
                           data-bs-toggle="modal"
                           data-bs-target="#exampleModal"
                           onClick={() => {
-                            setInvitados((prevPropietario) => ({
+                            setValues((prevPropietario) => ({
                               ...prevPropietario,
-                              Nombre: record.Nombre,
-                              NumeroDocumento: record.NumeroDocumento,
-                              Teléfono: record.Teléfono,
-                              Correo: record.Correo,
-                              NumeroParqueadero: record.NumeroParqueadero,
-                              Costo: record.Costo,
-                              CodigoVivienda: record.CodigoVivienda,
-                              id: record.id,
+                              Nombre: record.nombre,
+                              Apellido: record.apellido,
+                              Teléfono: record.telefono,
+                              NumeroDocumento: record.numDocumento,
+                              Correo: record.correo,
+                              CodigoVivienda: record.codigoVivienda,
+                              CodigoViviendaOld: record.codigoVivienda,
+                              EspacioParqueadero: record.idParqueaderoFk,
+                              Placa: record.placaVehiculo,
                             }));
                             setCurrentAccion("Actualizar");
                           }}
@@ -525,14 +384,18 @@ const Invitados = ({ item, setcurrentRecords }) => {
                 </tr>
               ))}
           <div
-            class="modal fade"
+            class={
+              accion === "Actualizar" || accion === "Insertar"
+                ? "modal fade"
+                : "modal fade z-n1"
+            }
             id="exampleModal"
             tabindex="-1"
             aria-labelledby="exampleModalLabel"
             aria-hidden="true"
           >
-            <div class="modal-dialog">
-              <div class="modal-content">
+            <div class="modal-dialog w-75 p-0 rounded rounded-4">
+              <div class="modal-content mx-0 my-5 w-100">
                 <div class="modal-header">
                   <h1 class="modal-title fs-5" id="exampleModalLabel">
                     {accion} Invitados
@@ -546,162 +409,211 @@ const Invitados = ({ item, setcurrentRecords }) => {
                 </div>
                 <form onSubmit={enviar}>
                   <div class="modal-body">
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputEmail1"
-                        className="form-label"
-                      >
-                        Nombre
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="exampleInputEmail1"
-                        required
-                        value={invitados.Nombre}
-                        onChange={(e) =>
-                          setInvitados((prevApartamento) => ({
-                            ...prevApartamento,
-                            Nombre: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Numero de Documento
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        required
-                        value={invitados.NumeroDocumento}
-                        onChange={(e) =>
-                          setInvitados((prevApartamento) => ({
-                            ...prevApartamento,
-                            NumeroDocumento: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Teléfono
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        required
-                        value={invitados.Teléfono}
-                        onChange={(e) =>
-                          setInvitados((prevApartamento) => ({
-                            ...prevApartamento,
-                            Teléfono: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Correo
-                      </label>
-                      <input
-                        type="email"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        required
-                        value={invitados.Correo}
-                        onChange={(e) =>
-                          setInvitados((prevApartamento) => ({
-                            ...prevApartamento,
-                            Correo: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Numero de Parqueadero
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        required
-                        value={invitados.NumeroParqueadero}
-                        onChange={(e) =>
-                          setInvitados((prevApartamento) => ({
-                            ...prevApartamento,
-                            NumeroParqueadero: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Costo
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        required
-                        value={invitados.Costo}
-                        onChange={(e) =>
-                          setInvitados((prevApartamento) => ({
-                            ...prevApartamento,
-                            Costo: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Codigo de Vivienda
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="exampleInputPassword1"
-                        required
-                        value={invitados.CodigoVivienda}
-                        onChange={(e) =>
-                          setInvitados((prevApartamento) => ({
-                            ...prevApartamento,
-                            CodigoVivienda: e.target.value,
-                          }))
-                        }
-                      />
+                    <div className="d-flex flex-row">
+                      <div className="me-3">
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputEmail1"
+                            className="form-label"
+                          >
+                            Nombre
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="exampleInputEmail1"
+                            disabled={accion === "Actualizar" ? true : false}
+                            value={values.Nombre}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                Nombre: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.Nombre && (
+                            <span className="text-danger">{errors.Nombre}</span>
+                          )}
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputPassword1"
+                            className="form-label"
+                          >
+                            Teléfono
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="exampleInputPassword1"
+                            value={values.Teléfono}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                Teléfono: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.Teléfono && (
+                            <span className="text-danger">
+                              {errors.Teléfono}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputPassword1"
+                            className="form-label"
+                          >
+                            Correo
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="exampleInputPassword1"
+                            value={values.Correo}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                Correo: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.Correo && (
+                            <span className="text-danger">{errors.Correo}</span>
+                          )}
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputPassword1"
+                            className="form-label"
+                          >
+                            Placa
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="exampleInputPassword1"
+                            value={values.Placa}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                Placa: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.Placa && (
+                            <span className="text-danger">{errors.Placa}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputEmail1"
+                            className="form-label"
+                          >
+                            Apellido
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="exampleInputEmail1"
+                            disabled={accion === "Actualizar" ? true : false}
+                            value={values.Apellido}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                Apellido: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.Apellido && (
+                            <span className="text-danger">
+                              {errors.Apellido}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputPassword1"
+                            className="form-label"
+                          >
+                            Numero de Documento
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="exampleInputPassword1"
+                            disabled={accion === "Actualizar" ? true : false}
+                            value={values.NumeroDocumento}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                NumeroDocumento: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.NumeroDocumento && (
+                            <span className="text-danger">
+                              {errors.NumeroDocumento}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputEmail1"
+                            className="form-label"
+                          >
+                            Codigo de Vivienda
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="exampleInputEmail1"
+                            value={values.CodigoVivienda}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                CodigoVivienda: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.CodigoVivienda && (
+                            <span className="text-danger">
+                              {errors.CodigoVivienda}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="exampleInputPassword1"
+                            className="form-label"
+                          >
+                            Espacio de Parqueadero
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="exampleInputPassword1"
+                            value={values.EspacioParqueadero}
+                            onChange={(e) =>
+                              setValues((prevPropietario) => ({
+                                ...prevPropietario,
+                                EspacioParqueadero: e.target.value,
+                              }))
+                            }
+                          />
+                          {errors.EspacioParqueadero && (
+                            <span className="text-danger">
+                              {errors.EspacioParqueadero}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div class="modal-footer">
-                    <button
-                      type="button"
-                      class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                    >
-                      Cerrar
-                    </button>
                     <button
                       data-bs-dismiss={accion === "" ? "modal" : ""}
                       type="submit"
@@ -710,10 +622,16 @@ const Invitados = ({ item, setcurrentRecords }) => {
                           ? "btn btn-warning"
                           : accion === "Insertar"
                           ? "btn btn-success w-25 m-0 ms-1 h-100"
-                          : "btn btn-primary w-25 m-0 ms-1 h-100"
+                          : ""
                       }
                     >
-                      {accion === "" ? "Volver" : accion}
+                      {accion === "Actualizar" ? (
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      ) : accion === "Insertar" ? (
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                      ) : (
+                        ""
+                      )}
                     </button>
                   </div>
                 </form>
@@ -727,19 +645,21 @@ const Invitados = ({ item, setcurrentRecords }) => {
             <th rowSpan="1" colSpan="1" className="sorting text-light bg-dark">
               <button
                 type="button"
-                className="btn btn-success p-0 m-0 w-50"
+                className="btn btn-success p-0 m-0 w-50 "
                 data-bs-toggle="modal"
                 data-bs-target="#exampleModal"
                 onClick={() => {
-                  setInvitados((prevReuniones) => ({
+                  setValues((prevReuniones) => ({
                     ...prevReuniones,
                     Nombre: "",
-                    NumeroDocumento: "",
+                    Apellido: "",
                     Teléfono: "",
+                    NumeroDocumento: "",
                     Correo: "",
-                    NumeroParqueadero: "",
-                    Costo: "",
                     CodigoVivienda: "",
+                    NumParqueadero: "",
+                    EspacioParqueadero: "",
+                    Placa: "",
                   }));
                   setCurrentAccion("Insertar");
                 }}
@@ -750,6 +670,54 @@ const Invitados = ({ item, setcurrentRecords }) => {
           </tr>
         </tfoot>
       </table>
+
+      {/* Paginación */}
+      <div className="row">
+        <div className="col-sm-12 col-md-5">
+          <div className="dataTables_info" role="status" aria-live="polite">
+            Mostrando {indexOfFirstRecord + 1} a{" "}
+            {indexOfLastRecord > filteredRecords.length ? filteredRecords.length : indexOfLastRecord}{" "}
+            de {filteredRecords.length} registros
+          </div>
+        </div>
+        <div className="col-sm-12 col-md-7">
+          <div className="dataTables_paginate paging_simple_numbers">
+            <ul className="pagination">
+              <li className={`paginate_button page-item previous ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                  className="page-link"
+                >
+                  <FontAwesomeIcon icon={faAnglesLeft} />
+                </button>
+              </li>
+              {[...Array(totalPages)].map((_, index) => (
+                <li
+                  key={index}
+                  className={`paginate_button page-item ${currentPage === index + 1 ? "active" : ""}`}
+                >
+                  <button
+                    onClick={() => handlePageChange(index + 1)}
+                    className="page-link"
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`paginate_button page-item next ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className="page-link"
+                >
+                  <FontAwesomeIcon icon={faAnglesRight} />
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
