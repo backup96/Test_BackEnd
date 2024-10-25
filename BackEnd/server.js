@@ -23,7 +23,6 @@ app.use(
   })
 );
 
-
 app.use(cookieParser());
 
 const db = mysql.createConnection({
@@ -45,7 +44,7 @@ const transporter = nodemailer.createTransport({
 
 routerPropietario(app, db);
 
-routerAdmin(app, db);
+routerAdmin(app, db, transporter);
 
 routerPublic(app, db, transporter);
 
@@ -72,7 +71,6 @@ app.get("/espacio_parqueadero", (req, res) => {
   });
 });
 
-
 // Endpoint para rentar espacio
 app.post('/rentar_espacio', (req, res) => {
     const { nombreUsuario, idParqueaderoFk } = req.body;
@@ -91,28 +89,39 @@ app.post('/rentar_espacio', (req, res) => {
     });
 });
 
-
-
-
-
-
-
-
-
-
 // Ruta para calendario-propietario
 app.post('/citas_salon_comunal', (req, res) => {
-  const { numDocumento, horarioInicio, horarioFin, motivoReunion, Fecha } = req.body;
+  const {
+    numDocumento,
+    horarioInicio,
+    horarioFin,
+    motivoReunion,
+    idPropietario,
+    Fecha,
+  } = req.body;
   const sql = `
-    INSERT INTO citas_salon_comunal ( numDocumento, horarioInicio, horarioFin, motivoReunion, Fecha)
-    VALUES (?, ?, ?, ?, ?)`;
-  db.query(sql, [numDocumento, horarioInicio, horarioFin, motivoReunion, Fecha], (err, results) => {
-    if (err) {
-      console.error("Error al insertar la reserva:", err);
-      return res.status(500).json({ message: "Error al realizar la reserva" });
+    INSERT INTO citas_salon_comunal ( numDocumento, horarioInicio, horarioFin, motivoReunion, idPropietarioFK, Fecha)
+    VALUES (?, ?, ?, ?, ?, ?)`;
+  db.query(
+    sql,
+    [
+      numDocumento,
+      horarioInicio,
+      horarioFin,
+      motivoReunion,
+      idPropietario,
+      Fecha
+    ],
+    (err, results) => {
+      if (err) {
+        console.error("Error al insertar la reserva:", err);
+        return res
+          .status(500)
+          .json({ message: "Error al realizar la reserva" });
+      }
+      return res.status(201).json({ id: results.insertId });
     }
-    return res.status(201).json({ id: results.insertId }); 
-  });
+  );
 });
 
 app.get("/citas_salon_comunal", (req, res) => {
@@ -194,6 +203,69 @@ app.post('/actualizar_perfil', (req, res) => {
     }
     // console.log("Perfil actualizado:", results);
     res.json({ message: "Perfil actualizado exitosamente" });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Ruta para obtener datos de vista_propietarios_portero
+app.get("/consultapropietarios", (req, res) => {
+  const sql = "SELECT * FROM vista_propietarios_portero";
+  db.query(sql, (err, data) => {
+    if (err) {
+      console.error("Error en la consulta:", err);
+      return res.status(500).json({ Error: "Error al consultar los datos" });
+    }
+    res.json(data);
+  });
+});
+// Ruta para consultar los espacios de parqueadero
+app.get("/espacios_parqueadero", (req, res) => {
+  const sql = "SELECT * FROM espacios_parqueadero";
+  db.query(sql, (err, data) => {
+    if (err) {
+      console.error("Error en la consulta:", err);
+      return res.status(500).json({ Error: "Error al consultar los datos" });
+    }
+    res.json(data);
+  });
+});
+// Ruta para obtener los invitados
+app.get('/invitados', (req, res) => {
+  const query = 'SELECT * FROM vista_invitados';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: 'Error al consultar los invitados' });
+    }
+    res.json(results);
   });
 });
 

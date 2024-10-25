@@ -288,7 +288,7 @@ export function NavBar() {
                     </div>
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     onClick={() => {
                       setCurrentTable("Reuniones");
@@ -307,7 +307,7 @@ export function NavBar() {
                       <FontAwesomeIcon icon={faHandshake} />
                     </div>
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link
                     onClick={() => {
@@ -337,7 +337,12 @@ export function NavBar() {
             className="z-0"
             item={
               currentTable === "Apartamentos"
-                ? ["Código de vivienda", "Bloque", "Numero de apartamento", "Torre"]
+                ? [
+                    "Código de vivienda",
+                    "Bloque",
+                    "Numero de apartamento",
+                    "Torre",
+                  ]
                 : currentTable === "Propietarios"
                 ? [
                     "Código de vivienda",
@@ -346,7 +351,7 @@ export function NavBar() {
                     "Correo",
                     "Número de Documento",
                     "Numero de parqueadero",
-                    "Placa de Vehículo"
+                    "Placa de Vehículo",
                   ]
                 : currentTable === "Parqueadero"
                 ? ["Número de Espacio", "Tipo de Espacio", "Estado"]
@@ -382,7 +387,7 @@ export function NavBar() {
                 : currentTable === "Informacion"
                 ? []
                 : currentTable === "Reporte"
-                ? ["Código de vivienda", "Nombre", "Saldo de deuda"]
+                ? ["Nombre", "Numero de parqueadero", "Codigo de vivienda"]
                 : null
             }
             apiS={currentTable}

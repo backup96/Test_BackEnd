@@ -3,130 +3,85 @@ import { useState } from "react";
 
 const Info = ({ currentRecords, apiS, data }) => {
   const [estado, setEstado] = useState("");
-  const [status, setStatus] = useState("");
 
-  const [propietarios, setPropietarios] = useState({
-    EstadoEnvio: "",
-    id: "",
+  const [text, setText] = useState({
+    text: "",
   });
 
   const enviar = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.get(`http://localhost:4000/Propietarios`);
-      const item = response.data;
-      const slice = item.slice(0, (item.length/2));
-      if (estado === "Normal") {
-        const update = item.map((item) => {
-          return axios.patch(`http://localhost:4000/Propietarios/${item.id}`, {
-            EstadoEnvio: "Enviado",
-          });
-        });
-        const badUpdate = slice.map((item) => {
-          return axios.patch(`http://localhost:4000/Propietarios/${item.id}`, {
-            EstadoEnvio: "No enviado",
-          });
-        });
-
-        if (update && badUpdate) {
-          setStatus(response.status);
-           setTimeout(() => {
-             setStatus("");
-           }, 5000);
-        }
-      } else if (estado === "Reenviar") {
-        const response = await axios.patch(
-          `http://localhost:4000/Propietarios/${propietarios.id}`,
-          {
-            EstadoEnvio: "Enviado",
-          }
-        );
-        if (response.status === 200) {
-           setStatus(response.status);
-           setTimeout(() => {
-             setStatus("");
-           }, 5000);
-          setPropietarios((prevUsuario) => ({
-            ...prevUsuario,
-            id: "",
-          }));
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al realizar la operación");
-    }
+    currentRecords.map((item) => handleSend({ correo: item.correo }));
   };
 
-  const reenviar = (record) => {
-    setPropietarios((prevSalon) => ({
-      ...prevSalon,
-      id: record,
-    }));
-    setEstado(() => "Reenviar");
+  const enviarCircular = async (e) => {
+    e.preventDefault();
+    currentRecords.map((item) =>
+      handleSend2({ correo: item.correo, text: text.text })
+    );
   };
 
+  const handleSend = (data) => {
+    console.log(data);
+    axios
+      .post("/admin/sendInformacion", data)
+      .then((res) => {
+        if (res.status === 200) {
+          console.log("Correos enviados");
+        } else {
+          console.log("Correos no enviados");
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleSend2 = (data) => {
+    console.log(data);
+    axios
+      .post("/admin/sendCircularInformacion", data)
+      .then((res) => {
+        if (res.status === 200) {
+          console.log("Circulares enviados");
+        } else {
+          console.log("Correos no enviados");
+        }
+      })
+      .catch((err) => console.log(err));
+  };
   return (
     <div className="d-flex flex-column w-100 h-50">
-      {status === 200 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
+      <div className=" d-flex flex-column justify-content-end">
+        <div className="d-flex flex-column justify-content-start">
+          <label
+            htmlFor="exampleInputEmail1"
+            className=" text-start form-label"
           >
-            Correos enviados
-          </div>
+            Circular
+          </label>
+          <textarea
+            class="form-control"
+            id="exampleFormControlTextarea1"
+            rows="3"
+            name="CircularBody"
+            onChange={(e) => setText({ ...text, text: e.target.value })}
+          ></textarea>
         </div>
-      ) : status === 201 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Operación completada
-          </div>
-        </div>
-      ) : null}
-      <form className=" w-100 mb-2">
-        <div className=" d-flex flex-column justify-content-end">
-          <div className="d-flex flex-column justify-content-start">
-            <label
-              htmlFor="exampleInputEmail1"
-              className=" text-start form-label"
-            >
-              Circular
-            </label>
-            <textarea
-              class="form-control"
-              id="exampleFormControlTextarea1"
-              rows="3"
-              name="CircularBody"
-            ></textarea>
-          </div>
-          <div className="d-flex justify-content-end my-3">
+        <div className="d-flex justify-content-end my-3">
+          <form onSubmit={enviarCircular}>
             <button
-              onClick={(e) => {
-                enviar(e);
-                setEstado("Normal");
-              }}
-              className="btn btn-primary mx-3"
+              type="submit"
+              className="btn mx-2 bg-primary-subtle border border-primary text-primary p-2"
             >
               Enviar Circular
             </button>
-            <button
-              onClick={(e) => {
-                enviar(e);
-                setEstado("Normal");
-              }}
-              className="btn btn-primary "
-            >
+          </form>
+
+          <form onSubmit={enviar}>
+            <button type="submit" className="btn btn-success mx-3 ">
               Enviar Recibo de Administración
             </button>
-          </div>
+          </form>
         </div>
-      </form>
+      </div>
       <table
         id="example2"
         className="table table-bordered table-hover dataTable dtr-inline mb-3"
@@ -168,14 +123,14 @@ const Info = ({ currentRecords, apiS, data }) => {
                   : "table-warning"
               }
             >
-              <td>{record.Correo}</td>
+              <td>{record.correo}</td>
               <td>
                 {record.EstadoEnvio === "No enviado" ? (
                   <button
-                    onClick={(e) => {
-                      reenviar(record.id);
-                      enviar(e);
-                    }}
+                    // onClick={(e) => {
+                    //   reenviar(record.id);
+                    //   enviar(e);
+                    // }}
                     type="submit"
                     class="btn btn-danger px-2"
                   >

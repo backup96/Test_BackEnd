@@ -5,7 +5,7 @@ const ValidationReg = (values, data, data2, apiS) => {
   const getCode = data.some(
     (item) => item.codigoVivienda === parseInt(values.CodigoVivienda, 10)
   );
-console.log("hellow");
+
   let errors = {};
   // Validaciones
 
@@ -112,7 +112,6 @@ console.log("hellow");
   }
 
   if (apiS === "Parqueadero") {
-    
     if (!values.NumeroEspacio) {
       errors.NumeroEspacio = "Ingrese el numero de espacio";
     } else if (values.NumeroEspacio.length > 3) {
@@ -122,7 +121,6 @@ console.log("hellow");
     if (!values.TipoEspacio) {
       errors.TipoEspacio = "Seleccione un tipo de espacio";
     } else errors.Valid = "valid";
-
   }
 
   if (apiS === "Porteros" || apiS === "") {
@@ -161,6 +159,40 @@ console.log("hellow");
         errors.TipoTurno = "Ingrese un tipo de turno";
       } else errors.Valid = "valid";
     }
+  }
+
+  if (apiS === "ReservaSalon") {
+    const getSc = data.some((item) => item.Fecha.slice(0, 10) === values.Dia);
+    const h = parseInt(values.HoraInicio.slice(0, 2), 10);
+    const m = parseInt(values.HoraInicio.slice(3, 5), 10);
+    const s = !parseInt(values.HoraInicio.slice(6, 8), 10)
+      ? 0
+      : parseInt(values.HoraInicio.slice(6, 8), 10);
+    const time1 = h * 3600 + m * 60 + s;
+    const hf = parseInt(values.HoraFin.slice(0, 2), 10);
+    const mf = parseInt(values.HoraFin.slice(3, 5), 10);
+    const sf = !parseInt(values.HoraFin.slice(6, 8), 10)
+      ? 0
+      : parseInt(values.HoraFin.slice(6, 8), 10);
+    const time2 = hf * 3600 + mf * 60 + sf;
+    
+    if (time1 < 32400 || time1 > 84600) {
+      errors.HoraInicio =
+        "Hora de inicio y final entre las 9:00 AM y las 11:30 PM.";
+    } else errors.Valid = "valid";
+
+    if (time2 < 32400 || time2 > 84600) {
+      errors.HoraInicio =
+        "Hora de inicio y final entre las 9:00 AM y las 11:30 PM.";
+    } else errors.Valid = "valid";
+
+    if (!values.Dia) {
+      errors.Dia = "Ingrese una fecha";
+    } else if (getSc) {
+      if (values.Dia === values.DiaOld) {
+        errors.Valid = "valid";
+      } else errors.Dia = "Este dia ya esta rentado";
+    } else errors.Valid = "valid";
   }
 
   if (apiS === "") {

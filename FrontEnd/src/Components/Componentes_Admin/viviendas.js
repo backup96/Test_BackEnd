@@ -21,6 +21,7 @@ const Vivienda = ({ item, currentRecords, apiS, data }) => {
   const [accion, setAccion] = useState("");
   const [status, setStatus] = useState("");
   const [errors, setError] = useState({});
+  const data2 = "";
   const [values, setValues] = useState({
     Bloque: "",
     Torre: "",
@@ -63,7 +64,8 @@ const Vivienda = ({ item, currentRecords, apiS, data }) => {
 
   const enviar = (e) => {
     e.preventDefault();
-    const validationErrors = ValidationReg(values, data, apiS);
+    const validationErrors = ValidationReg(
+values, currentRecords, data2, apiS);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&

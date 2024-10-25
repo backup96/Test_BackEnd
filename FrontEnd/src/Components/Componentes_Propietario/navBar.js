@@ -54,7 +54,6 @@ export function NavBar() {
 
   return (
     <div className="d-flex flex-column justify-content-start h-100 ">
-      {/* Barra de navegación */}
       <nav className="navbar navbar-expand-lg navbar-dark w-100 bg-dark">
         <div className="container px-lg-5 d-flex flex-row justify-content-between">
           <div>
@@ -199,7 +198,7 @@ export function NavBar() {
           {currentTable === "perfil" ? (
             <Profile name={name} />
           ) : (
-            <Tabla apiS={currentTable} />
+            <Tabla apiS={currentTable} name={name} />
           )}
         </div>
       </div>

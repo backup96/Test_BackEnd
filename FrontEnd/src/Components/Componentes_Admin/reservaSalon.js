@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -6,6 +6,8 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import ValidationReg from "../../Components/Componentes_Validaciones/ValidationReg";
+import { ToastContainer, toast } from "react-toastify";
 
 library.add(faTrash);
 library.add(faPenToSquare);
@@ -14,100 +16,116 @@ library.add(faCheck);
 
 const ReservaSalon = ({ currentRecords, length, apiS }) => {
   const [accion, setAccion] = useState("");
+  const [errors, setError] = useState({});
   const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState("");
   const [eliminarRecord, setEliminarRecord] = useState("");
+  const data2 = ""
 
-  const [salonComunal, setSalonComunal] = useState({
-    id: "",
+  const [values, setValues] = useState({
     Nombre: "",
-    NumeroDocumento: "",
-    Telefono: "",
+    Apellido: "",
     CodigoVivienda: "",
+    Dia: "",
+    DiaOld: "",
     HoraInicio: "",
     HoraFin: "",
-    Motivo: "",
-    Fecha: "",
+    NumDocumento: "",
   });
 
-  const enviar = async (e) => {
-    e.preventDefault();
-    try {
-      if (accion === "Actualizar") {
-        if (salonComunal.id) {
-          const response = await axios.patch(
-            `http://localhost:4000/${apiS}/${salonComunal.id}`,
-            {
-              id: salonComunal.id,
-              Nombre: salonComunal.Nombre,
-              NumeroDocumento: salonComunal.NumeroDocumento,
-              Telefono: salonComunal.Telefono,
-              CodigoVivienda: salonComunal.CodigoVivienda,
-              HoraInicio: salonComunal.HoraInicio,
-              HoraFin: salonComunal.HoraFin,
-              Motivo: salonComunal.Motivo,
-              Fecha: salonComunal.Fecha,
-            }
-          );
-          if (response.status === 200) {
-            setStatus(response.status);
-            setAccion("");
-            setTimeout(() => {
-              setStatus("");
-            }, 5000);
-            setSalonComunal((prevUsuario) => ({
-              ...prevUsuario,
-              id: "",
-            }));
-          }
-        }
-      } else if (accion === "Eliminar") {
-        if (salonComunal.id) {
-          const response = await axios.delete(
-            `http://localhost:4000/${apiS}/${salonComunal.id}`
-          );
-          if (response.status === 200) {
-            setShowAlert(false);
-            setStatus(response.status);
-            setAccion("");
-            setTimeout(() => {
-              setStatus("");
-            }, 5000);
-          }
-        } else {
-          setShowAlert(false);
-        }
-      } else if (accion === "Insertar") {
-        const response1 = await axios.post(
-          `http://localhost:4000/ReservaSalon`,
-          {
-            id: salonComunal.id,
-            Nombre: salonComunal.Nombre,
-            NumeroDocumento: salonComunal.NumeroDocumento,
-            Telefono: salonComunal.Telefono,
-            CodigoVivienda: salonComunal.CodigoVivienda,
-            HoraInicio: salonComunal.HoraInicio,
-            HoraFin: salonComunal.HoraFin,
-            Motivo: salonComunal.Motivo,
-            Fecha: salonComunal.Fecha,
-          }
-        );
-        if (response1.status === 201) {
-          setStatus(response1.status);
-          setAccion("");
-          setTimeout(() => {
-            setStatus("");
-          }, 5000);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      setAccion("");
-      setStatus("err");
-      setTimeout(() => {
-        setStatus("");
-      }, 5000);
+  useEffect(() => {
+    if (accion === "Eliminar") {
+      eliminar(values.DiaOld);
     }
+  }, [accion]);
+
+  const customToast = (mess, record) => {
+    return (
+      <>
+        {mess}
+        <form className="p-0" onSubmit={enviar}>
+          <div className="d-flex flex-row mt-3 justify-content-end">
+            <div className="ms-3">
+              <button
+                type="submit"
+                class="btn btn-success p-0 m-0"
+                style={{ width: "30px", height: "30px" }}
+              >
+                <FontAwesomeIcon icon={faCheck} />
+              </button>
+            </div>
+          </div>
+        </form>
+      </>
+    );
+  };
+
+  const enviar = (e) => {
+    e.preventDefault();
+    console.log(values, accion);
+    const validationErrors = ValidationReg(values, currentRecords, data2 ,apiS);
+    setError(validationErrors);
+    if (
+      Object.keys(validationErrors).length === 1 &&
+      validationErrors.Valid === "valid"
+    ) {
+      try {
+         console.log("diosmio");
+        if (accion === "Actualizar") {
+          axios
+            .post(`/admin/patch${apiS}`, values)
+            .then((res) => {
+              console.log(res.status);
+              if (res.data.Status === "Success") {
+                toast.success("Cita actualizada correctamente");
+              } else if (res.status === 500) {
+                toast.error("Ocurrio un error al actualizar el apartamento");
+              }
+            })
+            .catch((err) => toast.error(""));
+        } else if (accion === "Insertar") {
+          axios
+            .post(`/admin/post${apiS}`, values)
+            .then((res) => {
+              if (res.data.Status === "Success") {
+                toast.success("Apartamento insertado correctamente");
+              } else {
+                toast.error("Ocurrio un error al insertar el apartamento");
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      } catch (error) {
+        console.error(error);
+        setAccion("");
+        setStatus("err");
+        setTimeout(() => {
+          setStatus("");
+        }, 5000);
+      }
+    } else if (accion === "Eliminar") {
+      console.log("diosmio")
+      try {
+        axios
+          .post(`/admin/delete${apiS}`, values)
+          .then((res) => {
+            if (res.data.Status === "Success") {
+              toast.success("Registro eliminado correctamente");
+            } else {
+              toast.error("Ocurrio un error al eliminar el registro");
+            }
+          })
+          .catch((err) => console.log(err));
+      } catch (error) {
+        console.error(error);
+        setAccion("");
+        setStatus("err");
+        setTimeout(() => {
+          setStatus("");
+        }, 5000);
+      }
+    }
+    console.log(errors);
   };
 
   const setCurrentAccion = (accion) => {
@@ -115,77 +133,18 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
   };
 
   const eliminar = (record) => {
-    if (apiS === "ReservaSalon") {
-      setSalonComunal((prevSalon) => ({
-        ...prevSalon,
-        id: record,
-      }));
-    }
-    setAccion(() => "Eliminar");
+    toast.warning(
+      customToast("¿ Esta seguro de eliminar este registro ?"),
+      record,
+      {
+        autoClose: 10000,
+      }
+    );
   };
 
   return (
     <>
-      {/* {showAlert === true ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-warning alert-dismissible fade show w-25 z-1 position-absolute px-4 py-4"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Esta seguro de eliminar este registro ?
-            <form className="p-0" onSubmit={enviar}>
-              <div className="d-flex flex-row mt-3 justify-content-end">
-                <div>
-                  <button
-                    type="submit"
-                    class="btn btn-danger p-0 m-0"
-                    onClick={() => {
-                      eliminar();
-                    }}
-                    style={{ width: "30px", height: "30px" }}
-                  >
-                    <FontAwesomeIcon icon={faXmark} />
-                  </button>
-                </div>
-
-                <div className="ms-3">
-                  <button
-                    type="submit"
-                    class="btn btn-success p-0 m-0"
-                    onClick={() => {
-                      eliminar(eliminarRecord);
-                    }}
-                    style={{ width: "30px", height: "30px" }}
-                  >
-                    <FontAwesomeIcon icon={faCheck} />
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      ) : status === 200 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Operación completada
-          </div>
-        </div>
-      ) : status === 201 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Operación completada
-          </div>
-        </div>
-      ) : null} */}
+      <ToastContainer />
       <div className="accordion" id="accordionExample">
         {length === 0 ? (
           <div className="accordion-item">
@@ -215,9 +174,9 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                   <div className="w-75">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item text-start">
-                        <span className="fw-bold">{record.Nombre}</span> de la
-                        casa{" "}
-                        <span className="fw-bold">{record.CodigoVivienda}</span>{" "}
+                        <span className="fw-bold">{`${record.nombre} ${record.apellido}`}</span>{" "}
+                        de la casa{" "}
+                        <span className="fw-bold">{record.Apartamento_FK}</span>{" "}
                         ha rentado el salon comunal
                       </li>
                       <li class="list-group-item text-start">
@@ -225,19 +184,22 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                       </li>
                       <li class="list-group-item text-start">
                         Hora de inicio:{" "}
-                        <span className="fw-bold">{record.HoraInicio}</span>
+                        <span className="fw-bold">{record.horarioInicio}</span>
                       </li>
                       <li class="list-group-item text-start">
                         Hora de finalización:{" "}
-                        <span className="fw-bold">{record.HoraFin}</span>
+                        <span className="fw-bold">{record.horarioFin}</span>
                       </li>
                     </ul>
                   </div>
                   <div className="w-25">
                     <button
                       onClick={() => {
-                        setShowAlert(true);
-                        setEliminarRecord(record.id);
+                        setAccion("Eliminar");
+                        setValues((prevApartamento) => ({
+                          ...prevApartamento,
+                          DiaOld: record.Fecha.slice(0, 10),
+                        }));
                       }}
                       class="btn btn-danger"
                     >
@@ -251,17 +213,16 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                       data-bs-toggle="modal"
                       data-bs-target="#exampleModal"
                       onClick={() => {
-                        setSalonComunal((prevUsuario) => ({
+                        setValues((prevUsuario) => ({
                           ...prevUsuario,
-                          id: record.id,
-                          Nombre: record.Nombre,
-                          NumeroDocumento: record.NumeroDocumento,
-                          Telefono: record.Telefono,
-                          CodigoVivienda: record.CodigoVivienda,
-                          HoraInicio: record.HoraInicio,
-                          HoraFin: record.HoraFin,
-                          Motivo: record.Motivo,
-                          Fecha: record.Fecha,
+                          Nombre: record.nombre,
+                          Apellido: record.apellido,
+                          CodigoVivienda: record.Apartamento_FK,
+                          Dia: "",
+                          DiaOld: record.Fecha.slice(0, 10),
+                          HoraInicio: record.horarioInicio,
+                          HoraFin: record.horarioFin,
+                          NumDocumento: record.numDocumento,
                         }));
                         setCurrentAccion("Actualizar");
                       }}
@@ -293,92 +254,13 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                               aria-label="Close"
                             ></button>
                           </div>
+                          {errors.HoraInicio && (
+                            <span className="text-danger">
+                              {errors.HoraInicio}
+                            </span>
+                          )}
                           <form onSubmit={enviar}>
                             <div class="modal-body">
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputEmail1"
-                                  className="form-label"
-                                >
-                                  Nombre
-                                </label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  id="exampleInputEmail1"
-                                  required
-                                  value={salonComunal.Nombre}
-                                  onChange={(e) =>
-                                    setSalonComunal((prevUsuario) => ({
-                                      ...prevUsuario,
-                                      Nombre: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Número de documento
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={salonComunal.NumeroDocumento}
-                                  onChange={(e) =>
-                                    setSalonComunal((prevUsuario) => ({
-                                      ...prevUsuario,
-                                      NumeroDocumento: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Teléfono
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={salonComunal.Telefono}
-                                  onChange={(e) =>
-                                    setSalonComunal((prevUsuario) => ({
-                                      ...prevUsuario,
-                                      Telefono: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Código de vivienda
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  required
-                                  value={salonComunal.CodigoVivienda}
-                                  onChange={(e) =>
-                                    setSalonComunal((prevUsuario) => ({
-                                      ...prevUsuario,
-                                      CodigoVivienda: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
                               <div className="mb-3">
                                 <div className="d-flex flex-row justify-content-around">
                                   <div>
@@ -393,9 +275,9 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                                       className="form-control"
                                       id="exampleInputPassword1"
                                       required
-                                      value={salonComunal.HoraInicio}
+                                      value={values.HoraInicio}
                                       onChange={(e) =>
-                                        setSalonComunal((prevUsuario) => ({
+                                        setValues((prevUsuario) => ({
                                           ...prevUsuario,
                                           HoraInicio: e.target.value,
                                         }))
@@ -414,9 +296,9 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                                       className="form-control"
                                       id="exampleInputPassword1"
                                       required
-                                      value={salonComunal.HoraFin}
+                                      value={values.HoraFin}
                                       onChange={(e) =>
-                                        setSalonComunal((prevUsuario) => ({
+                                        setValues((prevUsuario) => ({
                                           ...prevUsuario,
                                           HoraFin: e.target.value,
                                         }))
@@ -436,15 +318,18 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
                                   type="date"
                                   className="form-control"
                                   id="exampleInputPassword1"
-                                  required
-                                  value={salonComunal.Fecha}
                                   onChange={(e) =>
-                                    setSalonComunal((prevUsuario) => ({
+                                    setValues((prevUsuario) => ({
                                       ...prevUsuario,
-                                      Fecha: e.target.value,
+                                      Dia: e.target.value,
                                     }))
                                   }
                                 />
+                                {errors.Dia && (
+                                  <span className="text-danger">
+                                    {errors.Dia}
+                                  </span>
+                                )}
                               </div>
                             </div>
                             <div class="modal-footer">

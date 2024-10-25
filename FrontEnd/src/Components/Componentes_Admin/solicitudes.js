@@ -26,6 +26,20 @@ const Solicitudes = ({ currentRecords, length }) => {
       .catch((err) => console.log(err));
   };
 
+   const handleDelete = (event) => {
+     event.preventDefault();
+     axios
+       .post("/admin/cancelAcc", data)
+       .then((res) => {
+         if (res.status === 200) {
+           toast.success("Solicitud cancelada correctamente");
+         } else {
+           toast.error("Ocurrio un error al cancelar la cuenta");
+         }
+       })
+       .catch((err) => console.log(err));
+   };
+
   return (
     <div className="accordion" id="accordionExample">
       <ToastContainer />
@@ -82,13 +96,12 @@ const Solicitudes = ({ currentRecords, length }) => {
                   </div>
                 </div>
                 <div className="d-flex flex-row justify-content-end">
-                  <form className="mx-2 my-2">
+                  <form onSubmit={handleDelete} className="mx-2 my-2">
                     <button
                       onClick={() =>
                         setDatos((prevUsuario) => ({
                           ...prevUsuario,
-                          NumeroDocumento: record.NumeroDocumento,
-                          id: record.NumeroDocumento,
+                          NumeroDocumento: record.NumDocumento,
                         }))
                       }
                       type="submit"

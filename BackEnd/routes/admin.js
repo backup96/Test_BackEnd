@@ -1,9 +1,12 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const routerAdmin = (app, db) => {
+const routerAdmin = (app, db, transporter) => {
   const router = express.Router();
+
+  dotenv.config({ path: "../.env" });
 
   const salt = 10;
 
@@ -32,6 +35,22 @@ const routerAdmin = (app, db) => {
         }
         return res.json({ Status: "Success" });
       });
+    });
+  });
+
+  // Ruta para negación de creación de cuenta
+  router.post("/cancelAcc", (req, res) => {
+    console.log(req);
+    const sql = "DELETE FROM solicitud WHERE NumDocumento = ?";
+    const values = [req.body.NumeroDocumento];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      return res.json({ Status: "Success" });
     });
   });
 
@@ -306,6 +325,18 @@ const routerAdmin = (app, db) => {
     });
   });
 
+  // Consultar porteros específico
+  router.post("/getPorterosEsp", (req, res) => {
+    const sql = "SELECT * FROM get_porteros WHERE numDocumento = ?";
+    db.query(sql, [req.body.Term], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al buscar apartamento" });
+      }
+      res.json(data);
+    });
+  });
+
   // Insertar porteros
   router.post("/postPorteros", (req, res) => {
     console.log(req);
@@ -331,6 +362,41 @@ const routerAdmin = (app, db) => {
         }
         return res.json({ Status: "Success" });
       });
+    });
+  });
+
+  // Actualizar porteros
+  router.post("/patchPorteros", (req, res) => {
+    console.log(req);
+    const sql = "Call Actualizar_portero(?)";
+    const values = [
+      req.body.NumeroDocumento,
+      req.body.Tel,
+      req.body.TipoTurno,
+      req.body.Correo,
+    ];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // Eliminar porteros
+  router.post("/deletePorteros", (req, res) => {
+    console.log(req.body);
+    const sql = "Call Eliminar_Porteros(?)";
+    const values = [req.body.NumeroDocumento];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Al eliminar el registro:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al eliminar el registro" });
+      }
+      return res.json({ Status: "Success" });
     });
   });
 
@@ -529,7 +595,133 @@ const routerAdmin = (app, db) => {
   // Crud Salon comunal
   // Consultar Salon comunal
   router.get("/getReservaSalon", (req, res) => {
-    const sql = "SELECT * FROM citas_salon_comunal";
+    const sql = "SELECT * FROM get_CitasSalon";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Actualizar Salon comunal
+  router.post("/patchReservaSalon", (req, res) => {
+    const sql = "Call Actualizar_SalonComunal(?)";
+    const values = [
+      req.body.Dia,
+      req.body.HoraInicio,
+      req.body.HoraFin,
+      req.body.NumDocumento,
+    ];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  // Eliminar Salon comunal
+  router.post("/deleteReservaSalon", (req, res) => {
+    console.log(req.body);
+    const sql = "DELETE FROM citas_salon_comunal WHERE Fecha = ?";
+    const values = [req.body.DiaOld];
+    db.query(sql, [values], (err, data) => {
+      if (err) {
+        console.error("Al eliminar el registro:", err); // Muestra el error en el servidor
+        return res.status(500).json({ Error: "Error al eliminar el registro" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+
+  //----------------------------------------------------//
+  // Consultar correos
+  router.get("/getInformacion", (req, res) => {
+    const sql = "SELECT * FROM get_propietarios";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Envio recibo Administración
+  router.post("/sendInformacion", (req, res) => {
+    console.log(req.body);
+    const email = req.body.correo;
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Recibo de pago de administración",
+      html: `
+    <div style="font-family: Arial, sans-serif; text-align: center;">
+      <h2>Recibo de pago de administración</h2>
+      <p>Total a pagar:</p>
+      <p>60.000</p>
+      <p style="margin-top: 20px;">Si no solicitaste esta acción, simplemente ignora este correo.</p>
+    </div>
+  `,
+    };
+
+    // Enviar el correo
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) console.log(error);
+      return res.json({ message: "Correo enviado con éxito" });
+    });
+  });
+
+  // Envio circular Administración
+  router.post("/sendCircularInformacion", (req, res) => {
+    console.log(req.body);
+    const email = req.body.correo;
+    const text = req.body.text;
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Circular informativa",
+      html: `
+    <div style="font-family: Arial, sans-serif; text-align: center;">
+      <p>${text}</p>
+    </div>
+  `,
+    };
+
+    // Enviar el correo
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) console.log(error);
+      return res.json({ message: "Correo enviado con éxito" });
+    });
+  });
+
+  //----------------------------------------------------//
+  // Consultar Espacios rentados
+  router.get("/getEspRent", (req, res) => {
+    const sql = "SELECT * FROM get_EspRent";
+    db.query(sql, (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
+
+  // Consultar total Espacios rentados
+  router.get("/getTotalEspRent", (req, res) => {
+    const sql = "SELECT COUNT(*) as total FROM get_EspRent";
     db.query(sql, (err, data) => {
       if (err) {
         console.error("Error en la consulta:", err); // Muestra el error en el servidor

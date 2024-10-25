@@ -475,7 +475,7 @@ const Tabla = ({ apiS, name }) => {
             </div>
           </div>
         ) : (
-          <Calendario />
+          <Calendario name={name}/>
         )}
       </div>
     </div>

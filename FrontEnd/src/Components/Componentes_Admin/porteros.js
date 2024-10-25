@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -20,9 +20,9 @@ library.add(faCheck);
 
 const Porteros = ({ item, currentRecords, apiS }) => {
   const [accion, setAccion] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
+  const [errors, setError] = useState({});
   const [status, setStatus] = useState("");
-  const [eliminarRecord, setEliminarRecord] = useState("");
+  const data2 = "";
 
   const [values, setValues] = useState({
     Nombre: "",
@@ -33,14 +33,41 @@ const Porteros = ({ item, currentRecords, apiS }) => {
     TipoTurno: "",
   });
 
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+  useEffect(() => {
+    if (accion === "Eliminar") {
+      eliminar(values.codigoVivienda);
+    }
+  }, [accion]);
+
+  const customToast = (mess, record) => {
+    return (
+      <>
+        {mess}
+        <form className="p-0" onSubmit={enviar}>
+          <div className="d-flex flex-row mt-3 justify-content-end">
+            <div className="ms-3">
+              <button
+                type="submit"
+                class="btn btn-success p-0 m-0"
+                style={{ width: "30px", height: "30px" }}
+              >
+                <FontAwesomeIcon icon={faCheck} />
+              </button>
+            </div>
+          </div>
+        </form>
+      </>
+    );
+  };
+
+  const [searchTerm, setSearchTerm] = useState({
+    Term: "",
+  }); // Estado para el término de búsqueda
   const [filteredRecords, setFilteredRecords] = useState(currentRecords);
 
-  const [errors, setError] = useState({});
-
-  const enviar = async (e) => {
+  const enviar = (e) => {
     e.preventDefault();
-    const validationErrors = ValidationReg(values, currentRecords, apiS);
+    const validationErrors = ValidationReg(values, currentRecords, data2, apiS);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&
@@ -48,51 +75,20 @@ const Porteros = ({ item, currentRecords, apiS }) => {
     ) {
       try {
         if (accion === "Actualizar") {
-          // if (porteros.id) {
-          //   const response = await axios.patch(
-          //     `http://localhost:4000/${apiS}/${porteros.id}`,
-          //     {
-          //       Nombre: porteros.Nombre,
-          //       NumeroDocumento: porteros.NumeroDocumento,
-          //       Teléfono: porteros.Teléfono,
-          //       Correo: porteros.Correo,
-          //       TipoTurno: porteros.TipoTurno,
-          //       User: porteros.User,
-          //       Pass: porteros.Pass,
-          //       id: porteros.id,
-          //     }
-          //   );
-          //   console.log(response.status);
-          //   if (response.status === 200) {
-          //     setStatus(response.status);
-          //     setTimeout(() => {
-          //       setStatus("");
-          //     }, 5000);
-          //     setPorteros((prevUsuario) => ({
-          //       ...prevUsuario,
-          //       id: "",
-          //     }));
-          //   }
-          // }
-        } else if (accion === "Eliminar") {
-          // if (porteros.id) {
-          //   const response = await axios.delete(
-          //     `http://localhost:4000/${apiS}/${porteros.id}`
-          //   );
-          //   console.log(response.status);
-          //   if (response.status === 200) {
-          //     setShowAlert(false);
-          //     setStatus(response.status);
-          //     setTimeout(() => {
-          //       setStatus("");
-          //     }, 5000);
-          //   }
-          // } else {
-          //   setShowAlert(false);
-          // }
+          axios
+            .post(`/admin/patch${apiS}`, values)
+            .then((res) => {
+              console.log(res.status);
+              if (res.data.Status === "Success") {
+                toast.success("Portero actualizado correctamente");
+              } else if (res.status === 500) {
+                toast.error("Ocurrio un error al actualizar el apartamento");
+              }
+            })
+            .catch((err) => toast.error(""));
         } else if (accion === "Insertar") {
           axios
-            .post("/admin/postPorteros", values)
+            .post(`/admin/post${apiS}`, values)
             .then((res) => {
               if (res.status === 200) {
                 toast.success("Portero insertado correctamente");
@@ -110,44 +106,55 @@ const Porteros = ({ item, currentRecords, apiS }) => {
           setStatus("");
         }, 5000);
       }
-    } 
+    } else if (accion === "Eliminar") {
+      try {
+        axios
+          .post(`/admin/delete${apiS}`, values)
+          .then((res) => {
+            if (res.data.Status === "Success") {
+              toast.success("Registro eliminado correctamente");
+            } else {
+              toast.error("Ocurrio un error al eliminar el registro");
+            }
+          })
+          .catch((err) => console.log(err));
+      } catch (error) {
+        console.error(error);
+        setAccion("");
+        setStatus("err");
+        setTimeout(() => {
+          setStatus("");
+        }, 5000);
+      }
+    }
+    console.log(errors, accion);
   };
 
   const setCurrentAccion = (accion) => {
     setAccion(() => accion);
   };
 
-  // const eliminar = (record) => {
-  //   if (apiS === "Porteros") {
-  //     setPorteros((prevSalon) => ({
-  //       ...prevSalon,
-  //       id: record,
-  //     }));
-  //   }
-  //   setAccion(() => "Eliminar");
-  // };
+  const eliminar = (record) => {
+    toast.warning(
+      customToast("¿ Esta seguro de eliminar este registro ?"),
+      record,
+      {
+        autoClose: 10000,
+      }
+    );
+  };
 
-  const fetchFilteredRecords = async (term) => {
+  const handleSearch = async (e) => {
+    e.preventDefault();
     try {
-      if (term) {
-        const response = await axios.get(
-          `http://localhost:4000/${apiS}?NumeroDocumento=${term}`
-        );
-        if (response.status === 200) {
-          setFilteredRecords(response.data);
-        }
-      } else {
-        setFilteredRecords(currentRecords);
+      const response = await axios.post(`/admin/getPorterosEsp`, searchTerm);
+      if (response.status === 200) {
+        setFilteredRecords(response.data);
       }
     } catch (error) {
       console.error(error);
       alert("Ocurrió un error al filtrar los registros");
     }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchFilteredRecords(searchTerm);
   };
 
   return (
@@ -169,12 +176,13 @@ const Porteros = ({ item, currentRecords, apiS }) => {
             placeholder="Ejemplo -> 1056798564"
             aria-label="Search"
             required
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) =>
+              setSearchTerm({ ...searchTerm, Term: e.target.value })
+            }
           />
         </div>
         <button
-          onClick={() => setCurrentAccion("Consultar")}
+          onClick={(e) => setCurrentAccion("Consultar")}
           className="btn btn-success py-1"
           type="submit"
         >
@@ -227,8 +235,11 @@ const Porteros = ({ item, currentRecords, apiS }) => {
                       <div className="mx-2">
                         <button
                           onClick={() => {
-                            setShowAlert(true);
-                            setEliminarRecord(record.id);
+                            setAccion("Eliminar");
+                            setValues((prevApartamento) => ({
+                              ...prevApartamento,
+                              NumeroDocumento: record.numDocumento,
+                            }));
                           }}
                           class="btn btn-danger p-2"
                         >
@@ -263,17 +274,23 @@ const Porteros = ({ item, currentRecords, apiS }) => {
               ))
             : filteredRecords.map((record, index) => (
                 <tr key={index}>
-                  <td>{record.Nombre}</td>
-                  <td>{record.NumeroDocumento}</td>
-                  <td>{record.Teléfono}</td>
-                  <td>{record.Correo}</td>
-                  <td>{record.TipoTurno}</td>
+                  <td>{`${record.nombre} ${record.apellido}`}</td>
+                  <td>{record.numDocumento}</td>
+                  <td>{record.telefono}</td>
+                  <td>{record.correo}</td>
+                  <td>{record.turno}</td>
                   <td>
                     <div className="d-flex flex-row justify-content-center">
                       <div className="mx-2">
                         <form className="p-0" onSubmit={enviar}>
                           <button
-                            // onClick={() => eliminar(record.id)}
+                            onClick={() => {
+                              setAccion("Eliminar");
+                              setValues((prevApartamento) => ({
+                                ...prevApartamento,
+                                NumeroDocumento: record.numDocumento,
+                              }));
+                            }}
                             type="submit"
                             className="btn btn-danger px-2"
                           >
@@ -287,20 +304,18 @@ const Porteros = ({ item, currentRecords, apiS }) => {
                           className="btn btn-warning px-2"
                           data-bs-toggle="modal"
                           data-bs-target="#exampleModal"
-                          // onClick={() => {
-                          //   setPorteros((prevPorteros) => ({
-                          //     ...prevPorteros,
-                          //     Nombre: record.Nombre,
-                          //     NumeroDocumento: record.NumeroDocumento,
-                          //     Teléfono: record.Teléfono,
-                          //     Correo: record.Correo,
-                          //     TipoTurno: record.TipoTurno,
-                          //     User: record.User,
-                          //     Pass: record.Pass,
-                          //     id: record.id,
-                          //   }));
-                          //   setCurrentAccion("Actualizar");
-                          // }}
+                          onClick={() => {
+                            setValues((prevPorteros) => ({
+                              ...prevPorteros,
+                              Nombre: record.nombre,
+                              Apellido: record.apellido,
+                              NumeroDocumento: record.numDocumento,
+                              Tel: record.telefono,
+                              Correo: record.correo,
+                              TipoTurno: record.idTipoTurnoFK,
+                            }));
+                            setCurrentAccion("Actualizar");
+                          }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
                         </button>
@@ -349,6 +364,7 @@ const Porteros = ({ item, currentRecords, apiS }) => {
                             className="form-control"
                             id="exampleInputEmail1"
                             value={values.Nombre}
+                            disabled={accion === "Actualizar" ? true : false}
                             onChange={(e) =>
                               setValues((prevPorteros) => ({
                                 ...prevPorteros,
@@ -372,6 +388,7 @@ const Porteros = ({ item, currentRecords, apiS }) => {
                             className="form-control"
                             id="exampleInputEmail1"
                             value={values.NumeroDocumento}
+                            disabled={accion === "Actualizar" ? true : false}
                             onChange={(e) =>
                               setValues((prevPorteros) => ({
                                 ...prevPorteros,
@@ -399,6 +416,7 @@ const Porteros = ({ item, currentRecords, apiS }) => {
                             className="form-control"
                             id="exampleInputEmail1"
                             value={values.Apellido}
+                            disabled={accion === "Actualizar" ? true : false}
                             onChange={(e) =>
                               setValues((prevPorteros) => ({
                                 ...prevPorteros,

@@ -27,10 +27,8 @@ const Tabla = ({ item, apiS }) => {
   useEffect(() => {
     const fetchApartamentos = async () => {
       try {
-        if (apiS === "Informacion" || apiS === "Reporte") {
-          const response = await axios.get(
-            `http://localhost:4000/Propietarios`
-          );
+        if (apiS === "Reporte") {
+          const response = await axios.get(`/admin/getEspRent`);
           setDatos(response.data);
           if (response.data.length === 0) {
             setDatos([]);
@@ -158,7 +156,11 @@ const Tabla = ({ item, apiS }) => {
             ) : apiS === "Informacion" ? (
               <Info currentRecords={currentRecords} apiS={apiS} />
             ) : apiS === "Reporte" ? (
-              <Reporte item={item} currentRecords={data} apiS={apiS} />
+              <Reporte
+                item={item}
+                currentRecords={currentRecords}
+                apiS={apiS}
+              />
             ) : null}
 
             {apiS !== "Reporte" ? (

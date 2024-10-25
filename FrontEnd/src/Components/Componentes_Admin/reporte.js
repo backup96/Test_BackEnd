@@ -4,70 +4,83 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 import { jsPDF } from "jspdf";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 library.add(faTrash);
 library.add(faPenToSquare);
 library.add(faSquarePlus);
 
-const Reporte = ({item, currentRecords, apiS}) => {
+const Reporte = ({ item, currentRecords, apiS }) => {
+  const [data, setData] = useState([]);
 
-    const total = (currentRecords) => {
-        let sum = 0
-        currentRecords.forEach((cur => {
-            const sal = cur.MesesAtrasados * 60000
-            sum = sum + sal
-        }))
-        return sum
+  useEffect(() => {
+    async function fetchApartamentos() {
+      try {
+        const response = await axios.get(`/admin/getTotalEspRent`);
+        setData(response.data);
+        if (response.data.length === 0) {
+          setData([]);
+        }
+      } catch (error) {
+        console.error("Error al obtener los apartamentos:", error);
+      }
     }
 
-    const generatePDF = (currentRecords, total) => {
-      const doc = new jsPDF();
+    fetchApartamentos();
+  }, []);
 
-       const pageWidth = doc.internal.pageSize.getWidth();
-       const pageHeight = doc.internal.pageSize.getHeight();
-       let y = 20;
+  const generatePDF = (currentRecords) => {
+    const doc = new jsPDF();
 
-       const textCenter = "Reporte saldo de deuda";
-       const nombreConjunto = "Torres de Santa Isabel"
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let y = 20;
 
-       const textWidth = doc.getTextWidth(textCenter);
-       const textWidth2 = doc.getTextWidth(nombreConjunto);
+    const textCenter = "Reporte espacios de parqueadero";
+    const nombreConjunto = "Torres de Santa Isabel";
 
-       const x = (pageWidth - textWidth) / 2;
-       const x2 = (pageWidth - textWidth2) / 2;
-       
-      // Agregar texto al PDF
-      doc.text(textCenter, x, 20);
-      y += 10;
-      doc.text(nombreConjunto, x2, 30);
-      y += 10;
+    const textWidth = doc.getTextWidth(textCenter);
+    const textWidth2 = doc.getTextWidth(nombreConjunto);
 
-      // Agregar una tabla de ejemplo
-      doc.text("Codigo de Vivienda", 10, 40);
-      doc.text("Nombre", 70, 40);
-      doc.text("Saldo de deuda", 130, 40);
-      y += 10;
+    const x = (pageWidth - textWidth) / 2;
+    const x2 = (pageWidth - textWidth2) / 2;
 
-        currentRecords.forEach((item, index) => {
-          // Verificar si el contenido se desbordará de la página
-          if (y + 10 > pageHeight) {
-            doc.addPage();
-            y = 20; // Reiniciar `y` para la nueva página
-          }
-
-          // Añadir el contenido de cada registro
-          doc.text(item.CodigoVivienda.toString(), 10, y);
-          doc.text(item.Nombre, 70, y);
-          doc.text((item.MesesAtrasados * 60000).toString(), 130, y);
-          y += 10; // Incrementar `y` para la siguiente línea
-        });
-    doc.text("Total:", 70, y)
-    doc.text(total.toString(), 130, y);
+    // Agregar texto al PDF
+    doc.text(textCenter, x, 20);
+    y += 10;
+    doc.text(nombreConjunto, x2, 30);
     y += 10;
 
-      // Guardar el PDF
-      doc.save("reporte.pdf");
-    };
+    // Agregar una tabla de ejemplo
+    doc.text("Nombre", 10, 40);
+    doc.text("Numero de parqueadero", 70, 40);
+    doc.text("Codigo de vivienda", 150, 40);
+    y += 10;
+
+    currentRecords.forEach((item, index) => {
+      // Verificar si el contenido se desbordará de la página
+      if (y + 10 > pageHeight) {
+        doc.addPage();
+        y = 20; // Reiniciar `y` para la nueva página
+      }
+
+      // Añadir el contenido de cada registro
+      doc.text(`${item.nombre} ${item.apellido}`, 10, y);
+      doc.text(item.idParqueaderoFk.toString(), 70, y);
+      doc.text(item.Apartamento_FK.toString(), 150, y);
+      y += 20; // Incrementar `y` para la siguiente línea
+    });
+    data.forEach((item) => {
+      doc.text("Total parqeuaderos rentados:", 70, y);
+      doc.text(item.total.toString(), 150, y);
+    });
+
+    y += 10;
+
+    // Guardar el PDF
+    doc.save("reporte.pdf");
+  };
 
   return (
     <div className="d-flex flex-column align-items-end">
@@ -100,18 +113,20 @@ const Reporte = ({item, currentRecords, apiS}) => {
           <tbody>
             {currentRecords.map((record, index) => (
               <tr key={index}>
-                <td>{record.CodigoVivienda}</td>
-                <td>{record.Nombre}</td>
-                <td>$ {record.MesesAtrasados * 60000}</td>
+                <td>{`${record.nombre} ${record.apellido}`}</td>
+                <td>{record.idParqueaderoFk}</td>
+                <td>{record.Apartamento_FK}</td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr>
-              <th colSpan="2">Total saldo de Deuda</th>
-              <th rowSpan="1" colSpan="1">
-                $ {total(currentRecords)}
-              </th>
+              <th colSpan="2">Numero de parqeuaderos rentados</th>
+              {currentRecords.map((record, index) => (
+                <th key={index} rowSpan="1" colSpan="1">
+                  {record.total}
+                </th>
+              ))}
             </tr>
           </tfoot>
         </table>
@@ -120,7 +135,7 @@ const Reporte = ({item, currentRecords, apiS}) => {
         <button
           type="button"
           className="btn btn-success  m-0"
-          onClick={() => generatePDF(currentRecords, total(currentRecords))}
+          onClick={() => generatePDF(currentRecords)}
         >
           Generar reporte <FontAwesomeIcon icon={faSquarePlus} />
         </button>

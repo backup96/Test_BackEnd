@@ -121,20 +121,31 @@ const routerPublic = (app, db, transporter) => {
               .json({ error: "Error encriptando la contraseña" });
 
           // Actualizar la contraseña del usuario y limpiar el token
-          db.query(
-            "Call cambiar_pass(?, ?)",
-            [hashedPassword, user],
-            (err) => {
-              if (err)
-                return res.status(500).json({
-                  error: "Error actualizando la contraseña en la base de datos",
-                });
-              res.json({ status: "Contraseña restablecida correctamente" });
-            }
-          );
+          db.query("Call cambiar_pass(?, ?)", [hashedPassword, user], (err) => {
+            if (err)
+              return res.status(500).json({
+                error: "Error actualizando la contraseña en la base de datos",
+              });
+            res.json({ status: "Contraseña restablecida correctamente" });
+          });
         });
       }
     );
+  });
+
+  // Consultar propietarios específico
+  router.post("/getPropietarioEsp", (req, res) => {
+    const sql =
+      "SELECT idPropietario FROM get_propietarios WHERE nombreUsuario = ?";
+    db.query(sql, [req.body.name], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al buscar el propietario" });
+      }
+      res.json(data);
+    });
   });
 
   // Agregar el router al prefijo /users
