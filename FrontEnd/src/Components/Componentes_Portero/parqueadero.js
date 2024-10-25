@@ -1,58 +1,55 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-const Parqueadero = ({ item, currentRecords, apiS }) => {
+const Parqueadero = () => {
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-  const [filteredRecords, setFilteredRecords] = useState(currentRecords);
-  const [filteredAtt, setFilteredAtt] = useState("");
-  const [filterAvailable, setFilterAvailable] = useState(false);
-  const [filterType, setFilterType] = useState("");
-  const [searchPerformed, setSearchPerformed] = useState(false); // Nueva variable para mantener el paginado
+  const [filteredRecords, setFilteredRecords] = useState([]); // Registros filtrados
+  const [currentRecords, setCurrentRecords] = useState([]); // Registros originales
+  const [filterAvailable, setFilterAvailable] = useState(false); // Filtro por disponibilidad
+  const [filterType, setFilterType] = useState(""); // Filtro por tipo de espacio
 
   useEffect(() => {
-    if (!searchPerformed) {
-      // Solo aplicar filtros si no se ha hecho una búsqueda
-      const applyFilters = () => {
-        let records = currentRecords;
-
-        if (filterAvailable) {
-          records = records.filter((record) => record.Estado === "Disponible");
-        }
-
-        if (filterType) {
-          records = records.filter((record) => record.TipoEspacio === filterType);
-        }
-
-        setFilteredRecords(records);
-      };
-
-      applyFilters();
-    }
-  }, [filterAvailable, filterType, currentRecords, searchPerformed]);
-
-  const fetchFilteredRecords = async (term, att) => {
-    try {
-      if (term) {
-        const response = await axios.get(
-          `http://localhost:4000/${apiS}?${att}=${term}`
-        );
-        if (response.status === 200) {
-          setFilteredRecords(response.data);
-          setSearchPerformed(true); // Indicar que se ha realizado una búsqueda
-        }
-      } else {
-        setFilteredRecords(currentRecords);
-        setSearchPerformed(false); // Si no hay término de búsqueda, reiniciar
+    // Función para obtener los registros de la tabla espacios_parqueadero
+    const fetchParqueaderos = async () => {
+      try {
+        const response = await axios.get("http://localhost:8081/espacios_parqueadero");
+        setCurrentRecords(response.data); // Guardar registros originales
+        setFilteredRecords(response.data); // Mostrar todos los registros por defecto
+      } catch (error) {
+        console.error("Error al obtener los datos:", error);
       }
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al filtrar los registros");
+    };
+
+    fetchParqueaderos();
+  }, []);
+
+  // Filtrar registros manualmente
+  const fetchFilteredRecords = (term) => {
+    let results = currentRecords;
+
+    // Aplicar búsqueda por número de espacio
+    if (term) {
+      results = results.filter(record =>
+        record.numEspacio.toString().includes(term)
+      );
     }
+
+    // Aplicar filtro por disponibilidad
+    if (filterAvailable) {
+      results = results.filter(record => record.estado === "Disponible");
+    }
+
+    // Aplicar filtro por tipo de espacio (Carro/Moto)
+    if (filterType) {
+      results = results.filter(record => record.tipoEspacio === filterType);
+    }
+
+    setFilteredRecords(results); // Actualizar los registros filtrados
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchFilteredRecords(searchTerm, filteredAtt);
+    fetchFilteredRecords(searchTerm); // Llamar a la función de filtrado
   };
 
   return (
@@ -65,48 +62,39 @@ const Parqueadero = ({ item, currentRecords, apiS }) => {
           placeholder="Buscar por Número de Espacio"
           aria-label="Search"
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setFilteredAtt("NumeroEspacio"); // Buscar por número de espacio
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button className="btn btn-success ms-2 py-1" type="submit">
-          Search
+          Buscar
         </button>
       </form>
 
       {/* Botones de filtrado */}
       <div className="mb-3 mt-5">
         <button
-          className={`btn me-2 ${
-            filterAvailable ? "btn btn-primary" : " btn btn-dark"
-          }`}
+          className={`btn me-2 ${filterAvailable ? "btn btn-primary" : "btn btn-dark"}`}
           onClick={() => {
             setFilterAvailable(!filterAvailable);
-            setSearchPerformed(false); // Resetea la búsqueda al aplicar filtro
+            fetchFilteredRecords(searchTerm); // Actualizar los registros con el nuevo filtro
           }}
         >
           {filterAvailable ? "Ver Todos" : "Disponibles"}
         </button>
         <button
           type="button"
-          className={`btn me-2 ${
-            filterType === "Carro" ? "btn btn-primary" : " btn btn-dark"
-          }`}
+          className={`btn me-2 ${filterType === "Carro" ? "btn btn-primary" : "btn btn-dark"}`}
           onClick={() => {
             setFilterType(filterType === "Carro" ? "" : "Carro");
-            setSearchPerformed(false); // Resetea la búsqueda al aplicar filtro
+            fetchFilteredRecords(searchTerm); // Actualizar los registros con el nuevo filtro
           }}
         >
           {filterType === "Carro" ? "Ver Todos" : "Carros"}
         </button>
         <button
-          className={`btn ${
-            filterType === "Moto" ? "btn btn-primary" : " btn btn-dark"
-          }`}
+          className={`btn ${filterType === "Moto" ? "btn btn-primary" : "btn btn-dark"}`}
           onClick={() => {
             setFilterType(filterType === "Moto" ? "" : "Moto");
-            setSearchPerformed(false); // Resetea la búsqueda al aplicar filtro
+            fetchFilteredRecords(searchTerm); // Actualizar los registros con el nuevo filtro
           }}
         >
           {filterType === "Moto" ? "Ver Todos" : "Motos"}
@@ -121,34 +109,21 @@ const Parqueadero = ({ item, currentRecords, apiS }) => {
       >
         <thead>
           <tr>
-            {item.map((item, index) => (
-              <th
-                className="sorting sorting text-light bg-dark"
-                tabIndex="0"
-                aria-controls="example2"
-                rowSpan="1"
-                colSpan="1"
-                aria-label="Rendering engine: activate to sort column ascending"
-                key={index}
-              >
-                {item}
-              </th>
-            ))}
+            <th className="sorting text-light bg-dark">Número de Espacio</th>
+            <th className="sorting text-light bg-dark">Tipo de Espacio</th>
+            <th className="sorting text-light bg-dark">Estado</th>
           </tr>
         </thead>
         <tbody>
           {filteredRecords.map((record, index) => (
             <tr key={index}>
-              <td>{record.NumeroEspacio}</td>
-              <td>{record.TipoEspacio}</td>
-              <td>{record.Estado}</td>
+              <td>{record.numEspacio}</td>
+              <td>{record.tipoEspacio}</td>
+              <td>{record.estado}</td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {/* Paginación u otras funcionalidades de la parte inferior de la tabla */}
-      {/* Aquí podrías implementar la paginación si ya está soportada */}
     </>
   );
 };

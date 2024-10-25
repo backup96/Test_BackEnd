@@ -236,7 +236,7 @@ export const NavBar = ({ children }) => {
                         "Teléfono",
                         "Correo",
                         "Número de parqueadero",
-                        "Costo",
+                        "Placa",
                         "Código de Vivienda",
                         "Acciones",
                       ]

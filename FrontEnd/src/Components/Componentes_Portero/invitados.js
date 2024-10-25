@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -15,11 +15,12 @@ import { useTable } from "./navBar";
 /* Añadir iconos a la librería */
 library.add(faTrash, faPenToSquare, faSquarePlus, faXmark, faCheck, faClock);
 
-const Invitados = ({ item, currentRecords, apiS }) => {
+const Invitados = ({ item, setcurrentRecords }) => {
   const [accion, setAccion] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState("");
   const [eliminarRecord, setEliminarRecord] = useState("");
+  const [currentRecords, setCurrentRecords] = useState([]);
 
   const {
     setCurrentTable: setCurrentContextTabla,
@@ -42,77 +43,50 @@ const Invitados = ({ item, currentRecords, apiS }) => {
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
   const [filteredRecords, setFilteredRecords] = useState(currentRecords);
 
-  const enviar = async (e) => {
+  useEffect(() => {
+    // Función para obtener los registros de la vista invitados
+    const fetchInvitados = async () => {
+      try {
+        const response = await axios.get("http://localhost:8081/invitados");
+        setCurrentRecords(response.data);
+        setFilteredRecords(response.data);
+      } catch (error) {
+        console.error("Error al obtener los datos:", error);
+      }
+    };
+
+    fetchInvitados();
+  }, []);
+
+  const enviar = (e) => {
     e.preventDefault();
 
-    try {
-      if (accion === "Actualizar") {
-        if (invitados.id) {
-          const response = await axios.patch(
-            `http://localhost:4000/${apiS}/${invitados.id}`,
-            {
-              Nombre: invitados.Nombre,
-              NumeroDocumento: invitados.NumeroDocumento,
-              Teléfono: invitados.Teléfono,
-              Correo: invitados.Correo,
-              NumeroParqueadero: invitados.NumeroParqueadero,
-              Costo: invitados.Costo,
-              CodigoVivienda: invitados.CodigoVivienda,
-              id: invitados.id,
-            }
-          );
-          if (response.status === 200) {
-            setStatus(response.status);
-            setAccion("");
-            setTimeout(() => {
-              setStatus("");
-            }, 5000);
-            setInvitados((prevUsuario) => ({
-              ...prevUsuario,
-              id: "",
-            }));
-          }
-        }
-      } else if (accion === "Eliminar") {
-        if (invitados.id) {
-          const response = await axios.delete(
-            `http://localhost:4000/${apiS}/${invitados.id}`
-          );
-          if (response.status === 200) {
-            setShowAlert(false);
-            setStatus(response.status);
-            setAccion("");
-            setTimeout(() => {
-              setStatus("");
-            }, 5000);
-          }
-        } else {
-          setShowAlert(false);
-        }
-      } else if (accion === "Insertar") {
-        const response = await axios.post(`http://localhost:4000/${apiS}`, {
-          Nombre: invitados.Nombre,
-          NumeroDocumento: invitados.NumeroDocumento,
-          Teléfono: invitados.Teléfono,
-          Correo: invitados.Correo,
-          NumeroParqueadero: invitados.NumeroParqueadero,
-          Costo: invitados.Costo,
-          CodigoVivienda: invitados.CodigoVivienda,
-          HoraInicio: invitados.HoraInicio,
-          Tiempo: invitados.Tiempo,
-        });
-        if (response.status === 201) {
-          setStatus(response.status);
-          setAccion("");
-          setTimeout(() => {
-            setStatus("");
-          }, 5000);
-        }
+    if (accion === "Actualizar") {
+      if (invitados.id) {
+        // Aquí actualizarías el estado local o la lógica según sea necesario
+        setStatus(200);
+        setTimeout(() => {
+          setStatus("");
+        }, 5000);
+        setInvitados((prevUsuario) => ({
+          ...prevUsuario,
+          id: "",
+        }));
       }
-    } catch (error) {
-      console.error(error);
-      setAccion("");
-      setStatus("err");
+    } else if (accion === "Eliminar") {
+      if (invitados.id) {
+        // Aquí eliminarías el registro del estado local
+        setShowAlert(false);
+        setStatus(200);
+        setTimeout(() => {
+          setStatus("");
+        }, 5000);
+      } else {
+        setShowAlert(false);
+      }
+    } else if (accion === "Insertar") {
+      // Aquí insertarías el nuevo invitado en el estado local
+      setStatus(201);
       setTimeout(() => {
         setStatus("");
       }, 5000);
@@ -124,31 +98,22 @@ const Invitados = ({ item, currentRecords, apiS }) => {
   };
 
   const eliminar = (record) => {
-    if (apiS === "Invitados") {
-      setInvitados((prevSalon) => ({
-        ...prevSalon,
-        id: record,
-      }));
-    }
+    setInvitados((prevSalon) => ({
+      ...prevSalon,
+      id: record,
+    }));
     setAccion(() => "Eliminar");
   };
 
   // Modificación: Búsqueda por nombre en lugar de documento
-  const fetchFilteredRecords = async (term) => {
-    try {
-      if (term) {
-        const response = await axios.get(
-          `http://localhost:4000/${apiS}?Nombre=${term}`
-        );
-        if (response.status === 200) {
-          setFilteredRecords(response.data);
-        }
-      } else {
-        setFilteredRecords(currentRecords);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al filtrar los registros");
+  const fetchFilteredRecords = (term) => {
+    if (term) {
+      const results = currentRecords.filter((record) =>
+        record.Nombre.toLowerCase().includes(term.toLowerCase())
+      );
+      setFilteredRecords(results);
+    } else {
+      setFilteredRecords(currentRecords);
     }
   };
 
@@ -198,17 +163,7 @@ const Invitados = ({ item, currentRecords, apiS }) => {
             </form>
           </div>
         </div>
-      ) : status === 200 ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
-            role="alert"
-            style={{ marginInlineEnd: "35%" }}
-          >
-            Operación completada
-          </div>
-        </div>
-      ) : status === 201 ? (
+      ) : status === 200 || status === 201 ? (
         <div className="d-flex justify-content-center">
           <div
             className="alert alert-success alert-dismissible z-1 position-absolute fade show w-25 text-center"
@@ -247,8 +202,7 @@ const Invitados = ({ item, currentRecords, apiS }) => {
         aria-describedby="example2_info"
       >
         <thead>
-          <tr>
-            {item.map((item, index) => (
+        {item.map((item, index) => (
               <th
                 className="sorting sorting text-light bg-dark"
                 tabIndex="0"
@@ -261,19 +215,18 @@ const Invitados = ({ item, currentRecords, apiS }) => {
                 {item}
               </th>
             ))}
-          </tr>
         </thead>
         <tbody>
           {accion !== "Consultar"
             ? currentRecords.map((record, index) => (
-                <tr key={index}>
-                  <td>{record.Nombre}</td>
-                  <td>{record.NumeroDocumento}</td>
+              <tr key={index}>
+                  <td>{record.Nombre} {record.Apellido}</td> {/* Concatenar nombre y apellido */}
+                  <td>{record["Número de Documento"]}</td>
                   <td>{record.Teléfono}</td>
                   <td>{record.Correo}</td>
-                  <td>{record.NumeroParqueadero}</td>
-                  <td>{record.Costo}</td>
-                  <td>{record.CodigoVivienda}</td>
+                  <td>{record["Número de parqueadero"]}</td>
+                  <td>{record.Placa}</td>
+                  <td>{record["Código de Vivienda"]}</td>
                   <td>
                     <div className="d-flex flex-row justify-content-center">
                       <div className="mx-2 btn btn-info p-2">

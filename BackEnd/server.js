@@ -235,7 +235,41 @@ app.post('/cambiar_contrasena', async (req, res) => {
 });
 
 
+// Ruta para obtener datos de vista_propietarios_portero
+app.get("/consultapropietarios", (req, res) => {
+  const sql = "SELECT * FROM vista_propietarios_portero";
+  db.query(sql, (err, data) => {
+    if (err) {
+      console.error("Error en la consulta:", err);
+      return res.status(500).json({ Error: "Error al consultar los datos" });
+    }
+    res.json(data);
+  });
+});
 
+// Ruta para consultar los espacios de parqueadero
+app.get("/espacios_parqueadero", (req, res) => {
+  const sql = "SELECT * FROM espacios_parqueadero";
+  db.query(sql, (err, data) => {
+    if (err) {
+      console.error("Error en la consulta:", err);
+      return res.status(500).json({ Error: "Error al consultar los datos" });
+    }
+    res.json(data);
+  });
+});
+
+// Ruta para obtener los invitados
+app.get('/invitados', (req, res) => {
+  const query = 'SELECT * FROM vista_invitados';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: 'Error al consultar los invitados' });
+    }
+    res.json(results);
+  });
+});
 
 app.listen(8081, () => {
   console.log("Servidor corriendo en el puerto 8081");
