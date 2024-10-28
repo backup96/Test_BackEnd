@@ -278,7 +278,7 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                           icon={faClock}
                           role="button"
                           onClick={() => {
-                            setContextInvitado(() => record.id);
+                            setContextInvitado(() => record.numDocumento);
                             setCurrentContextTabla("Clock");
                           }} // Redirige con el ID del invitado
                         />

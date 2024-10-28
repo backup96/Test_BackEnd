@@ -49,10 +49,12 @@ const RegisterPropietario = () => {
     fetchApartamentos();
   }, []);
 
+  const data2 = ""
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const apiS = ""
-    const validationErrors = ValidationReg(values, data, apiS);
+    const validationErrors = ValidationReg(values, data, data2 ,apiS);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&

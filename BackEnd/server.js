@@ -71,24 +71,6 @@ app.get("/espacio_parqueadero", (req, res) => {
   });
 });
 
-// Endpoint para rentar espacio
-app.post('/rentar_espacio', (req, res) => {
-    const { nombreUsuario, idParqueaderoFk } = req.body;
-
-    if (!nombreUsuario || !idParqueaderoFk) {
-        return res.status(400).json({ error: 'nombreUsuario e idParqueaderoFk son requeridos' });
-    }
-
-    const query = 'INSERT INTO rentar_espacio (nombreUsuario, idParqueaderoFk) VALUES (?, ?)';
-    db.query(query, [nombreUsuario, idParqueaderoFk], (err, results) => {
-        if (err) {
-            console.error('Error al insertar en rentar_espacio:', err);
-            return res.status(500).json({ error: 'Error al procesar la solicitud' });
-        }
-        res.status(201).json({ message: 'Espacio rentado exitosamente', id: results.insertId });
-    });
-});
-
 // Ruta para calendario-propietario
 app.post('/citas_salon_comunal', (req, res) => {
   const {

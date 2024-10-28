@@ -13,9 +13,9 @@ import {
 import { useUser } from "../../../userContext";
 import { useTable } from "../../../Components/Componentes_Portero/navBar";
 
-const InvitadoDetalle = ({ id }) => {
+const InvitadoDetalle = ( id ) => {
   const navigate = useNavigate(); // Hook para navegar
-  const [guest, setGuest] = useState("");
+  const [guest, setGuest] = useState([]);
 
   const {
     hours,
@@ -37,9 +37,7 @@ const InvitadoDetalle = ({ id }) => {
   useEffect(() => {
     const fetchGuestDetails = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:4000/Invitados/${invitado}`
-        );
+        const response = await axios.get(`/portero/getPorterosDetails`, id);
         setGuest(response.data);
       } catch (error) {
         console.error("Error al obtener los detalles del invitado:", error);
@@ -60,6 +58,7 @@ const InvitadoDetalle = ({ id }) => {
   return (
     <>
       <div className="container">
+        {console.log(id)}
         <div className="details-container">
           <div className="headerr">
             <h2>Detalles del Invitado</h2>
@@ -210,26 +209,6 @@ const InvitadoDetalle = ({ id }) => {
                     </>
                   ))
               )}
-            </div>
-          </div>
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">{guest.Nombre}</h5>
-              <p className="card-text">
-                <strong>Documento:</strong> {guest.NumeroDocumento}
-              </p>
-              <p className="card-text">
-                <strong>Teléfono:</strong> {guest.Teléfono}
-              </p>
-              <p className="card-text">
-                <strong>Correo:</strong> {guest.Correo}
-              </p>
-              <p className="card-text">
-                <strong>Parqueadero Asignado:</strong> {guest.NumeroParqueadero}
-              </p>
-              <p className="card-text">
-                <strong>Costo:</strong> {guest.Costo}
-              </p>
             </div>
           </div>
         </div>

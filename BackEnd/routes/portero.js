@@ -42,6 +42,20 @@ const routerPortero = (app, db) => {
     });
   });
 
+  // Ruta para traer propietario específico
+  router.get("/getPorterosDetails", (req, res) => {
+    console.log(req.body);
+    const sql = "SELECT * FROM get_porteros WHERE numDocumento = ?";
+    db.query(sql, [req.body.numDocumento], (err, data) => {
+      if (err) {
+        console.error("Error en la consulta:", err); // Muestra el error en el servidor
+        return res
+          .status(500)
+          .json({ Error: "Error al enviar solicitud de registro" });
+      }
+      res.json(data);
+    });
+  });
   app.use("/portero", router);
 };
 

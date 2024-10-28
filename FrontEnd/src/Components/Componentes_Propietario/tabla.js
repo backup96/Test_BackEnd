@@ -14,6 +14,12 @@ const Tabla = ({ apiS, name }) => {
   const { user, setUser } = useUser();
   const [searchTermMoto, setSearchTermMoto] = useState("");
   const [searchTermCarro, setSearchTermCarro] = useState("");
+  const [perfilData, setPerfilData] = useState([]);
+
+  const [values, setValues] = useState({
+    idParqueadero: "",
+    numDocumento: ""
+  })
 
   const recordsPerPage = 12;
 
@@ -38,6 +44,23 @@ const Tabla = ({ apiS, name }) => {
   
     fetchEspacios();
   }, [apiS]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.post(
+          "http://localhost:8081/vista_perfil",
+          { name }
+        );
+        setPerfilData(response.data[0]);
+        console.log(response.data[0].numDocumento);
+      } catch (error) {
+        console.log(error)
+      }
+    };
+
+    fetchProfile();
+  }, [name]);
 
   const indexOfLastRecordMoto = currentPageMoto * recordsPerPage;
   const indexOfFirstRecordMoto = indexOfLastRecordMoto - recordsPerPage;
@@ -73,67 +96,20 @@ const Tabla = ({ apiS, name }) => {
     setCurrentPageCarro(pageNumber);
   };
 
-  const rentSpace = (spaceId, EspacioParqueadero, espacioNumero) => {
-    const nombreUsuario = user?.name; // Obtener el nombre del usuario
-  
-    if (!nombreUsuario) { // Verifica si el usuario existe y tiene un nombre
-      toast.error("Error: Usuario no encontrado.");
-      return;
-    }
-  
-    const espacioMoto = user.espacioMoto || null;
-    const espacioCarro = user.espacioCarro || null;
-  
-    if (
-      (EspacioParqueadero === "Moto" && espacioMoto) ||
-      (EspacioParqueadero === "Carro" && espacioCarro)
-    ) {
-      toast.error("Error: Solo puedes rentar un espacio de moto y un espacio de carro.");
-      return;
-    }
-  
-    axios.put(`http://localhost:8081/espacio_parqueadero/${spaceId}/estado`, {
-      idEstado: 2 // Asumiendo que 2 es el ID del estado "Ocupado"
-    })
-    .then(() => {
-      // Actualiza el estado del espacio en la UI
-      if (EspacioParqueadero === "Moto") {
-        setDataMoto((prevData) =>
-          prevData.map((item) =>
-            item.numEspacio === espacioNumero ? { ...item, estado: "Ocupado" } : item
-          )
-        );
-      } else {
-        setDataCarro((prevData) =>
-          prevData.map((item) =>
-            item.numEspacio === espacioNumero ? { ...item, estado: "Ocupado" } : item
-          )
-        );
-      }
-  
-      const updatedUser = {
-        ...user,
-        espacioMoto: EspacioParqueadero === "Moto" ? espacioNumero : espacioMoto,
-        espacioCarro: EspacioParqueadero === "Carro" ? espacioNumero : espacioCarro,
-      };
-  
-      // Llamada al endpoint para registrar el alquiler
-      return axios.post('http://localhost:8081/rentar_espacio', {
-        nombreUsuario: user.nombre, // Asegúrate de que el nombre del usuario está disponible
-        idParqueaderoFk: spaceId
-      })
-      .then(() => {
-        return axios.patch(`http://localhost:8081/usuarios/${user.id}`, updatedUser);
-      });
-    })
-    .then((response) => {
-      setUser(response.data);
-      toast.success("Usted rentó un espacio de parqueadero exitosamente");
-    })
-    .catch((error) => {
-      console.error("Error al rentar el espacio:", error);
-      toast.error("Error al rentar el espacio");
-    });
+  const rentSpace = (e) => {
+    e.preventDefault();
+    console.log(values);
+      axios
+        .post(`/propietario/Rent`, values)
+        .then((res) => {
+          console.log(res.status);
+          if (res.data.Status === "Success") {
+            toast.success("Apartamento actualizado correctamente");
+          } else if (res.status === 500) {
+            toast.error("Ocurrio un error al actualizar el apartamento");
+          }
+        })
+        .catch((err) => toast.error(""));
   };
 
   const handleSearchMoto = (e) => {
@@ -211,18 +187,20 @@ const Tabla = ({ apiS, name }) => {
   return (
     <div className="w-100 h-100">
       <ToastContainer />
-
       <div className="card m-0 h-100">
         {apiS === "Parqueadero" ? (
           <div className="d-flex flex-row">
             {/* Moto Section */}
             <div className="px-3 w-50">
-              <form 
-                className="d-flex flex-column mb-3 align-items-start" 
-                role="search" 
+              <form
+                className="d-flex flex-column mb-3 align-items-start"
+                role="search"
                 onSubmit={handleSearchMoto}
               >
-                <label className="text-start w-100 fw-normal mb-2" htmlFor="searchParam">
+                <label
+                  className="text-start w-100 fw-normal mb-2"
+                  htmlFor="searchParam"
+                >
                   Buscar por espacio de parqueadero de Moto
                 </label>
 
@@ -245,7 +223,7 @@ const Tabla = ({ apiS, name }) => {
               <h2 className="text-center">Moto</h2>
               {hasRentedMoto ? (
                 <p className="text-center text-danger">
-                  Ya has rentado un espacio de moto. 
+                  Ya has rentado un espacio de moto.
                 </p>
               ) : (
                 <>
@@ -255,15 +233,28 @@ const Tabla = ({ apiS, name }) => {
                         key={record.numEspacio}
                         className="d-flex flex-column border border-primary rounded-4 w-25 p-2"
                       >
-                        <span className="fs-3 fw-bolder">{record.numEspacio}</span>
-                        <button
-                          type="button"
-                          className="btn bg-success btn-sm p-1"
-                          onClick={() => rentSpace(record.numEspacio, "Moto", record.numEspacio)}
-                          disabled={hasRentedMoto}
+                        <span className="fs-3 fw-bolder">
+                          {record.numEspacio}
+                        </span>
+                        <form
+                          className="row g-3 needs-validation"
+                          onSubmit={rentSpace}
                         >
-                          Rentar
-                        </button>
+                          <button
+                            type="submit"
+                            className="btn bg-success btn-sm p-1"
+                            onClick={(e) =>
+                              setValues({
+                                ...values,
+                                idParqueadero: record.numEspacio,
+                                numDocumento: perfilData.numDocumento,
+                              })
+                            }
+                            disabled={hasRentedMoto}
+                          >
+                            Rentar
+                          </button>
+                        </form>
                       </div>
                     ))}
                   </div>
@@ -307,7 +298,9 @@ const Tabla = ({ apiS, name }) => {
                                 <li
                                   key={index}
                                   className={`paginate_button page-item ${
-                                    currentPageMoto === index + 1 ? "active" : ""
+                                    currentPageMoto === index + 1
+                                      ? "active"
+                                      : ""
                                   }`}
                                 >
                                   <button
@@ -349,12 +342,15 @@ const Tabla = ({ apiS, name }) => {
 
             {/* Carro Section */}
             <div className="px-3 w-50">
-              <form 
-                className="d-flex flex-column mb-3 align-items-start" 
+              <form
+                className="d-flex flex-column mb-3 align-items-start"
                 role="search"
                 onSubmit={handleSearchCarro}
               >
-                <label className="text-start w-100 fw-normal mb-2" htmlFor="searchParam">
+                <label
+                  className="text-start w-100 fw-normal mb-2"
+                  htmlFor="searchParam"
+                >
                   Buscar por espacio de parqueadero de Carro
                 </label>
                 <div className="d-flex w-100">
@@ -386,11 +382,19 @@ const Tabla = ({ apiS, name }) => {
                         key={record.numEspacio}
                         className="d-flex flex-column border border-primary rounded-4 w-25 p-2"
                       >
-                        <span className="fs-3 fw-bolder">{record.numEspacio}</span>
+                        <span className="fs-3 fw-bolder">
+                          {record.numEspacio}
+                        </span>
                         <button
                           type="button"
                           className="btn bg-success btn-sm p-1"
-                          onClick={() => rentSpace(record.numEspacio, "Carro", record.numEspacio)}
+                          onClick={() =>
+                            rentSpace(
+                              record.numEspacio,
+                              "Carro",
+                              record.numEspacio
+                            )
+                          }
                           disabled={hasRentedCarro}
                         >
                           Rentar
@@ -438,11 +442,15 @@ const Tabla = ({ apiS, name }) => {
                                 <li
                                   key={index}
                                   className={`paginate_button page-item ${
-                                    currentPageCarro === index + 1 ? "active" : ""
+                                    currentPageCarro === index + 1
+                                      ? "active"
+                                      : ""
                                   }`}
                                 >
                                   <button
-                                    onClick={() => handlePageChangeCarro(index + 1)}
+                                    onClick={() =>
+                                      handlePageChangeCarro(index + 1)
+                                    }
                                     className="page-link"
                                   >
                                     {index + 1}
@@ -451,7 +459,9 @@ const Tabla = ({ apiS, name }) => {
                               ))}
                               <li
                                 className={`paginate_button page-item next ${
-                                  currentPageCarro === totalPagesCarro ? "disabled" : ""
+                                  currentPageCarro === totalPagesCarro
+                                    ? "disabled"
+                                    : ""
                                 }`}
                               >
                                 <Link
@@ -475,7 +485,7 @@ const Tabla = ({ apiS, name }) => {
             </div>
           </div>
         ) : (
-          <Calendario name={name}/>
+          <Calendario name={name} />
         )}
       </div>
     </div>
