@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import myImg from "../../img/logo2.png"; /* Logo del conjutno */
 import { useUser } from "../../userContext";
 import { useEffect, useState } from "react";
+import '../estilosnav.css';
 import Tabla from "./tabla";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -57,7 +58,7 @@ export function NavBar() {
     <div className="d-flex flex-column justify-content-start h-100 ">
       {/* NavBar */}
       <div>
-        <nav className="navbar navbar-expand-lg navbar-dark py-2 bg-dark">
+      <nav className="navbar navbar-expand-lg navbar-custom w-100">
           <div className="container px-lg-5 d-flex flex-row justify-content-between">
             <div>
               <button
@@ -170,7 +171,7 @@ export function NavBar() {
               transition: "transform 0.3s ease-in-out",
             }}
           >
-            <div className="d-flex flex-column p-3 text-white bg-dark h-100">
+             <div className="d-flex flex-column p-3 sidebar-custom h-100">
               <div
                 style={{
                   transform:

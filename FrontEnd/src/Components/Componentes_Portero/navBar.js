@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import myImg from "../../img/logo2.png"; /* Logo del conjutno */
 import { useUser } from "../../userContext";
+import '../estilosnav.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
@@ -62,7 +63,7 @@ export const NavBar = ({ children }) => {
       <div className="d-flex flex-column justify-content-start h-100 ">
         {/* Barra de navegación */}
         <div>
-          <nav className="navbar navbar-expand-lg navbar-dark py-2 bg-dark">
+        <nav className="navbar navbar-expand-lg navbar-custom w-100">
             <div className="container px-lg-5 d-flex flex-row justify-content-between">
               <div>
                 <button
@@ -132,7 +133,7 @@ export const NavBar = ({ children }) => {
                 transition: "transform 0.3s ease-in-out",
               }}
             >
-              <div className="d-flex flex-column p-3 text-white bg-dark h-100">
+                <div className="d-flex flex-column p-3 sidebar-custom h-100">
                 <div
                   style={{
                     transform:

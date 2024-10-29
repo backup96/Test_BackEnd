@@ -26,12 +26,14 @@ const Main = () => {
   
   return (
     <div className="home">
+      <div className='navbar-custom'>
       <header className="header">
         <div className="header-logo">
           <img src={myImg} alt="Logo del conjunto residencial" className="logo-img" />
           <h1>Conjunto Torres de Santa Isabel</h1>
         </div>
       </header>
+      </div>
 
       <div
         className="welcome-background"
@@ -79,7 +81,7 @@ const Main = () => {
           <p>
             Te damos la bienvenida a nuestra plataforma diseñada para facilitar tu trabajo. Aquí encontrarás herramientas para gestionar eficientemente las operaciones diarias y garantizar la comodidad de los residentes. Explora nuestras funcionalidades y contáctanos si necesitas ayuda. ¡Gracias por ser parte de nuestro equipo!
           </p>
-          <a href="https://maps.app.goo.gl/3cEXQRnnLgatSydR8" className="contact-btn" target="_blank" rel="noopener noreferrer">Contáctanos</a>
+          <a href="https://maps.app.goo.gl/3cEXQRnnLgatSydR8" className="contact-btn btn success" target="_blank" rel="noopener noreferrer">Contáctanos</a>
         </div>
         <div className="welcome-collage">
           <img src={myImg} alt="Imagen de bienvenida" className="collage-img" />

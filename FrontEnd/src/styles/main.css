@@ -3,7 +3,7 @@
   }
   
   .header {
-    background-color: #333;
+    background-color: #56b94965;
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -74,7 +74,7 @@
     justify-content: space-between;
     padding: 50px;
     padding-left: 100px;
-    background-color: #333;
+    background-color: #56b94965;
     color: #fff;
   }
   
@@ -96,15 +96,15 @@
     display: inline-block;
     margin-top: 20px;
     padding: 10px 20px;
-    background-color: #dc3545;
+    background-color: #28a745;
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
   }
   
   .contact-btn:hover {
-    background-color: #fff;
-    color: #dc3545;
+    background-color: #56b94970;
+    color: #28a745;
   }
   
   .welcome-collage {
@@ -122,7 +122,7 @@
   
   
   .footer {
-    background-color: #333;
+    background-color: #56b94965;
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -130,7 +130,7 @@
     border-top: 1px solid #ddd;
     padding-left: 15%;
     padding-right: 15%;
-    border-top: solid 5px #007bff;
+    border-top: solid 5px #28a745;
   }
   
   .footer-contact {
@@ -171,7 +171,7 @@
   flex-wrap: wrap; /* Permite que los cards se ajusten en varias filas si no caben en una sola */
   gap: 20px; /* Añade espacio entre los cards */
   margin: 0 auto; /* Centra el contenedor en la página */
-  background-color:#333;
+  background-color:#56b94965;
 }
 
 .card-perfil {

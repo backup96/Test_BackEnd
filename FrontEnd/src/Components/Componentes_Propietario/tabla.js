@@ -25,7 +25,8 @@ const Tabla = ({ apiS, name }) => {
 
   const [dataMoto, setDataMoto] = useState([]);
   const [dataCarro, setDataCarro] = useState([]);
-
+  const [hasRentedMoto, setHasRentedMoto] = useState(false);
+  const [hasRentedCarro, setHasRentedCarro] = useState(false);
   useEffect(() => {
     const fetchEspacios = () => {
       Promise.all([
@@ -96,21 +97,30 @@ const Tabla = ({ apiS, name }) => {
     setCurrentPageCarro(pageNumber);
   };
 
-  const rentSpace = (e) => {
-    e.preventDefault();
-    console.log(values);
-      axios
+  const rentSpace = (idParqueadero) => {
+    const values = {
+        idParqueadero,
+        numDocumento: perfilData.numDocumento
+    };
+    axios
         .post(`/propietario/Rent`, values)
         .then((res) => {
-          console.log(res.status);
-          if (res.data.Status === "Success") {
-            toast.success("Apartamento actualizado correctamente");
-          } else if (res.status === 500) {
-            toast.error("Ocurrio un error al actualizar el apartamento");
-          }
+            console.log("Respuesta del backend:", res.data); // Debugging
+            if (res.data.Status === "Success") {
+                toast.success("Espacio rentado correctamente");
+                // Lógica para actualizar estado
+            } else {
+                toast.error("Error en la respuesta del servidor: " + res.data.Error);
+            }
         })
-        .catch((err) => toast.error(""));
-  };
+        .catch((err) => {
+            console.error("Ocurrió un error:", err);
+            toast.error("Ocurrió un error al rentar el espacio.");
+        });
+};
+
+  
+  
 
   const handleSearchMoto = (e) => {
     e.preventDefault();
@@ -181,8 +191,6 @@ const Tabla = ({ apiS, name }) => {
     }
   };
   
-  const hasRentedMoto = user && user.espacioMoto;
-  const hasRentedCarro = user && user.espacioCarro;
 
   return (
     <div className="w-100 h-100">
@@ -233,28 +241,15 @@ const Tabla = ({ apiS, name }) => {
                         key={record.numEspacio}
                         className="d-flex flex-column border border-primary rounded-4 w-25 p-2"
                       >
-                        <span className="fs-3 fw-bolder">
-                          {record.numEspacio}
-                        </span>
-                        <form
-                          className="row g-3 needs-validation"
-                          onSubmit={rentSpace}
-                        >
-                          <button
-                            type="submit"
-                            className="btn bg-success btn-sm p-1"
-                            onClick={(e) =>
-                              setValues({
-                                ...values,
-                                idParqueadero: record.numEspacio,
-                                numDocumento: perfilData.numDocumento,
-                              })
-                            }
-                            disabled={hasRentedMoto}
-                          >
-                            Rentar
-                          </button>
-                        </form>
+                        <span className="fs-3 fw-bolder">{record.numEspacio}</span>
+                      <button
+                        type="button"
+                        className="btn bg-success btn-sm p-1"
+                        onClick={() => rentSpace(record.numEspacio)}
+                        disabled={hasRentedMoto}
+                      >
+                        Rentar
+                      </button>
                       </div>
                     ))}
                   </div>
@@ -386,19 +381,13 @@ const Tabla = ({ apiS, name }) => {
                           {record.numEspacio}
                         </span>
                         <button
-                          type="button"
-                          className="btn bg-success btn-sm p-1"
-                          onClick={() =>
-                            rentSpace(
-                              record.numEspacio,
-                              "Carro",
-                              record.numEspacio
-                            )
-                          }
-                          disabled={hasRentedCarro}
-                        >
-                          Rentar
-                        </button>
+                        type="button"
+                        className="btn bg-success btn-sm p-1"
+                        onClick={() => rentSpace(record.numEspacio)}
+                        disabled={hasRentedCarro}
+                      >
+                        Rentar
+                      </button>
                       </div>
                     ))}
                   </div>

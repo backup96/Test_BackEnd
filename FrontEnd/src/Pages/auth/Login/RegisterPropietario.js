@@ -140,10 +140,15 @@ const RegisterPropietario = () => {
               {/* Nombre y Apellido */}
               <div className="d-flex flex-row mb-2">
                 <div className="me-4 w-50">
+                <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="nombreUsuario"
+                  >
+                    Nombre
+                    </label>
                   <input
                     type="text"
                     className="input-group form-control"
-                    placeholder="Nombre"
                     name="name"
                     onChange={(e) =>
                       setValues({ ...values, Nombre: e.target.value })
@@ -154,10 +159,15 @@ const RegisterPropietario = () => {
                   )}
                 </div>
                 <div className="w-50">
+                <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="nombreUsuario"
+                  >
+                    Apellido
+                    </label>
                   <input
                     type="text"
                     className="input-group form-control"
-                    placeholder="Apellido"
                     name="lastName"
                     onChange={(e) =>
                       setValues({ ...values, Apellido: e.target.value })
@@ -170,10 +180,15 @@ const RegisterPropietario = () => {
               </div>
               <div className="mb-2 d-flex flex-row">
                 <div className="me-4 w-50">
+                <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="nombreUsuario"
+                  >
+                    Número de Documento 
+                    </label>
                   <input
                     type="number"
                     className="input-group form-control"
-                    placeholder="Número Documento"
                     name="numDoc"
                     onChange={(e) =>
                       setValues({ ...values, NumeroDocumento: e.target.value })
@@ -186,10 +201,15 @@ const RegisterPropietario = () => {
                   )}
                 </div>
                 <div className="w-50">
+                <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="nombreUsuario"
+                  >
+                    Número Telefonicó
+                    </label>
                   <input
                     type="number"
                     className="input-group form-control"
-                    placeholder="Número Telefónico"
                     name="Tel"
                     onChange={(e) =>
                       setValues({ ...values, Tel: e.target.value })
@@ -202,10 +222,15 @@ const RegisterPropietario = () => {
               </div>
               <div className="mb-2 d-flex flex-row">
                 <div className="me-4 w-50">
+                <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="nombreUsuario"
+                  >
+                    Correo Electrónico
+                    </label>
                   <input
                     type="email"
                     className="input-group form-control"
-                    placeholder="Correo Electrónico"
                     name="correo"
                     onChange={(e) =>
                       setValues({ ...values, Correo: e.target.value })
@@ -216,10 +241,15 @@ const RegisterPropietario = () => {
                   )}
                 </div>
                 <div className="w-50">
+                <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="nombreUsuario"
+                  >
+                    Código de Vivienda
+                    </label>
                   <input
                     type="number"
                     className="input-group form-control"
-                    placeholder="Código de Vivienda"
                     name="codAp"
                     onChange={(e) =>
                       setValues({ ...values, CodigoVivienda: e.target.value })
