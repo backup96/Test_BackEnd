@@ -168,10 +168,8 @@ const routerAdmin = (app, db, transporter) => {
     const values = [req.body.Bloque, req.body.Torre, req.body.numAprt];
     db.query(sql, [values], (err, data) => {
       if (err) {
-        console.error("Error en la consulta:", err); // Muestra el error en el servidor
-        return res
-          .status(500)
-          .json({ Error: "Error al enviar solicitud de registro" });
+        console.error(err.code); // Muestra el error en el servidor
+        return res.status(500).json({ Error: err.code });
       }
       return res.json({ Status: "Success" });
     });
@@ -189,10 +187,8 @@ const routerAdmin = (app, db, transporter) => {
     ];
     db.query(sql, [values], (err, data) => {
       if (err) {
-        console.error("Error en la consulta:", err); // Muestra el error en el servidor
-        return res
-          .status(500)
-          .json({ Error: "Error al actualizar el apartamento" });
+        console.error(err.code); // Muestra el error en el servidor
+        return res.status(500).json({ Error: err.code });
       }
       return res.json({ Status: "Success" });
     });
@@ -261,10 +257,8 @@ const routerAdmin = (app, db, transporter) => {
       ];
       db.query(sql, [values], (err, data) => {
         if (err) {
-          console.error("Error en la consulta:", err); // Muestra el error en el servidor
-          return res
-            .status(500)
-            .json({ Error: "Error al enviar solicitud de registro" });
+          console.error(err.code); // Muestra el error en el servidor
+          return res.status(500).json({ Error: err.code });
         }
         return res.json({ Status: "Success" });
       });
@@ -355,10 +349,8 @@ const routerAdmin = (app, db, transporter) => {
       ];
       db.query(sql, [values], (err, data) => {
         if (err) {
-          console.error("Error en la consulta:", err); // Muestra el error en el servidor
-          return res
-            .status(500)
-            .json({ Error: "Error al enviar solicitud de registro" });
+          console.error(err.code); // Muestra el error en el servidor
+          return res.status(500).json({ Error: err.code });
         }
         return res.json({ Status: "Success" });
       });
@@ -377,10 +369,8 @@ const routerAdmin = (app, db, transporter) => {
     ];
     db.query(sql, [values], (err, data) => {
       if (err) {
-        console.error("Error en la consulta:", err); // Muestra el error en el servidor
-        return res
-          .status(500)
-          .json({ Error: "Error al enviar solicitud de registro" });
+        console.error(err.code); // Muestra el error en el servidor
+        return res.status(500).json({ Error: err.code });
       }
       return res.json({ Status: "Success" });
     });
@@ -450,10 +440,8 @@ const routerAdmin = (app, db, transporter) => {
     const values = [req.body.NumeroEspacio, req.body.TipoEspacio];
     db.query(sql, [values], (err, data) => {
       if (err) {
-        console.error("Error en la consulta:", err); // Muestra el error en el servidor
-        return res
-          .status(500)
-          .json({ Error: "Error al enviar solicitud de registro" });
+        console.error(err.code); // Muestra el error en el servidor
+        return res.status(500).json({ Error: err.code });
       }
       return res.json({ Status: "Success" });
     });
@@ -470,10 +458,8 @@ const routerAdmin = (app, db, transporter) => {
     ];
     db.query(sql, [values], (err, data) => {
       if (err) {
-        console.error("Error en la consulta:", err); // Muestra el error en el servidor
-        return res
-          .status(500)
-          .json({ Error: "Error al actualizar el apartamento" });
+        console.error(err.code); // Muestra el error en el servidor
+        return res.status(500).json({ Error: err.code });
       }
       return res.json({ Status: "Success" });
     });
@@ -543,10 +529,8 @@ const routerAdmin = (app, db, transporter) => {
       ];
       db.query(sql, [values], (err, data) => {
         if (err) {
-          console.error("Error en la consulta:", err); // Muestra el error en el servidor
-          return res
-            .status(500)
-            .json({ Error: "Error al enviar solicitud de registro" });
+          console.error(err.code); // Muestra el error en el servidor
+          return res.status(500).json({ Error: err.code });
         }
         return res.json({ Status: "Success" });
       });
@@ -568,10 +552,8 @@ const routerAdmin = (app, db, transporter) => {
     ];
     db.query(sql, [values], (err, data) => {
       if (err) {
-        console.error("Error en la consulta:", err); // Muestra el error en el servidor
-        return res
-          .status(500)
-          .json({ Error: "Error al actualizar el apartamento" });
+        console.error(err.code); // Muestra el error en el servidor
+        return res.status(500).json({ Error: err.code });
       }
       return res.json({ Status: "Success" });
     });
@@ -665,12 +647,55 @@ const routerAdmin = (app, db, transporter) => {
       to: email,
       subject: "Recibo de pago de administración",
       html: `
-    <div style="font-family: Arial, sans-serif; text-align: center;">
-      <h2>Recibo de pago de administración</h2>
-      <p>Total a pagar:</p>
-      <p>60.000</p>
-      <p style="margin-top: 20px;">Si no solicitaste esta acción, simplemente ignora este correo.</p>
+    <div style="margin: 20px">
+  <div style="font-family: Arial, sans-serif; text-align: center;">
+        <h2>CONJUNTO RESIDENCIAL TORRES DE SANTA ISABEL</h2>
+        <p>Cl. 9 Sur #26-32</p>
+        <p>Tel: 601 747 9393</p>        
+  </div>
+  <div style="display: grid;
+  justify-content: space-between;
+  grid-template-columns: 150px 120px;"> 
+    <div>
+      <p>Mes: Octubre de 2024</p>
+      <p>Fecha: 10/01/2024</p>
     </div>
+    <div>
+      <p>Cuenta de cobro</p>
+      <p>No. 15.905</p>
+    </div>
+  </div>
+  <hr>
+  <div style="display: grid;
+  justify-content: space-between;
+  grid-template-columns: 390px 140px;"> 
+    <div>
+      <p>Nombre: Andres</p>
+      <p>Casa: Torre 1 Bloque 1 Apartamento 101</p>
+    </div>
+    <div>
+      <p>Código: 1033567654</p>
+    </div>
+  </div>
+  <table style="width: 100%;  border-collapse: collapse;">
+  <tr style="border: 1px solid;">
+    <th style="border: 1px solid;">Concepto</th>
+    <th>Saldo</th>
+  </tr>
+  <tr>
+    <td>Administración</td>
+    <td>60.000</td>
+  </tr>
+  <tr style="border-bottom: 1px solid;">
+    <td>Parqueadero</td>
+    <td>3.000</td>
+  </tr>
+  <tr>
+    <td>Total</td>
+    <td>63.000</td>
+  </tr>
+</table>
+</div>
   `,
     };
 

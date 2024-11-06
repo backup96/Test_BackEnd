@@ -83,23 +83,40 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
               console.log(res.status);
               if (res.data.Status === "Success") {
                 toast.success("Propietario actualizado correctamente");
-              } else if (res.status === 500) {
-                toast.error("Ocurrio un error al actualizar el registro");
               }
             })
-            .catch((err) => toast.error(""));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_ROW_IS_REFERENCED_2") {
+                setError({
+                  Validation:
+                    "Ocurrio un error al intentar actualizar el registro",
+                });
+              }
+            });
         } else if (accion === "Insertar") {
           console.log(values);
           axios
             .post(`/admin/post${apiS}`, values)
             .then((res) => {
+              console.log(res, "holla");
               if (res.data.Status === "Success") {
                 toast.success("Propietario insertado correctamente");
-              } else {
+              } else if (
+                res.data.Error === "Error al enviar solicitud de registro"
+              ) {
                 toast.error("Ocurrio un error al insertar el apartamento");
               }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_DUP_ENTRY") {
+                setError({
+                  Validation:
+                    "Este número de documento ya se encuentra registrado",
+                });
+              }
+            });
         }
       } catch (error) {
         console.error(error);
@@ -270,6 +287,7 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
                               Placa: record.placaVehiculo,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -326,6 +344,7 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
                               Placa: record.placaVehiculo,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -361,6 +380,9 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
                 </div>
                 <form onSubmit={enviar}>
                   <div class="modal-body">
+                    {errors.Validation && (
+                      <span className="text-danger">{errors.Validation}</span>
+                    )}
                     <div className="d-flex flex-row">
                       <div className="me-3">
                         <div className="mb-3">
@@ -614,6 +636,7 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
                     Placa: "",
                   }));
                   setCurrentAccion("Insertar");
+                  setError({});
                 }}
               >
                 <FontAwesomeIcon icon={faSquarePlus} />

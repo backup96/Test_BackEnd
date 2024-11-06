@@ -85,7 +85,15 @@ const Parqueadero = ({ item, currentRecords, apiS, data }) => {
                 toast.error("Ocurrio un error al actualizar el apartamento");
               }
             })
-            .catch((err) => toast.error(""));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_ROW_IS_REFERENCED_2") {
+                setError({
+                  Validation:
+                    "Este numero de parqueadero ya se encuentra registrado",
+                });
+              }
+            });
         } else if (accion === "Insertar") {
           console.log("Hellow");
           axios
@@ -97,7 +105,15 @@ const Parqueadero = ({ item, currentRecords, apiS, data }) => {
                 toast.error("Ocurrio un error al insertar el espacio");
               }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_DUP_ENTRY") {
+                setError({
+                  Validation:
+                    "Este numero de parqueadero ya se encuentra registrado",
+                });
+              }
+            });
         }
       } catch (error) {
         console.error(error);
@@ -307,6 +323,7 @@ const Parqueadero = ({ item, currentRecords, apiS, data }) => {
                               Estado: record.estado,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -354,6 +371,7 @@ const Parqueadero = ({ item, currentRecords, apiS, data }) => {
                               Estado: record.estado,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -389,6 +407,9 @@ const Parqueadero = ({ item, currentRecords, apiS, data }) => {
                 </div>
                 <form onSubmit={enviar}>
                   <div class="modal-body">
+                    {errors.Validation && (
+                      <span className="text-danger">{errors.Validation}</span>
+                    )}
                     {accion === "Actualizar" ? (
                       ""
                     ) : (
@@ -517,6 +538,7 @@ const Parqueadero = ({ item, currentRecords, apiS, data }) => {
                     Estado: "",
                   }));
                   setCurrentAccion("Insertar");
+                  setError({});
                 }}
               >
                 <FontAwesomeIcon icon={faSquarePlus} />

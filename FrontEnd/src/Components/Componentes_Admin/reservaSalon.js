@@ -17,10 +17,8 @@ library.add(faCheck);
 const ReservaSalon = ({ currentRecords, length, apiS }) => {
   const [accion, setAccion] = useState("");
   const [errors, setError] = useState({});
-  const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState("");
-  const [eliminarRecord, setEliminarRecord] = useState("");
-  const data2 = ""
+  const data2 = "";
 
   const [values, setValues] = useState({
     Nombre: "",
@@ -39,7 +37,7 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
     }
   }, [accion]);
 
-  const customToast = (mess, record) => {
+  const customToast = (mess) => {
     return (
       <>
         {mess}
@@ -63,14 +61,13 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
   const enviar = (e) => {
     e.preventDefault();
     console.log(values, accion);
-    const validationErrors = ValidationReg(values, currentRecords, data2 ,apiS);
+    const validationErrors = ValidationReg(values, currentRecords, data2, apiS);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&
       validationErrors.Valid === "valid"
     ) {
       try {
-         console.log("diosmio");
         if (accion === "Actualizar") {
           axios
             .post(`/admin/patch${apiS}`, values)
@@ -104,7 +101,6 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
         }, 5000);
       }
     } else if (accion === "Eliminar") {
-      console.log("diosmio")
       try {
         axios
           .post(`/admin/delete${apiS}`, values)
@@ -168,190 +164,191 @@ const ReservaSalon = ({ currentRecords, length, apiS }) => {
           </div>
         ) : (
           currentRecords.map((record, index) => (
-            <div key={index} class="card p-0">
-              <div class="card-body p-2">
-                <div className="d-flex flex-row justify-content-start align-items-center">
-                  <div className="w-75">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item text-start">
-                        <span className="fw-bold">{`${record.nombre} ${record.apellido}`}</span>{" "}
-                        de la casa{" "}
-                        <span className="fw-bold">{record.Apartamento_FK}</span>{" "}
-                        ha rentado el salon comunal
-                      </li>
-                      <li class="list-group-item text-start">
-                        Dia: <span className="fw-bold">{record.Fecha}</span>
-                      </li>
-                      <li class="list-group-item text-start">
-                        Hora de inicio:{" "}
-                        <span className="fw-bold">{record.horarioInicio}</span>
-                      </li>
-                      <li class="list-group-item text-start">
-                        Hora de finalización:{" "}
-                        <span className="fw-bold">{record.horarioFin}</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="w-25">
-                    <button
-                      onClick={() => {
-                        setAccion("Eliminar");
-                        setValues((prevApartamento) => ({
-                          ...prevApartamento,
-                          DiaOld: record.Fecha.slice(0, 10),
-                        }));
-                      }}
-                      class="btn btn-danger"
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="fs-1" />
-                    </button>
-                  </div>
-                  <div className="w-25">
-                    <button
-                      type="button"
-                      class="btn btn-warning"
-                      data-bs-toggle="modal"
-                      data-bs-target="#exampleModal"
-                      onClick={() => {
-                        setValues((prevUsuario) => ({
-                          ...prevUsuario,
-                          Nombre: record.nombre,
-                          Apellido: record.apellido,
-                          CodigoVivienda: record.Apartamento_FK,
-                          Dia: "",
-                          DiaOld: record.Fecha.slice(0, 10),
-                          HoraInicio: record.horarioInicio,
-                          HoraFin: record.horarioFin,
-                          NumDocumento: record.numDocumento,
-                        }));
-                        setCurrentAccion("Actualizar");
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faPenToSquare} className="fs-1" />
-                    </button>
-                    {/* Modal de actualización */}
-                    <div
-                      class={
-                        accion === "Actualizar" || accion === "Insertar"
-                          ? "modal fade"
-                          : "modal fade z-n1"
-                      }
-                      id="exampleModal"
-                      tabindex="-1"
-                      aria-labelledby="exampleModalLabel"
-                      aria-hidden="true"
-                    >
-                      <div class="modal-dialog w-75 p-0 rounded-4">
-                        <div class="modal-content w-100">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">
-                              {accion} Porteros
-                            </h1>
-                            <button
-                              type="button"
-                              class="btn-close"
-                              data-bs-dismiss="modal"
-                              aria-label="Close"
-                            ></button>
-                          </div>
-                          {errors.HoraInicio && (
-                            <span className="text-danger">
-                              {errors.HoraInicio}
-                            </span>
-                          )}
-                          <form onSubmit={enviar}>
-                            <div class="modal-body">
-                              <div className="mb-3">
-                                <div className="d-flex flex-row justify-content-around">
-                                  <div>
-                                    <label
-                                      htmlFor="exampleInputPassword1"
-                                      className="form-label"
-                                    >
-                                      Hora de inicio
-                                    </label>
-                                    <input
-                                      type="time"
-                                      className="form-control"
-                                      id="exampleInputPassword1"
-                                      required
-                                      value={values.HoraInicio}
-                                      onChange={(e) =>
-                                        setValues((prevUsuario) => ({
-                                          ...prevUsuario,
-                                          HoraInicio: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                  </div>
-                                  <div>
-                                    <label
-                                      htmlFor="exampleInputPassword1"
-                                      className="form-label"
-                                    >
-                                      Hora de finalización
-                                    </label>
-                                    <input
-                                      type="time"
-                                      className="form-control"
-                                      id="exampleInputPassword1"
-                                      required
-                                      value={values.HoraFin}
-                                      onChange={(e) =>
-                                        setValues((prevUsuario) => ({
-                                          ...prevUsuario,
-                                          HoraFin: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="exampleInputPassword1"
-                                  className="form-label"
-                                >
-                                  Dia
-                                </label>
-                                <input
-                                  type="date"
-                                  className="form-control"
-                                  id="exampleInputPassword1"
-                                  onChange={(e) =>
-                                    setValues((prevUsuario) => ({
-                                      ...prevUsuario,
-                                      Dia: e.target.value,
-                                    }))
-                                  }
-                                />
-                                {errors.Dia && (
-                                  <span className="text-danger">
-                                    {errors.Dia}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div class="modal-footer">
-                              <button
-                                data-bs-dismiss={accion === "" ? "modal" : ""}
-                                type="submit"
-                                className="btn btn-warning"
-                                onClick={() => setCurrentAccion("Actualizar")}
-                              >
-                                <FontAwesomeIcon icon={faPenToSquare} />
-                              </button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
+            <>
+              <div key={index} class="card p-0">
+                <div class="card-body p-2">
+                  <div className="d-flex flex-row justify-content-start align-items-center">
+                    <div className="w-75">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item text-start">
+                          <span className="fw-bold">{`${record.nombre} ${record.apellido}`}</span>{" "}
+                          de la casa{" "}
+                          <span className="fw-bold">
+                            {record.Apartamento_FK}
+                          </span>{" "}
+                          ha rentado el salon comunal
+                        </li>
+                        <li class="list-group-item text-start">
+                          Dia: <span className="fw-bold">{record.Fecha}</span>
+                        </li>
+                        <li class="list-group-item text-start">
+                          Hora de inicio:{" "}
+                          <span className="fw-bold">
+                            {record.horarioInicio}
+                          </span>
+                        </li>
+                        <li class="list-group-item text-start">
+                          Hora de finalización:{" "}
+                          <span className="fw-bold">{record.horarioFin}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="w-25">
+                      <button
+                        onClick={() => {
+                          setAccion("Eliminar");
+                          setValues((prevApartamento) => ({
+                            ...prevApartamento,
+                            DiaOld: record.Fecha.slice(0, 10),
+                          }));
+                        }}
+                        class="btn btn-danger"
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="fs-1" />
+                      </button>
+                    </div>
+                    <div className="w-25">
+                      <button
+                        type="button"
+                        class="btn btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exampleModal"
+                        onClick={() => {
+                          setValues((prevUsuario) => ({
+                            ...prevUsuario,
+                            Nombre: record.nombre,
+                            Apellido: record.apellido,
+                            CodigoVivienda: record.Apartamento_FK,
+                            Dia: "",
+                            DiaOld: record.Fecha.slice(0, 10),
+                            HoraInicio: record.horarioInicio,
+                            HoraFin: record.horarioFin,
+                            NumDocumento: record.numDocumento,
+                          }));
+                          setCurrentAccion("Actualizar");
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faPenToSquare}
+                          className="fs-1"
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </>
           ))
         )}
+        {/* Modal de actualización */}
+        <div
+          className={accion === "Actualizar" ? "modal fade" : "modal fade z-n1"}
+          id="exampleModal"
+          tabindex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog w-75 p-0 rounded-4">
+            <div class="modal-content w-100">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                  {accion} cita de salon
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              {errors.HoraInicio && (
+                <span className="text-danger">{errors.HoraInicio}</span>
+              )}
+              <form onSubmit={enviar}>
+                <div class="modal-body">
+                  <div className="mb-3">
+                    <div className="d-flex flex-row justify-content-around">
+                      <div>
+                        <label
+                          htmlFor="exampleInputPassword1"
+                          className="form-label"
+                        >
+                          Hora de inicio
+                        </label>
+                        <input
+                          type="time"
+                          className="form-control"
+                          id="exampleInputPassword1"
+                          required
+                          value={values.HoraInicio}
+                          onChange={(e) =>
+                            setValues((prevUsuario) => ({
+                              ...prevUsuario,
+                              HoraInicio: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="exampleInputPassword1"
+                          className="form-label"
+                        >
+                          Hora de finalización
+                        </label>
+                        <input
+                          type="time"
+                          className="form-control"
+                          id="exampleInputPassword1"
+                          required
+                          value={values.HoraFin}
+                          onChange={(e) =>
+                            setValues((prevUsuario) => ({
+                              ...prevUsuario,
+                              HoraFin: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <label
+                      htmlFor="exampleInputPassword1"
+                      className="form-label"
+                    >
+                      Dia
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="exampleInputPassword1"
+                      onChange={(e) =>
+                        setValues((prevUsuario) => ({
+                          ...prevUsuario,
+                          Dia: e.target.value,
+                        }))
+                      }
+                    />
+                    {errors.Dia && (
+                      <span className="text-danger">{errors.Dia}</span>
+                    )}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    data-bs-dismiss={accion === "" ? "modal" : ""}
+                    type="submit"
+                    className="btn btn-warning"
+                    onClick={() => setCurrentAccion("Actualizar")}
+                  >
+                    <FontAwesomeIcon icon={faPenToSquare} />
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

@@ -88,7 +88,14 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                 toast.error("Ocurrio un error al actualizar el registro");
               }
             })
-            .catch((err) => toast.error(""));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_ROW_IS_REFERENCED_2") {
+                setError({
+                  Validation: "Este numero de documento ya fue registrado",
+                });
+              }
+            });
         } else if (accion === "Insertar") {
           console.log(values);
           axios
@@ -100,7 +107,14 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                 toast.error("Ocurrio un error al insertar el apartamento");
               }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_DUP_ENTRY") {
+                setError({
+                  Validation: "Este numero de documento ya fue registrado",
+                });
+              }
+            });
         }
       } catch (error) {
         console.error(error);
@@ -269,6 +283,7 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                               Placa: record.placaVehiculo,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -325,6 +340,7 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                               Placa: record.placaVehiculo,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -360,6 +376,9 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                 </div>
                 <form onSubmit={enviar}>
                   <div class="modal-body">
+                    {errors.Validation && (
+                      <span className="text-danger">{errors.Validation}</span>
+                    )}
                     <div className="d-flex flex-row">
                       <div className="me-3">
                         <div className="mb-3">
@@ -613,6 +632,7 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
                     Placa: "",
                   }));
                   setCurrentAccion("Insertar");
+                  setError({});
                 }}
               >
                 <FontAwesomeIcon icon={faSquarePlus} />

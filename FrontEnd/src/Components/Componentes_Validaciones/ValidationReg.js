@@ -10,11 +10,6 @@ const ValidationReg = (values, data, data2, apiS) => {
   // Validaciones
 
   if (apiS === "Apartamentos") {
-    const getCodeAdmin = data.some(
-      (item) =>
-        item.codigoVivienda ===
-        parseInt(`${values.Bloque}${values.Torre}${values.numAprt}`, 10)
-    );
     if (!values.Bloque) {
       errors.Bloque = "Ingrese el bloque del apartemento";
     } else if (values.Bloque.length > 2) {
@@ -38,15 +33,16 @@ const ValidationReg = (values, data, data2, apiS) => {
     } else if (values.numAprt < 1) {
       errors.numAprt = "Ingrese un valor positivo";
     } else errors.Valid = "valid";
-
-    if (getCodeAdmin && !values.codApt) {
-      errors.CodigoVivienda = "Esta vivienda ya se encuentra en el sistema";
-    } else errors.Valid = "valid";
   }
 
   if (apiS === "Propietarios" || apiS === "Invitados") {
     const getEsp = data2.some(
       (item) => item.numEspacio === parseInt(values.EspacioParqueadero, 10)
+    );
+    const getNumDoc = data.some(
+      (item) =>
+        item.codigoVivienda ===
+        parseInt(`${values.Bloque}${values.Torre}${values.numAprt}`, 10)
     );
     const first3 = values.Placa.slice(0, 3);
 

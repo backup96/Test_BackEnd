@@ -35,7 +35,7 @@ const Vivienda = ({ item, currentRecords, apiS, data }) => {
     }
   }, [accion]);
 
-  const customToast = (mess, record) => {
+  const customToast = (mess) => {
     return (
       <>
         {mess}
@@ -64,8 +64,7 @@ const Vivienda = ({ item, currentRecords, apiS, data }) => {
 
   const enviar = (e) => {
     e.preventDefault();
-    const validationErrors = ValidationReg(
-values, currentRecords, data2, apiS);
+    const validationErrors = ValidationReg(values, currentRecords, data2, apiS);
     setError(validationErrors);
     if (
       Object.keys(validationErrors).length === 1 &&
@@ -79,11 +78,16 @@ values, currentRecords, data2, apiS);
               console.log(res.status);
               if (res.data.Status === "Success") {
                 toast.success("Apartamento actualizado correctamente");
-              } else if (res.status === 500) {
-                toast.error("Ocurrio un error al actualizar el apartamento");
               }
             })
-            .catch((err) => toast.error(""));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_ROW_IS_REFERENCED_2") {
+                setError({
+                  Validation: "Vivienda ya registrada",
+                });
+              }
+            });
         } else if (accion === "Insertar") {
           axios
             .post(`/admin/post${apiS}`, values)
@@ -94,7 +98,14 @@ values, currentRecords, data2, apiS);
                 toast.error("Ocurrio un error al insertar el apartamento");
               }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              console.log(err.response.data.Error);
+              if (err.response.data.Error === "ER_DUP_ENTRY") {
+                setError({
+                  Validation: "Vivienda ya registrada",
+                });
+              }
+            });
         }
       } catch (error) {
         console.error(error);
@@ -261,6 +272,7 @@ values, currentRecords, data2, apiS);
                               codApt: record.codigoVivienda,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -310,6 +322,7 @@ values, currentRecords, data2, apiS);
                               codApt: record.codigoVivienda,
                             }));
                             setCurrentAccion("Actualizar");
+                            setError({});
                           }}
                         >
                           <FontAwesomeIcon icon={faPenToSquare} />
@@ -343,106 +356,102 @@ values, currentRecords, data2, apiS);
                     aria-label="Close"
                   ></button>
                 </div>
-                <div className="modal-body" inert={true}>
-                  <form onSubmit={enviar}>
-                    <div class="modal-body">
-                      {errors.CodigoVivienda && (
-                        <span className="text-danger">
-                          {errors.CodigoVivienda}
-                        </span>
-                      )}
-                      <div className="mb-3">
-                        <label
-                          htmlFor="exampleInputEmail1"
-                          className="form-label"
-                        >
-                          Bloque
-                        </label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          id="exampleInputEmail1"
-                          value={values.Bloque}
-                          onChange={(e) =>
-                            setValues((prevApartamento) => ({
-                              ...prevApartamento,
-                              Bloque: e.target.value,
-                            }))
-                          }
-                        />
-                        {errors.Bloque && (
-                          <span className="text-danger">{errors.Bloque}</span>
-                        )}
-                      </div>
-                      <div className="mb-3">
-                        <label
-                          htmlFor="exampleInputPassword1"
-                          className="form-label"
-                        >
-                          Torre
-                        </label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          id="exampleInputPassword1"
-                          value={values.Torre}
-                          onChange={(e) =>
-                            setValues((prevApartamento) => ({
-                              ...prevApartamento,
-                              Torre: e.target.value,
-                            }))
-                          }
-                        />
-                        {errors.Torre && (
-                          <span className="text-danger">{errors.Torre}</span>
-                        )}
-                      </div>
-                      <div className="mb-3">
-                        <label
-                          htmlFor="exampleInputPassword1"
-                          className="form-label"
-                        >
-                          Numero de apartamento
-                        </label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          id="exampleInputPassword1"
-                          value={values.numAprt}
-                          onChange={(e) =>
-                            setValues((prevApartamento) => ({
-                              ...prevApartamento,
-                              numAprt: e.target.value,
-                            }))
-                          }
-                        />
-                        {errors.numAprt && (
-                          <span className="text-danger">{errors.numAprt}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button
-                        type="submit"
-                        className={
-                          accion === "Actualizar"
-                            ? "btn btn-warning"
-                            : accion === "Insertar"
-                            ? "btn btn-success w-25 m-0 ms-1 h-100"
-                            : ""
-                        }
+                {errors.Validation && (
+                  <span className="text-danger">{errors.Validation}</span>
+                )}
+                <form onSubmit={enviar}>
+                  <div class="modal-body">
+                    <div className="mb-3">
+                      <label
+                        htmlFor="exampleInputEmail1"
+                        className="form-label"
                       >
-                        {accion === "Actualizar" ? (
-                          <FontAwesomeIcon icon={faPenToSquare} />
-                        ) : accion === "Insertar" ? (
-                          <FontAwesomeIcon icon={faSquarePlus} />
-                        ) : (
-                          ""
-                        )}
-                      </button>
+                        Bloque
+                      </label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="exampleInputEmail1"
+                        value={values.Bloque}
+                        onChange={(e) =>
+                          setValues((prevApartamento) => ({
+                            ...prevApartamento,
+                            Bloque: e.target.value,
+                          }))
+                        }
+                      />
+                      {errors.Bloque && (
+                        <span className="text-danger">{errors.Bloque}</span>
+                      )}
                     </div>
-                  </form>
-                </div>
+                    <div className="mb-3">
+                      <label
+                        htmlFor="exampleInputPassword1"
+                        className="form-label"
+                      >
+                        Torre
+                      </label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="exampleInputPassword1"
+                        value={values.Torre}
+                        onChange={(e) =>
+                          setValues((prevApartamento) => ({
+                            ...prevApartamento,
+                            Torre: e.target.value,
+                          }))
+                        }
+                      />
+                      {errors.Torre && (
+                        <span className="text-danger">{errors.Torre}</span>
+                      )}
+                    </div>
+                    <div className="mb-3">
+                      <label
+                        htmlFor="exampleInputPassword1"
+                        className="form-label"
+                      >
+                        Numero de apartamento
+                      </label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="exampleInputPassword1"
+                        value={values.numAprt}
+                        onChange={(e) =>
+                          setValues((prevApartamento) => ({
+                            ...prevApartamento,
+                            numAprt: e.target.value,
+                          }))
+                        }
+                      />
+                      {errors.numAprt && (
+                        <span className="text-danger">{errors.numAprt}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="submit"
+                      className={
+                        accion === "Actualizar"
+                          ? "btn btn-warning"
+                          : accion === "Insertar"
+                          ? "btn btn-success w-25 m-0 ms-1 h-100"
+                          : ""
+                      }
+                    >
+                      {accion === "Actualizar" ? (
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      ) : accion === "Insertar" ? (
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                      ) : (
+                        ""
+                      )}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -465,6 +474,7 @@ values, currentRecords, data2, apiS);
                     codApt: "",
                   }));
                   setCurrentAccion("Insertar");
+                  setError({});
                 }}
               >
                 <FontAwesomeIcon icon={faSquarePlus} />

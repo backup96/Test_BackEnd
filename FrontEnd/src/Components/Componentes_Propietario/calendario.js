@@ -415,7 +415,6 @@ const Calendario = ({ name }) => {
           </Form>
         </Modal.Body>
       </Modal>
-      <ToastContainer limit={1} />
     </div>
   );
 };

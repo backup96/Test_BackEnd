@@ -56,8 +56,6 @@ const LoginAdministrador = () => {
           filter: "brightness(90%)", // Oscurecer la imagen de fondo
         }}
       >
-        <ToastContainer />
-
         <div className="login-box rounded-4 p-5 bg-white w-50">
           <div className="login-logo d-flex flex-column align-items-center">
             <Link
