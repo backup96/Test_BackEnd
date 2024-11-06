@@ -88,16 +88,27 @@ const Propietario = () => {
 
   return (
     <>
-      <form className="d-flex mb-3" role="search" onSubmit={handleSearch}>
+      <form
+        className="d-flex mb-3 align-items-end"
+        role="search"
+        onSubmit={handleSearch}
+      >
+        <div className="w-100 me-5">
+        <label
+                    className="text-start w-100 fw-normal"
+                  >
+                  Buscar por Nombre, Apellido, Teléfono o Código de Vivienda
+                  </label>
         <input
           className="form-control me-2"
           type="search"
-          placeholder="Buscar por Nombre, Apellido, Teléfono o Código de Vivienda"
+          placeholder="Ejemplo -> Natalia Ramirez, 3118482726, 11101"
           aria-label="Search"
           required
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        </div>
         <button
           className="btn btn-success py-1"
           type="submit"

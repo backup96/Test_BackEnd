@@ -3,7 +3,6 @@
   }
   
   .header {
-    background-color: #56b94965;
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -69,6 +68,7 @@
   
 /* Estilos para la sección de bienvenida */
 .welcome-section {
+  border-bottom: 5px solid #28a745;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -76,12 +76,14 @@
     padding-left: 100px;
     background-color: #56b94965;
     color: #fff;
+   
   }
   
   .welcome-text {
     flex: 1;
     margin-right: 20px;
     max-width: 50%;
+    
   }
   
   .welcome-text h2 {
@@ -166,12 +168,7 @@
 }
 
 .cards-container {
-  display: flex;
-  justify-content: center; /* Centra horizontalmente los cards */
-  flex-wrap: wrap; /* Permite que los cards se ajusten en varias filas si no caben en una sola */
-  gap: 20px; /* Añade espacio entre los cards */
-  margin: 0 auto; /* Centra el contenedor en la página */
-  background-color:#56b94965;
+  background-color: #56b94965 !important;
 }
 
 .card-perfil {
@@ -253,7 +250,7 @@
   cursor: pointer;
 }
 
-.carousel-container {
+/* .carousel-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -261,6 +258,7 @@
   width: 100%;
   max-width: 800px;
   margin: 20px auto;
+  background-color: #56b94965 !important;
 }
 
 .carousel-image {
@@ -287,4 +285,4 @@
 
 .carousel-control.next {
   right: 0px;
-}
+} */

@@ -88,7 +88,7 @@ const Main = () => {
         </div>
       </div>
 
-      {/* Carrusel antes del card */}
+      {/* Carrusel antes del card
       <div className="carousel-container">
         <button className="carousel-control prev" onClick={prevSlide}>
           &#10094;
@@ -97,7 +97,7 @@ const Main = () => {
         <button className="carousel-control next" onClick={nextSlide}>
           &#10095;
         </button>
-      </div>
+      </div> */}
 
       <div className="cards-container">
         <div className="card-perfil">

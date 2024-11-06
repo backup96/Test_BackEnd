@@ -207,14 +207,18 @@ const Invitados = ({ item, currentRecords, apiS, data, data2 }) => {
         onSubmit={handleSearch}
       >
         <div className="w-100 me-5">
-          <label className="text-start w-100 fw-normal" for="searchParam">
-          </label>
+        <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="Username"
+                  >
+                   Buscar por Número de Documento
+                  </label>
           <input
             id="searchParam"
             className="form-control me-2"
             type="search"
-            placeholder="Buscar por Número de Documento"
             aria-label="Search"
+            placeholder="Ejemplo -> 1234567890"
             required
             onChange={(e) =>
               setSearchTerm({ ...searchTerm, Term: e.target.value })

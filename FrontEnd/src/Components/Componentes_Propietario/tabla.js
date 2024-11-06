@@ -4,9 +4,15 @@ import axios from "axios";
 import { useUser } from "../../userContext";
 import Calendario from "./calendario"; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core"; // Importación añadida
+import { faSquarePlus, faAnglesLeft, faAnglesRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+
+
+/* Añadir iconos a la librería */
+library.add(faSquarePlus, faAnglesLeft, faAnglesRight, faMagnifyingGlass);
 
 const Tabla = ({ apiS, name }) => {
   const [currentPageMoto, setCurrentPageMoto] = useState(1);
@@ -62,6 +68,27 @@ const Tabla = ({ apiS, name }) => {
 
     fetchProfile();
   }, [name]);
+
+  const handleReset = async () => {
+    setSearchTermMoto("");
+    setSearchTermCarro("");
+    setCurrentPageMoto(1);
+    setCurrentPageCarro(1);
+  
+    // Vuelve a cargar todos los datos
+    try {
+      const [responseMoto, responseCarro] = await Promise.all([
+        axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Moto`),
+        axios.get(`http://localhost:8081/espacio_parqueadero?tipoEspacio=Carro`)
+      ]);
+  
+      setDataMoto(responseMoto.data.data || []);
+      setDataCarro(responseCarro.data.data || []);
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+      toast.error("Error al obtener los datos.");
+    }
+  };
 
   const indexOfLastRecordMoto = currentPageMoto * recordsPerPage;
   const indexOfFirstRecordMoto = indexOfLastRecordMoto - recordsPerPage;
@@ -223,9 +250,19 @@ const Tabla = ({ apiS, name }) => {
                     value={searchTermMoto}
                     onChange={(e) => setSearchTermMoto(e.target.value)}
                   />
-                  <button className="btn bg-success py-1" type="submit">
-                    <FontAwesomeIcon icon={faSearch} />
-                  </button>
+                   <button
+          className="btn btn-success py-1"
+          type="submit"
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlass} /> {/* Icono de lupa */}
+        </button>
+        <button
+          className="btn btn-danger py-1 ms-2" // Añadir un margen a la izquierda para separar
+          type="button" // Cambiar a type="button" para evitar que envíe el formulario
+          onClick={handleReset} // Llamar a la función de resetear
+        >
+          <FontAwesomeIcon icon="fa-solid fa-xmark" /> {/* Icono de X */}
+        </button>
                 </div>
               </form>
               <h2 className="text-center">Moto</h2>
@@ -359,9 +396,19 @@ const Tabla = ({ apiS, name }) => {
                     value={searchTermCarro}
                     onChange={(e) => setSearchTermCarro(e.target.value)}
                   />
-                  <button className="btn bg-success py-1" type="submit">
-                    <FontAwesomeIcon icon={faSearch} />
-                  </button>
+                  <button
+          className="btn btn-success py-1"
+          type="submit"
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlass} /> {/* Icono de lupa */}
+        </button>
+        <button
+          className="btn btn-danger py-1 ms-2" // Añadir un margen a la izquierda para separar
+          type="button" // Cambiar a type="button" para evitar que envíe el formulario
+          onClick={handleReset} // Llamar a la función de resetear
+        >
+          <FontAwesomeIcon icon="fa-solid fa-xmark" /> {/* Icono de X */}
+        </button>
                 </div>
               </form>
               <h2 className="text-center">Carro</h2>
