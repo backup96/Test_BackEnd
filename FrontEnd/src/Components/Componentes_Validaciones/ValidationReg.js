@@ -100,7 +100,9 @@ const ValidationReg = (values, data, data2, apiS) => {
       errors.CodigoVivienda = "Vivienda no registrada en el sistema";
     } else errors.Valid = "valid";
 
-    if (values.EspacioParqueadero.length > 2) {
+    if (!values.EspacioParqueadero) {
+      errors.EspacioParqueadero = "Ingrese un numero de parqueadero";
+    } else if (values.EspacioParqueadero.length > 2) {
       errors.EspacioParqueadero = "Valores entre 1 y 99";
     } else if (!getEsp) {
       errors.EspacioParqueadero = "Espacio no registrado en el sistema";

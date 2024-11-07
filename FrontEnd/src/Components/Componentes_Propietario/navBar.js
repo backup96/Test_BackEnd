@@ -27,18 +27,21 @@ export function NavBar() {
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:8081/public")
-      .then((res) => {
-        if (res.data.Status === "Success") {
-          setName(res.data.nombreUsuario);
-        } else {
-          navigate("/");
-        }
-      })
-      .catch((err) => console.log(err));
-  }, []);
+ const getCookie = async () => {
+   const cookie = await axios.get("http://localhost:8081/public", {
+     withCredentials: true,
+   });
+   if (cookie.data.Status === "Success") {
+     setName(cookie.data.nombreUsuario);
+   } else {
+     navigate("/");
+   }
+   console.log(cookie, "Hola");
+ };
+
+ useEffect(() => {
+   getCookie();
+ }, []);
 
   const [currentTable, setCurrentTable] = useState("Parqueadero");
   const [showSideBar, setShowSideBar] = useState(false);

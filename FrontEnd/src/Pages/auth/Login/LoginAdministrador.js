@@ -4,7 +4,6 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Logins.css";
 import myImg from "../../../img/logo2.png";
-import { useUser } from "../../../userContext";
 import Fondo1 from "../../../img/fondo1.png"; /* Importación de la imagen de fondo */
 import Validation from "../../../Components/Componentes_Validaciones/Validation";
 import { ToastContainer, toast } from "react-toastify";

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import myImg from "../../img/logo2.png"; /* Logo del conjutno */
 import { useUser } from "../../userContext";
 import { useEffect, useState } from "react";
-import '../estilosnav.css';
+import "../estilosnav.css";
 import Tabla from "./tabla";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -32,18 +32,19 @@ export function NavBar() {
   const [currentDropMenu, setCurrentDropMenu] = useState("Acción");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:8081/public")
-      .then((res) => {
-        if (res.data.Status === "Success") {
-          setName(res.data.nombreUsuario);
-        } else {
-          navigate("/");
-        }
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  const getCookie = async () => {
+    const cookie = await axios.get("http://localhost:8081/public", {
+      withCredentials: true,
+    });
+      if (cookie.data.Status === "Success") {
+        setName(cookie.data.nombreUsuario);
+      } else {
+        navigate("/");
+      }
+      console.log(cookie, "Hola")
+  };
+
+  useEffect(() => {getCookie(); }, []);
 
   const handleDelete = () => {
     axios
@@ -58,7 +59,7 @@ export function NavBar() {
     <div className="d-flex flex-column justify-content-start h-100 ">
       {/* NavBar */}
       <div>
-      <nav className="navbar navbar-expand-lg navbar-custom w-100">
+        <nav className="navbar navbar-expand-lg navbar-custom w-100">
           <div className="container px-lg-5 d-flex flex-row justify-content-between">
             <div>
               <button
@@ -171,7 +172,7 @@ export function NavBar() {
               transition: "transform 0.3s ease-in-out",
             }}
           >
-             <div className="d-flex flex-column p-3 sidebar-custom h-100">
+            <div className="d-flex flex-column p-3 sidebar-custom h-100">
               <div
                 style={{
                   transform:
