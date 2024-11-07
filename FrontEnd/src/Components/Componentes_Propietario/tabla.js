@@ -14,7 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 /* Añadir iconos a la librería */
 library.add(faSquarePlus, faAnglesLeft, faAnglesRight, faMagnifyingGlass);
 
-const Tabla = ({ apiS, name }) => {
+const Tabla = ({ apiS, name, fetchEspacios }) => {
   const [currentPageMoto, setCurrentPageMoto] = useState(1);
   const [currentPageCarro, setCurrentPageCarro] = useState(1);
   const { user, setUser } = useUser();
@@ -31,8 +31,8 @@ const Tabla = ({ apiS, name }) => {
 
   const [dataMoto, setDataMoto] = useState([]);
   const [dataCarro, setDataCarro] = useState([]);
-  const [hasRentedMoto, setHasRentedMoto] = useState(false);
-  const [hasRentedCarro, setHasRentedCarro] = useState(false);
+
+
   useEffect(() => {
     const fetchEspacios = () => {
       Promise.all([
@@ -124,30 +124,33 @@ const Tabla = ({ apiS, name }) => {
     setCurrentPageCarro(pageNumber);
   };
 
-  const rentSpace = (idParqueadero) => {
-    const values = {
-        idParqueadero,
-        numDocumento: perfilData.numDocumento
-    };
-    axios
-        .post(`/propietario/Rent`, values)
-        .then((res) => {
-            console.log("Respuesta del backend:", res.data); // Debugging
-            if (res.data.Status === "Success") {
-                toast.success("Espacio rentado correctamente");
-                // Lógica para actualizar estado
-            } else {
-                toast.error("Error en la respuesta del servidor: " + res.data.Error);
-            }
-        })
-        .catch((err) => {
-            console.error("Ocurrió un error:", err);
-            toast.error("Ocurrió un error al rentar el espacio.");
-        });
-};
 
-  
-  
+  const [rentedSpaces, setRentedSpaces] = useState(() => {
+    // Leer los espacios alquilados del localStorage al cargar el componente
+    return JSON.parse(localStorage.getItem('rentedSpaces')) || [];
+  });
+
+  const hasRentedMoto = rentedSpaces.some((space) => dataMoto.some((record) => record.numEspacio === space));
+  const hasRentedCarro = rentedSpaces.some((space) => dataCarro.some((record) => record.numEspacio === space));
+
+ const rentSpace = (idParqueadero, tipoEspacio) => {
+    axios
+      .post(`/propietario/Rent`, { idParqueadero, numDocumento: perfilData.numDocumento, tipoEspacio })
+      .then((res) => {
+        if (res.data.Status === "Success") {
+          toast.success("Espacio rentado correctamente");
+          // Actualizar el estado del espacio rentado
+          setRentedSpaces([...rentedSpaces, idParqueadero]);
+          // Guardar los espacios alquilados en el localStorage
+          localStorage.setItem('rentedSpaces', JSON.stringify([...rentedSpaces, idParqueadero]));
+          // ...
+        }
+      })
+      .catch((err) => {
+        console.error("Ocurrió un error:", err);
+      });
+  };
+
 
   const handleSearchMoto = (e) => {
     e.preventDefault();
@@ -266,9 +269,9 @@ const Tabla = ({ apiS, name }) => {
                 </div>
               </form>
               <h2 className="text-center">Moto</h2>
-              {hasRentedMoto ? (
+              {hasRentedMoto || hasRentedCarro ? (
                 <p className="text-center text-danger">
-                  Ya has rentado un espacio de moto.
+                 Ya has rentado un espacio. Excediste el limite de renta.
                 </p>
               ) : (
                 <>
@@ -412,9 +415,9 @@ const Tabla = ({ apiS, name }) => {
                 </div>
               </form>
               <h2 className="text-center">Carro</h2>
-              {hasRentedCarro ? (
+              {hasRentedMoto || hasRentedCarro ? (
                 <p className="text-center text-danger">
-                  Ya has rentado un espacio de carro.
+                  Ya has rentado un espacio. Excediste el limite de renta.
                 </p>
               ) : (
                 <>
