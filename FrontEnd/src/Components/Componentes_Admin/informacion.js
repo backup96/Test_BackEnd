@@ -2,15 +2,21 @@ import axios from "axios";
 import { useState } from "react";
 
 const Info = ({ currentRecords, apiS, data }) => {
-  const [estado, setEstado] = useState("");
-
   const [text, setText] = useState({
     text: "",
   });
 
   const enviar = async (e) => {
     e.preventDefault();
-    currentRecords.map((item) => handleSend({ correo: item.correo }));
+    currentRecords.map((item) =>
+      handleSend({
+        correo: item.correo,
+        nombre: `${item.nombre} ${item.apellido}`,
+        codVivi: item.codigoVivienda,
+        codPer: item.numDocumento,
+        numPar: item.idParqueaderoFk,
+      })
+    );
   };
 
   const enviarCircular = async (e) => {
@@ -58,9 +64,16 @@ const Info = ({ currentRecords, apiS, data }) => {
             Circular
           </label>
           <textarea
-            class="form-control"
+            placeholder="Lo que escriba aquí siempre empezará con la frase: 
+            'Un cordial saludo residentes de Torres de Santa Isabel. 
+            El presente correo es para informar que (Su mensaje)'. 
+            Así mismo finalizará con: 
+            'Agradecemos su atención a esta circular y quedamos atentos a cualquier duda o comentario.
+            Atentamente,
+            Administración del Conjunto Residencial Torres de Santa Isabel'"
+            className="form-control "
             id="exampleFormControlTextarea1"
-            rows="3"
+            rows="7"
             name="CircularBody"
             onChange={(e) => setText({ ...text, text: e.target.value })}
           ></textarea>

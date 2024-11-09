@@ -1,11 +1,13 @@
 import express from "express";
-import DateTime from "../DateTime.js";
+import { DateTime } from "../DateTime.js";
 import multer from "multer";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const routerPropietario = (app, db) => {
   const router = express.Router();
+
+  const curDate = DateTime()
 
   // Configurar Multer
   const storage = multer.memoryStorage(); // Almacenar el archivo en memoria
@@ -21,8 +23,8 @@ const routerPropietario = (app, db) => {
     db.query(
       sql,
       [
-        DateTime().fecha,
-        DateTime().hora,
+        curDate.fecha,
+        curDate.hora,
         Nombre,
         Apellido,
         NumeroDocumento,

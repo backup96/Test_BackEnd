@@ -1,6 +1,6 @@
-const DateTime = () => {
-  const fecha = new Date();
+const fecha = new Date();
 
+const DateTime = () => {
   // Obtener los componentes de la fecha
   const año = fecha.getFullYear();
   // Enero = 0
@@ -14,9 +14,9 @@ const DateTime = () => {
   const fechaFormateada = `${año}-${mes}-${dia}`;
 
   // Obtener los componentes de la hora
-  const horas = String(fecha.getHours()).padStart(2, '0');     // Horas (0-23)
-  const minutos = String(fecha.getMinutes()).padStart(2, '0'); // Minutos (0-59)
-  const segundos = String(fecha.getSeconds()).padStart(2, '0'); // Segundos (0-59)
+  const horas = String(fecha.getHours()).padStart(2, "0"); // Horas (0-23)
+  const minutos = String(fecha.getMinutes()).padStart(2, "0"); // Minutos (0-59)
+  const segundos = String(fecha.getSeconds()).padStart(2, "0"); // Segundos (0-59)
 
   // Formato Hora:Minutos:Segundos
   const horaFormateada = `${horas}:${minutos}:${segundos}`;
@@ -29,4 +29,39 @@ const DateTime = () => {
   return Cur_dateTime;
 };
 
-export default DateTime;
+const YearMonth = () => {
+  var mesActual = fecha.getMonth() + 1;
+  if (mesActual === 1) {
+    mesActual = "Enero";
+  } else if (mesActual === 2) {
+    mesActual = "Febrero";
+  } else if (mesActual === 3) {
+    mesActual = "Marzo";
+  } else if (mesActual === 4) {
+    mesActual = "Abril";
+  } else if (mesActual === 5) {
+    mesActual = "Mayo";
+  } else if (mesActual === 6) {
+    mesActual = "Junio";
+  } else if (mesActual === 7) {
+    mesActual = "Julio";
+  } else if (mesActual === 8) {
+    mesActual = "Agosto";
+  } else if (mesActual === 9) {
+    mesActual = "Septiembre";
+  } else if (mesActual === 10) {
+    mesActual = "Octubre";
+  } else if (mesActual === 11) {
+    mesActual = "Noviembre";
+  } else if (mesActual === 12) {
+    mesActual = "Diciembre";
+  }
+  const yerMon = {
+    Mes: mesActual,
+    Year: fecha.getFullYear(),
+  };
+
+  return yerMon;
+};
+
+export { DateTime, YearMonth };

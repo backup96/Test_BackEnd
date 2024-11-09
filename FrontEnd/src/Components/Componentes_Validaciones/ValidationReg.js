@@ -86,9 +86,12 @@ const ValidationReg = (values, data, data2, apiS) => {
       errors.Correo = "Valores < 50";
     } else errors.Valid = "valid";
 
-    if (values.Placa.length > 7) {
+    if (values.Placa.length > 7 && values.Placa !== "No posee") {
       errors.Placa = "Valores < 7";
-    } else if (!verMayus || !verNums || !verSep) {
+    } else if (
+      (!verMayus || !verNums || !verSep) &&
+      values.Placa !== "No posee"
+    ) {
       errors.Placa = "Siga el ejemplo: AAA-111";
     } else errors.Valid = "valid";
 
@@ -99,14 +102,14 @@ const ValidationReg = (values, data, data2, apiS) => {
     } else if (!getCode) {
       errors.CodigoVivienda = "Vivienda no registrada en el sistema";
     } else errors.Valid = "valid";
-
-    if (!values.EspacioParqueadero) {
-      errors.EspacioParqueadero = "Ingrese un numero de parqueadero";
-    } else if (values.EspacioParqueadero.length > 2) {
-      errors.EspacioParqueadero = "Valores entre 1 y 99";
-    } else if (!getEsp) {
-      errors.EspacioParqueadero = "Espacio no registrado en el sistema";
-    } else errors.Valid = "valid";
+console.log(values.EspacioParqueadero)
+    if (values.EspacioParqueadero !== null) {
+      if (values.EspacioParqueadero.length > 2) {
+        errors.EspacioParqueadero = "Valores entre 1 y 99";
+      } else if (!getEsp) {
+        errors.EspacioParqueadero = "Espacio no registrado en el sistema";
+      }
+    }  else errors.Valid = "valid";
   }
 
   if (apiS === "Parqueadero") {
@@ -173,7 +176,7 @@ const ValidationReg = (values, data, data2, apiS) => {
       ? 0
       : parseInt(values.HoraFin.slice(6, 8), 10);
     const time2 = hf * 3600 + mf * 60 + sf;
-    
+
     if (time1 < 32400 || time1 > 84600) {
       errors.HoraInicio =
         "Hora de inicio y final entre las 9:00 AM y las 11:30 PM.";

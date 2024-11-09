@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { YearMonth } from "../DateTime.js";
 
 const routerAdmin = (app, db, transporter) => {
   const router = express.Router();
@@ -9,6 +10,8 @@ const routerAdmin = (app, db, transporter) => {
   dotenv.config({ path: "../.env" });
 
   const salt = 10;
+
+  const curMonthYear = YearMonth();
 
   // Ruta para confirmación de creación de cuenta
   router.post("/confirmAcc", (req, res) => {
@@ -641,42 +644,56 @@ const routerAdmin = (app, db, transporter) => {
   // Envio recibo Administración
   router.post("/sendInformacion", (req, res) => {
     console.log(req.body);
-    const email = req.body.correo;
+    const fecha = new Date();
+
+    var valPar;
+
+    if (req.body.numPar === null) {
+      valPar = 0.0;
+    } else {
+      valPar = 3.0;
+    }
+
     const mailOptions = {
       from: process.env.EMAIL,
-      to: email,
+      to: req.body.correo,
       subject: "Recibo de pago de administración",
-      html: `
-    <div style="margin: 20px">
-  <div style="font-family: Arial, sans-serif; text-align: center;">
-        <h2>CONJUNTO RESIDENCIAL TORRES DE SANTA ISABEL</h2>
+      html: `<div style="margin: 50px;">
+  <div style="font-family: Arial, sans-serif; text-align: center; color: white; border-radius: 15px;
+  background: #28a745; padding: 2px;">
+        <h2 >CONJUNTO RESIDENCIAL TORRES DE SANTA ISABEL</h2>
         <p>Cl. 9 Sur #26-32</p>
-        <p>Tel: 601 747 9393</p>        
+        <p>Tel: 601 747 9393</p>     
   </div>
-  <div style="display: grid;
-  justify-content: space-between;
-  grid-template-columns: 150px 120px;"> 
-    <div>
-      <p>Mes: Octubre de 2024</p>
-      <p>Fecha: 10/01/2024</p>
-    </div>
-    <div>
-      <p>Cuenta de cobro</p>
-      <p>No. 15.905</p>
-    </div>
-  </div>
+
+<div style="margin: 15px">
+<table style="width: 100%; border-spacing: 0; font-family: Arial, sans-serif;">
+    <tr>
+      <td style="text-align: left; vertical-align: top;">
+        <p>Mes: ${curMonthYear.Mes} de ${curMonthYear.Year}</p>
+        <p>Fecha: ${fecha.toLocaleDateString()}</p>
+      </td>
+      <td style="text-align: right; vertical-align: top;">
+        <p>Cuenta de cobro</p>
+        <p>No. 15.905</p>
+      </td>
+    </tr>
+  </table>
+
   <hr>
-  <div style="display: grid;
-  justify-content: space-between;
-  grid-template-columns: 390px 140px;"> 
-    <div>
-      <p>Nombre: Andres</p>
-      <p>Casa: Torre 1 Bloque 1 Apartamento 101</p>
-    </div>
-    <div>
-      <p>Código: 1033567654</p>
-    </div>
-  </div>
+
+  <table style="width: 100%; border-spacing: 0; font-family: Arial, sans-serif;">
+    <tr>
+      <td style="text-align: left;">
+        <p>Nombre: ${req.body.nombre}</p>
+        <p>Numero de vivienda: ${req.body.codVivi}</p>
+      </td>
+      <td style="text-align: right;">
+        <p>Código: ${req.body.codPer}</p>
+      </td>
+    </tr>
+  </table>
+
   <table style="width: 100%;  border-collapse: collapse;">
   <tr style="border: 1px solid;">
     <th style="border: 1px solid;">Concepto</th>
@@ -688,15 +705,17 @@ const routerAdmin = (app, db, transporter) => {
   </tr>
   <tr style="border-bottom: 1px solid;">
     <td>Parqueadero</td>
-    <td>3.000</td>
+    <td>${valPar}.000</td>
   </tr>
   <tr>
     <td>Total</td>
-    <td>63.000</td>
+    <td>${60 + valPar}.000</td>
   </tr>
 </table>
 </div>
-  `,
+
+</div>
+`,
     };
 
     // Enviar el correo
@@ -706,20 +725,39 @@ const routerAdmin = (app, db, transporter) => {
     });
   });
 
-  // Envio circular Administración
+  // Envio de Circulares
   router.post("/sendCircularInformacion", (req, res) => {
     console.log(req.body);
-    const email = req.body.correo;
-    const text = req.body.text;
+
     const mailOptions = {
       from: process.env.EMAIL,
-      to: email,
+      to: req.body.correo,
       subject: "Circular informativa",
-      html: `
-    <div style="font-family: Arial, sans-serif; text-align: center;">
-      <p>${text}</p>
-    </div>
-  `,
+      html: `<div style="margin: 50px;">
+  <div style="font-family: Arial, sans-serif; text-align: center; color: white;  border-radius: 15px 15px 0px 0px;
+  background: #28a745; padding: 2px;">
+        <h2 >CONJUNTO RESIDENCIAL TORRES DE SANTA ISABEL</h2>      
+  </div>
+
+<div style="margin: 15px">
+      <p>
+        Un cordial saludo residentes de Torres de Santa Isabel<br><br>
+        El presente correo es para informar que  ${req.body.text}<br><br>
+
+        Agradecemos su atención a esta circular y quedamos atentos a cualquier duda o comentario.<br><br>
+Atentamente, <br><br>
+Administración del Conjunto Residencial Torres de Santa Isabel
+      </p>
+</div>
+<div style="font-family: Arial, sans-serif; text-align: center; color: white; border-radius: 0px 0px 15px 15px;
+  background: #ff856b; padding: 2px;">
+        <p>uralitasigloxxi@gmail.com</p>
+        <p>Tel: 601 747 9393</p>   
+<p>Cl. 9 Sur #26-32, Bogotá</p>        
+  </div>
+
+</div>
+`,
     };
 
     // Enviar el correo
