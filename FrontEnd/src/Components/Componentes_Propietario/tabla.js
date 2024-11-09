@@ -21,6 +21,8 @@ const Tabla = ({ apiS, name, fetchEspacios }) => {
   const [searchTermMoto, setSearchTermMoto] = useState("");
   const [searchTermCarro, setSearchTermCarro] = useState("");
   const [perfilData, setPerfilData] = useState([]);
+  const [rentedSpaces, setRentedSpaces] = useState([]);
+
 
   const [values, setValues] = useState({
     idParqueadero: "",
@@ -124,32 +126,23 @@ const Tabla = ({ apiS, name, fetchEspacios }) => {
     setCurrentPageCarro(pageNumber);
   };
 
-
-  const [rentedSpaces, setRentedSpaces] = useState(() => {
-    // Leer los espacios alquilados del localStorage al cargar el componente
-    return JSON.parse(localStorage.getItem('rentedSpaces')) || [];
-  });
-
   const hasRentedMoto = rentedSpaces.some((space) => dataMoto.some((record) => record.numEspacio === space));
   const hasRentedCarro = rentedSpaces.some((space) => dataCarro.some((record) => record.numEspacio === space));
 
- const rentSpace = (idParqueadero, tipoEspacio) => {
+  const rentSpace = (idParqueadero, tipoEspacio) => {
     axios
       .post(`/propietario/Rent`, { idParqueadero, numDocumento: perfilData.numDocumento, tipoEspacio })
       .then((res) => {
         if (res.data.Status === "Success") {
           toast.success("Espacio rentado correctamente");
-          // Actualizar el estado del espacio rentado
           setRentedSpaces([...rentedSpaces, idParqueadero]);
-          // Guardar los espacios alquilados en el localStorage
-          localStorage.setItem('rentedSpaces', JSON.stringify([...rentedSpaces, idParqueadero]));
-          // ...
         }
       })
       .catch((err) => {
         console.error("Ocurrió un error:", err);
       });
   };
+
 
 
   const handleSearchMoto = (e) => {
