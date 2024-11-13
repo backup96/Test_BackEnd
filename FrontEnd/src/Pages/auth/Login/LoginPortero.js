@@ -76,7 +76,13 @@ const LoginPortero = () => {
             <form onSubmit={handleSubmit}>
               {/* Nombre y Apellido */}
               <div className="d-flex flex-row">
-                <div className="me-4 w-50">
+              <div className="me-4 w-50">
+                  <label
+                    className="text-start w-100 fw-normal"
+                    htmlFor="Username"
+                  >
+                    Nombre de usuario
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -91,6 +97,9 @@ const LoginPortero = () => {
                   )}
                 </div>
                 <div className="w-50">
+                  <label className="text-start w-100 fw-normal" htmlFor="pass">
+                    Contraseña
+                  </label>
                   <input
                     type="password"
                     className="form-control"

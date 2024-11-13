@@ -97,12 +97,12 @@ const routerPropietario = (app, db) => {
         if (data.length > 0) {
           return res.json({ Status: "Success" });
         } else {
-          // Tampoco enviaremos una respuesta de error
           return res.json({ Status: "Success" });
         }
       }
     );
   });
+
 
   // Agregar el router al prefijo /users
   app.use("/propietario", router);
