@@ -14,6 +14,7 @@ import { useUser } from "../../../userContext";
 import { useTable } from "../../../Components/Componentes_Portero/navBar";
 
 const InvitadoDetalle = ( id ) => {
+  const { invitado } = useTable();
   const navigate = useNavigate(); // Hook para navegar
   const [guest, setGuest] = useState([]);
 
@@ -32,12 +33,12 @@ const InvitadoDetalle = ( id ) => {
     countdown,
   } = useUser();
 
-  const { invitado } = useTable();
-
   useEffect(() => {
     const fetchGuestDetails = async () => {
       try {
-        const response = await axios.get(`/portero/getPorterosDetails`, id);
+        const response = await axios.post(`/admin/getInvitadosEsp`, {
+          Term: invitado,
+        });
         setGuest(response.data);
       } catch (error) {
         console.error("Error al obtener los detalles del invitado:", error);
@@ -45,7 +46,7 @@ const InvitadoDetalle = ( id ) => {
     };
 
     fetchGuestDetails();
-  }, [invitado]);
+  }, []);
 
 
   if (!invitado) {
@@ -58,7 +59,6 @@ const InvitadoDetalle = ( id ) => {
   return (
     <>
       <div className="container">
-        {console.log(id)}
         <div className="details-container">
           <div className="headerr">
             <h2>Detalles del Invitado</h2>
@@ -138,7 +138,14 @@ const InvitadoDetalle = ( id ) => {
                   <FontAwesomeIcon
                     icon={faPlay}
                     className={`control-icon start-icon`}
-                    onClick={() => handleStartCountdown(invitado)}
+                    onClick={() =>
+                      handleStartCountdown(
+                        invitado,
+                        guest[0].correo,
+                        guest[0].placaVehiculo,
+                        guest[0].idParqueaderoFk
+                      )
+                    }
                     title="Iniciar"
                   />
                   <FontAwesomeIcon
@@ -166,7 +173,14 @@ const InvitadoDetalle = ( id ) => {
                           <FontAwesomeIcon
                             icon={faPlay}
                             className={`control-icon start-icon`}
-                            onClick={() => handleStartCountdown(invitado)}
+                            onClick={() =>
+                              handleStartCountdown(
+                                invitado,
+                                guest[0].correo,
+                                guest[0].placaVehiculo,
+                                guest[0].idParqueaderoFk
+                              )
+                            }
                             title="Iniciar"
                           />
                         </>
@@ -184,7 +198,14 @@ const InvitadoDetalle = ( id ) => {
                           <FontAwesomeIcon
                             icon={faPlay}
                             className={`control-icon start-icon`}
-                            onClick={() => handleStartCountdown(invitado)}
+                            onClick={() =>
+                              handleStartCountdown(
+                                invitado,
+                                guest[0].correo,
+                                guest[0].placaVehiculo,
+                                guest[0].idParqueaderoFk
+                              )
+                            }
                             title="Iniciar"
                           />
                         </>
@@ -193,13 +214,18 @@ const InvitadoDetalle = ( id ) => {
                           <FontAwesomeIcon
                             icon={faPlay}
                             className={`control-icon start-icon`}
-                            onClick={() => handleStartCountdown(invitado)}
+                            onClick={() =>
+                              handleStartCountdown(
+                                invitado,
+                                guest[0].correo,
+                                guest[0].placaVehiculo,
+                                guest[0].idParqueaderoFk
+                              )
+                            }
                             title="Iniciar"
                           />
                         </>
                       )}
-                      {console.log(timer.isPaused)}
-                      {console.log(timer.isRunning)}
                       <FontAwesomeIcon
                         icon={faStop}
                         className="control-icon stop-icon"

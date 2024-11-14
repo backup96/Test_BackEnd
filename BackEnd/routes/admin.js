@@ -258,13 +258,16 @@ const routerAdmin = (app, db, transporter) => {
         req.body.Placa,
         hash,
       ];
-      db.query(sql, [values], (err, data) => {
-        if (err) {
-          console.error(err.code); // Muestra el error en el servidor
-          return res.status(500).json({ Error: err.code });
-        }
-        return res.json({ Status: "Success" });
-      });
+      if (req.body.EspacioParqueadero === ''){
+        values[6] = null
+      }
+        db.query(sql, [values], (err, data) => {
+          if (err) {
+            console.error(err.code); // Muestra el error en el servidor
+            return res.status(500).json({ Error: err.code });
+          }
+          return res.json({ Status: "Success" });
+        });
     });
   });
 
@@ -280,6 +283,9 @@ const routerAdmin = (app, db, transporter) => {
       req.body.Placa,
       req.body.CodigoVivienda,
     ];
+    if (req.body.EspacioParqueadero === "") {
+      values[3] = null;
+    }
     db.query(sql, [values], (err, data) => {
       if (err) {
         console.error("Error en la consulta:", err); // Muestra el error en el servidor

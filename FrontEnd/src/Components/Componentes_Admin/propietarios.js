@@ -30,7 +30,7 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
     NumeroDocumento: "",
     Correo: "",
     CodigoVivienda: "",
-    EspacioParqueadero: "",
+    EspacioParqueadero: null,
     Placa: "",
   });
 
@@ -465,6 +465,7 @@ const Propietario = ({ item, currentRecords, apiS, data, data2 }) => {
                             Placa
                           </label>
                           <input
+                            placeholder="No posee"
                             type="text"
                             className="form-control"
                             id="exampleInputPassword1"

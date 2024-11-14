@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
 
 const Info = ({ currentRecords, apiS, data }) => {
   const [text, setText] = useState({
@@ -17,6 +18,7 @@ const Info = ({ currentRecords, apiS, data }) => {
         numPar: item.idParqueaderoFk,
       })
     );
+    toast.success("Recibos enviados satisfactoriamente");
   };
 
   const enviarCircular = async (e) => {
@@ -24,6 +26,7 @@ const Info = ({ currentRecords, apiS, data }) => {
     currentRecords.map((item) =>
       handleSend2({ correo: item.correo, text: text.text })
     );
+    toast.success("Circulares enviadss satisfactoriamente");
   };
 
   const handleSend = (data) => {
@@ -55,6 +58,7 @@ const Info = ({ currentRecords, apiS, data }) => {
   };
   return (
     <div className="d-flex flex-column w-100 h-50">
+      <ToastContainer />;
       <div className=" d-flex flex-column justify-content-end">
         <div className="d-flex flex-column justify-content-start">
           <label

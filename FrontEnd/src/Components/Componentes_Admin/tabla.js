@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Solicitudes from "./solicitudes";
@@ -14,8 +14,6 @@ import Info from "./informacion";
 import Reporte from "./reporte";
 import { faAnglesRight } from "@fortawesome/free-solid-svg-icons";
 import { faAnglesLeft } from "@fortawesome/free-solid-svg-icons";
-
-const TableContext = createContext();
 
 const Tabla = ({ item, apiS }) => {
   const [currentPage, setCurrentPage] = useState(1);

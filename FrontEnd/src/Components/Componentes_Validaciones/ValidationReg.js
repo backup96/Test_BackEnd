@@ -39,6 +39,7 @@ const ValidationReg = (values, data, data2, apiS) => {
     const getEsp = data2.some(
       (item) => item.numEspacio === parseInt(values.EspacioParqueadero, 10)
     );
+    console.log(getEsp);
     const getNumDoc = data.some(
       (item) =>
         item.codigoVivienda ===
@@ -87,7 +88,7 @@ const ValidationReg = (values, data, data2, apiS) => {
     } else errors.Valid = "valid";
 
     if (values.Placa.length > 7 && values.Placa !== "No posee") {
-      errors.Placa = "Valores < 7";
+      errors.Placa = "Valores < 7 o No posee";
     } else if (
       (!verMayus || !verNums || !verSep) &&
       values.Placa !== "No posee"
@@ -102,15 +103,11 @@ const ValidationReg = (values, data, data2, apiS) => {
     } else if (!getCode) {
       errors.CodigoVivienda = "Vivienda no registrada en el sistema";
     } else errors.Valid = "valid";
-console.log(values.EspacioParqueadero)
-    if (values.EspacioParqueadero !== null) {
-      if (values.EspacioParqueadero.length > 2) {
-        errors.EspacioParqueadero = "Valores entre 1 y 99";
-      } else if (!getEsp) {
-        errors.EspacioParqueadero = "Espacio no registrado en el sistema";
-      }
-    }  else errors.Valid = "valid";
-  }
+    console.log(values.EspacioParqueadero);
+    if (!getEsp) {
+      errors.EspacioParqueadero = "Espacio no registrado en el sistema";
+    } else errors.Valid = "valid";
+  } 
 
   if (apiS === "Parqueadero") {
     if (!values.NumeroEspacio) {

@@ -48,7 +48,7 @@ routerAdmin(app, db, transporter);
 
 routerPublic(app, db, transporter);
 
-routerPortero(app, db);
+routerPortero(app, db, transporter);
 
 // Ruta para vista parqueadero-propietario
 app.get("/espacio_parqueadero", (req, res) => {
