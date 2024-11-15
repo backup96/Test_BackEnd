@@ -9,6 +9,7 @@ import routerPublic from "./routes/public.js";
 import routerPortero from "./routes/portero.js";
 import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
+import { PORT, DATABASE_HOST, DATABASE_NAME, DATABASE_PASS, DATABASE_USER } from "./config.js";
 const saltRounds = 10;
 
 dotenv.config({ path: "./.env" });
@@ -26,10 +27,10 @@ app.use(
 app.use(cookieParser());
 
 const db = mysql.createConnection({
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASS,
-  database: process.env.DATABASE,
+  host: DATABASE_HOST,
+  user: DATABASE_USER,
+  password: DATABASE_PASS,
+  database: DATABASE_NAME,
 });
 
 const transporter = nodemailer.createTransport({
@@ -132,27 +133,7 @@ app.get("/citas_salon_comunal", (req, res) => {
     return res.status(200).json(formattedData);
   });
 });
-
-// app.get("/propietarios", (req, res) => {
-//   const { nombreUsuario, clave } = req.query; 
-//   const sql = `
-//     SELECT p.*
-//     FROM propietario p
-//     INNER JOIN personas_cuenta pc ON p.idPersonaCuentaFK = pc.idPersonaCuenta
-//     WHERE pc.nombreUsuario = ? AND pc.clave = ?
-//     LIMIT 0, 25
-//   `;
-//   db.query(sql, [nombreUsuario, clave], (err, results) => {
-//     if (err) {
-//       console.error("Error al obtener propietarios:", err);
-//       return res.status(500).json({ message: "Error al obtener los propietarios" });
-//     }
-//     return res.status(200).json(results);
-//   });
-// });
-
-
-
+ 
 // Ruta para datos del propietario (Perfil)
 app.post('/vista_perfil', (req, res) => {
   const nombreUsuario = req.body.name;
@@ -187,35 +168,6 @@ app.post('/actualizar_perfil', (req, res) => {
     res.json({ message: "Perfil actualizado exitosamente" });
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Ruta para obtener datos de vista_propietarios_portero
 app.get("/consultapropietarios", (req, res) => {
@@ -325,6 +277,6 @@ app.get('/invitados', (req, res) => {
   });
 });
 
-app.listen(8081, () => {
-  console.log("Servidor corriendo en el puerto 8081");
+app.listen(PORT, () => {
+  console.log("Servidor corriendo en el puerto", PORT);
 });
